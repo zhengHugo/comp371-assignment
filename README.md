@@ -1,4 +1,4 @@
-# Lab 2 - Geometric Transformations
+# COMP 371 Assignments
 
 ## Build Instructions
 
