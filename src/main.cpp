@@ -11,9 +11,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-
 #define STB_IMAGE_IMPLEMENTATION
-
 #include "stb_image.h"
 
 
@@ -354,7 +352,6 @@ static void processInput(GLFWwindow *window) {
 
   }
 }
-
 
 // callback function on window size changed
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
