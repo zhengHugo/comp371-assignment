@@ -20,13 +20,16 @@ include(BuildGLEW)
 include(BuildGLFW)
 include(BuildGLM)
 
-# lab02
+# main
 set(EXEC main)
 
 file(GLOB SRC src/*.cpp)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_executable(${EXEC} ${SRC})
 
+target_include_directories(${EXEC} PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/include)
 target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm)
 
 list(APPEND BIN ${EXEC})

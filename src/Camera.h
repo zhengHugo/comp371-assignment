@@ -20,7 +20,7 @@ const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 8.0f;
 const float SENSITIVITY = 0.05f;
-const float FOV = 25.0f;
+const float FOV = 60.0f;
 
 class Camera {
  public:
