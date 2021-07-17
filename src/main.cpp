@@ -247,30 +247,59 @@ int main(int argc, char *argv[]) {
 }
 
 static void processInput(GLFWwindow *window) {
+  // Escape
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
 
+  // u: scale up model
   if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
     model->scaleUp(deltaTime);
   }
 
+  // j: scale down model
   if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
     model->scaleDown(deltaTime);
   }
 
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    camera->move(CameraMovement::FORWARD, deltaTime);
+  // shift + w: move up model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    model->move(ModelMovement::UP, deltaTime);
   }
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    camera->move(CameraMovement::BACKWARD, deltaTime);
+
+  // shift + s: move down model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    model->move(ModelMovement::DOWN, deltaTime);
   }
+
+  // shift + a: move left model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    model->move(ModelMovement::LEFT, deltaTime);
+  }
+
+  // shift + d: move right model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    model->move(ModelMovement::RIGHT, deltaTime);
+  }
+
+  // a: rotate left about y-axis
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    camera->move(CameraMovement::LEFT, deltaTime);
+    model->rotate(glm::radians(-5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
   }
+
+  // d: rotate right about y-axis
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    camera->move(CameraMovement::RIGHT, deltaTime);
+    model->rotate(glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
   }
+
 }
 
 // callback function on window size changed
