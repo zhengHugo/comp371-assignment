@@ -8,7 +8,7 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-enum CameraMovement {
+enum class CameraMovement {
   FORWARD,
   BACKWARD,
   LEFT,
@@ -24,6 +24,7 @@ const float FOV = 25.0f;
 
 class Camera {
  public:
+
   glm::vec3 Position;
 
   // directions
@@ -76,7 +77,7 @@ class Camera {
    * @param direction camera movement direction. Must be one of @c FORWARD, @c BACKWARD,@c LEFT, or @c RIGHT
    * @param deltaTime time passed since the last frame
    */
-  void processKeyboard(CameraMovement direction, float deltaTime);
+  void move(CameraMovement direction, float deltaTime);
 
   /**
    * Process input received from a mouse movement.

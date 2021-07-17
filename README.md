@@ -33,7 +33,7 @@ You can use the CMake GUI to configure and generate the Visual Studio Project.
 
 #### Windows
 
-Once that is created you can build the **ALL_BUILD** project followed by building
+Once that is created, you can build the **ALL_BUILD** project followed by building
 the **INSTALL** project.
 
 #### Linux

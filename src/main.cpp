@@ -6,9 +6,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <vector>
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Model.h"
 
 static void clearError() {
   while (glGetError() != GL_NO_ERROR);
@@ -34,6 +36,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 Camera *camera;
+Model *model;
 
 // for mouse initialization
 bool firstMouse = true; // true when mouse callback is called for the first time; false otherwise
@@ -90,6 +93,9 @@ int main(int argc, char *argv[]) {
   // enable depth info
   glEnable(GL_DEPTH_TEST);
 
+  // draw lines only
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
   camera = new Camera(glm::vec3(0.0f, 0.0f, 10.0f));
 
   // Initialize geometry data
@@ -138,19 +144,22 @@ int main(int argc, char *argv[]) {
       -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f
   };
 
-  // world space coord of cubes
-  glm::vec3 cubePositions[] = {
+  std::vector<glm::vec3> relativeCubePositions = {
       glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(2.0f, 5.0f, -15.0f),
-      glm::vec3(-1.5f, -2.2f, -2.5f),
-      glm::vec3(-3.8f, -2.0f, -12.3f),
-      glm::vec3(2.4f, -0.4f, -3.5f),
-      glm::vec3(-1.7f, 3.0f, -7.5f),
-      glm::vec3(1.3f, -2.0f, -2.5f),
-      glm::vec3(1.5f, 2.0f, -2.5f),
-      glm::vec3(1.5f, 0.2f, -1.5f),
-      glm::vec3(-1.3f, 1.0f, -1.5f)
+      glm::vec3(1.0f, 0.0f, 0.0f),
+      glm::vec3(1.0f, 1.0f, 0.0f),
+      glm::vec3(1.0f, 2.0f, 0.0f),
+      glm::vec3(2.0f, 2.0f, 0.0f),
+      glm::vec3(0.0f, 0.0f, -1.0f),
+      glm::vec3(1.0f, 0.0f, -1.0f),
+      glm::vec3(1.0f, 1.0f, -1.0f),
+      glm::vec3(1.0f, 2.0f, -1.0f),
+      glm::vec3(2.0f, 2.0f, -1.0f),
   };
+
+  glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
+
+  model = new Model(baseCubePosition, relativeCubePositions);
 
   // bind geometry data
   unsigned int vao, vbo;
@@ -199,13 +208,10 @@ int main(int argc, char *argv[]) {
 
     // render
     glBindVertexArray(vao);
-    for (unsigned int i = 0; i < 10; i++) {
+    for (int i = 0; i < relativeCubePositions.size(); i++) {
       // calculate the model matrix for each object
-      glm::mat4 model = glm::mat4(1.0f);
-      model = glm::translate(model, cubePositions[i]);
-      float angle = 20.0f * (float) i;
-      model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-      glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(model));
+      glm::mat4 modelMatrix = model->getModelMatrix(i);
+      glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
@@ -222,6 +228,7 @@ int main(int argc, char *argv[]) {
   glDeleteBuffers(1, &vbo);
 
   delete camera;
+  delete model;
 
   // Shutdown GLFW
   glfwTerminate();
@@ -234,17 +241,25 @@ static void processInput(GLFWwindow *window) {
     glfwSetWindowShouldClose(window, true);
   }
 
+  if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+    model->scaleUp(deltaTime);
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+    model->scaleDown(deltaTime);
+  }
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    camera->processKeyboard(FORWARD, deltaTime);
+    camera->move(CameraMovement::FORWARD, deltaTime);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    camera->processKeyboard(BACKWARD, deltaTime);
+    camera->move(CameraMovement::BACKWARD, deltaTime);
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    camera->processKeyboard(LEFT, deltaTime);
+    camera->move(CameraMovement::LEFT, deltaTime);
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    camera->processKeyboard(RIGHT, deltaTime);
+    camera->move(CameraMovement::RIGHT, deltaTime);
   }
 }
 

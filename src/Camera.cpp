@@ -24,12 +24,12 @@ glm::mat4 Camera::getViewMatrix() const {
   return glm::lookAt(Position, Position + Front, Up);
 }
 
-void Camera::processKeyboard(CameraMovement direction, float deltaTime) {
+void Camera::move(CameraMovement direction, float deltaTime) {
   float movementLength = MovementSpeed * deltaTime;
-  if (direction == FORWARD) Position += movementLength * Front;
-  if (direction == BACKWARD) Position -= movementLength * Front;
-  if (direction == LEFT) Position -= movementLength * Right;
-  if (direction == RIGHT) Position += movementLength * Right;
+  if (direction == CameraMovement::FORWARD) Position += movementLength * Front;
+  if (direction == CameraMovement::BACKWARD) Position -= movementLength * Front;
+  if (direction == CameraMovement::LEFT) Position -= movementLength * Right;
+  if (direction == CameraMovement::RIGHT) Position += movementLength * Right;
 }
 
 void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPitch) {
