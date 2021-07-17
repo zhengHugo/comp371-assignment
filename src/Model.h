@@ -46,7 +46,7 @@ class Model {
 
   void move(ModelMovement direction, float deltaTime);
 
-  void rotate(float angleInRadian, glm::vec3 axis);
+  void rotate(float angleInRadian, glm::vec3 axis, float deltaTime);
 
   glm::mat4 getModelMatrix(int index);
 

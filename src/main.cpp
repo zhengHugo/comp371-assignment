@@ -312,7 +312,7 @@ static void processInput(GLFWwindow *window) {
       model->move(ModelMovement::LEFT, deltaTime);
     } else {
       // a: rotate left about y-axis
-      model->rotate(glm::radians(-5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      model->rotate(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
     }
   }
 
@@ -323,7 +323,7 @@ static void processInput(GLFWwindow *window) {
       model->move(ModelMovement::RIGHT, deltaTime);
     } else {
       // d: rotate right about y-axis
-      model->rotate(glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      model->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
     }
 
 

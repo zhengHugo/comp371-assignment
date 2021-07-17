@@ -39,8 +39,8 @@ void Model::move(ModelMovement direction, float deltaTime) {
 
 }
 
-void Model::rotate(float angleInRadian, glm::vec3 axis) {
-  quaternion = glm::angleAxis(angleInRadian, axis) * quaternion;
+void Model::rotate(float angleInRadian, glm::vec3 axis, float deltaTime) {
+  quaternion = glm::angleAxis(angleInRadian * deltaTime, axis) * quaternion;
   updateModelMatrices();
 }
 
