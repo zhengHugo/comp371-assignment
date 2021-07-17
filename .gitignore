@@ -1,2 +1,5 @@
 cmake-build-debug
 main
+/main.ilk
+/main.exe
+/main.pdb
