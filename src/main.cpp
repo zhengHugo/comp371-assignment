@@ -41,7 +41,9 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 Camera *camera;
-Model *model;
+Model *model1;
+Model *model2;
+Model *currentModel;
 
 // for mouse initialization
 bool firstMouse = true; // true when mouse callback is called for the first time; false otherwise
@@ -149,7 +151,7 @@ int main(int argc, char *argv[]) {
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
   };
 
-  std::vector<glm::vec3> relativeCubePositions = {
+  std::vector<glm::vec3> relativeCubePositions1 = {
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(1.0f, 0.0f, 0.0f),
       glm::vec3(1.0f, 1.0f, 0.0f),
@@ -162,9 +164,24 @@ int main(int argc, char *argv[]) {
       glm::vec3(2.0f, 2.0f, -1.0f),
   };
 
+  std::vector<glm::vec3> relativeCubePositions2 = {
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(-1.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 0.0f, -1.0f),
+      glm::vec3(0.0f, 0.0f, -2.0f),
+      glm::vec3(0.0f, 0.0f, -3.0f),
+      glm::vec3(-2.0f, 0.0f, 0.0f),
+      glm::vec3(-3.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 1.0f, 0.0f),
+      glm::vec3(0.0f, 2.0f, 0.0f)
+  };
+
   glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
 
-  model = new Model(baseCubePosition, relativeCubePositions);
+  model1 = new Model(baseCubePosition, relativeCubePositions1);
+  model2 = new Model(baseCubePosition, relativeCubePositions2);
+
+  currentModel = model1;
 
   // bind geometry data
   unsigned int vao, vbo;
@@ -239,10 +256,10 @@ int main(int argc, char *argv[]) {
 
     // render
     glBindVertexArray(vao);
-    for (int i = 0; i < relativeCubePositions.size(); i++) {
+    for (int i = 0; i < relativeCubePositions1.size(); i++) {
       // calculate the model matrix for each object
       glUniform1i(glGetUniformLocation(shader.id, "cubeTexture"), 0);
-      glm::mat4 modelMatrix = model->getModelMatrix(i);
+      glm::mat4 modelMatrix = currentModel->getModelMatrix(i);
       glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
@@ -259,7 +276,8 @@ int main(int argc, char *argv[]) {
   glDeleteBuffers(1, &vbo);
 
   delete camera;
-  delete model;
+  delete model1;
+  delete model2;
 
   // Shutdown GLFW
   glfwTerminate();
@@ -273,28 +291,35 @@ static void processInput(GLFWwindow *window) {
     glfwSetWindowShouldClose(window, true);
   }
 
+  // 1-5: switch models
+  if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+    currentModel = model1;
+  } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+    currentModel = model2;
+  }
+
   // u: scale up model
   if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
-    model->scaleUp(deltaTime);
+    currentModel->scaleUp(deltaTime);
   }
 
   // j: scale down model
   if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-    model->scaleDown(deltaTime);
+    currentModel->scaleDown(deltaTime);
   }
 
   // shift + w: move up model
   if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
        || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
       && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    model->move(ModelMovement::UP, deltaTime);
+    currentModel->move(ModelMovement::UP, deltaTime);
   }
 
   // shift + s: move down model
   if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
        || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
       && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    model->move(ModelMovement::DOWN, deltaTime);
+    currentModel->move(ModelMovement::DOWN, deltaTime);
   }
 
   // shift + a: move left model
@@ -309,10 +334,10 @@ static void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
       // shift + a: move left model
-      model->move(ModelMovement::LEFT, deltaTime);
+      currentModel->move(ModelMovement::LEFT, deltaTime);
     } else {
       // a: rotate left about y-axis
-      model->rotate(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+      currentModel->rotate(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
     }
   }
 
@@ -320,10 +345,10 @@ static void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
       // shift + d: move right model
-      model->move(ModelMovement::RIGHT, deltaTime);
+      currentModel->move(ModelMovement::RIGHT, deltaTime);
     } else {
       // d: rotate right about y-axis
-      model->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+      currentModel->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
     }
 
 
