@@ -50,10 +50,10 @@ glm::mat4 Model::getModelMatrix(int index) {
 
 void Model::updateModelMatrices() {
   glm::mat4 model = glm::mat4(1.0f);
-  model = glm::scale(model, glm::vec3(Scale, Scale, Scale));
   for (int i = 0; i < relativePositions.size(); i++) {
     modelMatrices[i] = glm::translate(model, glm::vec3(basePosition));
     modelMatrices[i] = modelMatrices[i] * glm::mat4_cast(quaternion);
+    modelMatrices[i] = glm::scale(modelMatrices[i], glm::vec3(Scale, Scale, Scale));
     modelMatrices[i] = glm::translate(modelMatrices[i], glm::vec3(relativePositions[i]));
   }
 }
