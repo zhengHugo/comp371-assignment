@@ -11,7 +11,9 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "stb_image.h"
 
 
@@ -103,30 +105,49 @@ int main(int argc, char *argv[]) {
 
   // Initialize geometry data
   // -----------------------------------
-    float vertices[] = {
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
-            0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+  float vertices[] = {
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+      0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
 
-            -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
 
-            -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+      -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-            0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
 
-            -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+  };
 
   std::vector<glm::vec3> relativeCubePositions = {
       glm::vec3(0.0f, 0.0f, 0.0f),
@@ -162,7 +183,7 @@ int main(int argc, char *argv[]) {
 //  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
 //  glEnableVertexAttribArray(1);
 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),((void*)(3 * sizeof(float))));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), ((void *) (3 * sizeof(float))));
   glEnableVertexAttribArray(2);
 
 
@@ -181,12 +202,12 @@ int main(int argc, char *argv[]) {
   stbi_set_flip_vertically_on_load(true);
   unsigned char *data = stbi_load("res/texture/texture.png", &width, &height, &nrChannel, 0);
   if (data) {
-      std::cout << "data reade" << std::endl;
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                   GL_UNSIGNED_BYTE, data);
-      glGenerateMipmap(GL_TEXTURE_2D);
+    std::cout << "data reade" << std::endl;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
   } else {
-      printf("load image failed.");
+    printf("load image failed.");
   }
   stbi_image_free(data);
   // Entering Main Loop
@@ -213,8 +234,8 @@ int main(int argc, char *argv[]) {
     glUniformMatrix4fv(glGetUniformLocation(shader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
     // active & bind texture
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, TexBufferA);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, TexBufferA);
 
     // render
     glBindVertexArray(vao);
@@ -247,31 +268,68 @@ int main(int argc, char *argv[]) {
 }
 
 static void processInput(GLFWwindow *window) {
+  // Escape
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
 
+  // u: scale up model
   if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
     model->scaleUp(deltaTime);
   }
 
+  // j: scale down model
   if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
     model->scaleDown(deltaTime);
   }
 
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    camera->move(CameraMovement::FORWARD, deltaTime);
+  // shift + w: move up model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    model->move(ModelMovement::UP, deltaTime);
   }
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    camera->move(CameraMovement::BACKWARD, deltaTime);
+
+  // shift + s: move down model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    model->move(ModelMovement::DOWN, deltaTime);
   }
+
+  // shift + a: move left model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+  }
+
+
+  // a
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    camera->move(CameraMovement::LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+      // shift + a: move left model
+      model->move(ModelMovement::LEFT, deltaTime);
+    } else {
+      // a: rotate left about y-axis
+      model->rotate(glm::radians(-5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
   }
+
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    camera->move(CameraMovement::RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+      // shift + d: move right model
+      model->move(ModelMovement::RIGHT, deltaTime);
+    } else {
+      // d: rotate right about y-axis
+      model->rotate(glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+
+
   }
 }
+
 
 // callback function on window size changed
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {

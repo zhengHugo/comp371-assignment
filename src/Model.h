@@ -8,6 +8,7 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include <glm/gtc/quaternion.hpp>
 
 enum class ModelMovement {
   UP,
@@ -25,10 +26,13 @@ class Model {
 
   glm::vec3 basePosition;
 
+  std::vector<glm::vec3> relativePositions;
 
   float Scale;
+
+  glm::quat quaternion;
+
   std::vector<glm::mat4> modelMatrices;
-  std::vector<glm::vec3> relativePositions;
 
   void updateModelMatrices();
 
@@ -41,6 +45,8 @@ class Model {
   void scaleDown(float deltaTime);
 
   void move(ModelMovement direction, float deltaTime);
+
+  void rotate(float angleInRadian, glm::vec3 axis);
 
   glm::mat4 getModelMatrix(int index);
 
