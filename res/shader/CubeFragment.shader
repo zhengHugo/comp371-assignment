@@ -1,10 +1,10 @@
 #version 330 core
 in vec2 TexCoord;
 
-uniform sampler2D cubeTexture;
+uniform sampler2D aTexture;
 
 out vec4 fragColor;
 
 void main(){
-    fragColor = texture(cubeTexture, TexCoord), 1.0;
+    fragColor = texture(aTexture, TexCoord), 1.0;
 }

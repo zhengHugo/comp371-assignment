@@ -11,7 +11,9 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "stb_image.h"
 
 
@@ -161,7 +163,7 @@ int main(int argc, char *argv[]) {
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 2.0f, 0.0f),
       glm::vec3(0.0f, 3.0f, 0.0f),
-      glm::vec3(1.0f,3.0f, 0.0f),
+      glm::vec3(1.0f, 3.0f, 0.0f),
       glm::vec3(2.0f, 3.0f, 0.0f),
       glm::vec3(2.0f, 4.0f, 0.0f),
       glm::vec3(2.0f, 5.0f, 0.0f),
@@ -285,7 +287,7 @@ int main(int argc, char *argv[]) {
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
 
-  unsigned char* data2 =
+  unsigned char *data2 =
       stbi_load("res/texture/wall-texture.png", &width, &height, &nrChannel, 0);
 
   if (data2) {
@@ -325,42 +327,45 @@ int main(int argc, char *argv[]) {
     cubeShader.use();
     glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
+    int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
     for (int i = 0; i < relativeCubePositions1.size(); i++) {
-      // calculate the model matrix for each object
-      glUniform1i(glGetUniformLocation(cubeShader.id, "cubeTexture"), 0);
+      // assign cube texture
+      glUniform1i(cubeTexLocation, 0);
+      // calculate cube model matrix
       glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
-      glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "model"), 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
+      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     // draw wall
     for (int i = 0; i < currentWall->size(); i++) {
       // assign wall texture
-      glUniform1i(glGetUniformLocation(cubeShader.id, "aTexture"), 1);
-      // calculate the model matrix for each object
-      glm::mat4 modelMatrix = currentWall->getModelMatrix(i);
-      glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+      glUniform1i(cubeTexLocation, 1);
+      // calculate the model matrix for wall
+      glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
+      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
-    // draw mesh
+    // draw grid
     glBindVertexArray(gridVao);
     gridShader.use();
     glUniformMatrix4fv(glGetUniformLocation(gridShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(gridShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-    int modelLocation = glGetUniformLocation(gridShader.id, "model");
+    int gridModelLocation = glGetUniformLocation(gridShader.id, "model");
     for (int i = 0; i < 100; i++) {
       // horizontal lines
       glm::mat4 gridModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f + (float) i));
       gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
+      glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
       glDrawArrays(GL_LINES, 0, 2);
 
       // vertical lines
       gridModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-50.0f + (float) i, 0.0f, 0.0f));
       gridModelMatrix = glm::rotate(gridModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
       gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
+      glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
       glDrawArrays(GL_LINES, 0, 2);
     }
 
