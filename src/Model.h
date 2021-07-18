@@ -1,9 +1,9 @@
 //
-// Created by Hugo Zheng on 2021-07-16.
+// Created by Yuguo Zheng on 2021-07-16.
 //
 
-#ifndef COMP371_ASSIGNMENT1_MODEL_H
-#define COMP371_ASSIGNMENT1_MODEL_H
+#ifndef MODEL_H
+#define MODEL_H
 
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -55,4 +55,4 @@ class Model {
 };
 
 
-#endif //COMP371_ASSIGNMENT1_MODEL_H
+#endif //MODEL_H

@@ -1,9 +1,9 @@
 //
-// Created by Hugo Zheng on 2021-07-14.
+// Created by Yuguo Zheng on 2021-07-14.
 //
 
-#ifndef COMP371_LABS_CAMERA_H
-#define COMP371_LABS_CAMERA_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -101,4 +101,4 @@ class Camera {
   void updateCameraVectors();
 };
 
-#endif //COMP371_LABS_CAMERA_H
+#endif // CAMERA_H

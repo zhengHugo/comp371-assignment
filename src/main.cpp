@@ -11,7 +11,9 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "stb_image.h"
 
 
@@ -103,11 +105,12 @@ int main(int argc, char *argv[]) {
   // draw lines only
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  camera = new Camera(glm::vec3(0.0f, 0.0f, 10.0f));
+  camera = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
 
   // Initialize geometry data
   // -----------------------------------
-  float vertices[] = {
+  float unitCubeVertices[] = {
+      // unit cube vertices
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
       0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
       0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
@@ -148,14 +151,19 @@ int main(int argc, char *argv[]) {
       0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+  };
+
+  float unitLineVertices[] = {
+      -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // pos * 3, color * 3
+      1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f
   };
 
   std::vector<glm::vec3> relativeCubePositions1 = {
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 2.0f, 0.0f),
       glm::vec3(0.0f, 3.0f, 0.0f),
-      glm::vec3(1.0f,3.0f, 0.0f),
+      glm::vec3(1.0f, 3.0f, 0.0f),
       glm::vec3(2.0f, 3.0f, 0.0f),
       glm::vec3(2.0f, 4.0f, 0.0f),
       glm::vec3(2.0f, 5.0f, 0.0f),
@@ -221,31 +229,40 @@ int main(int argc, char *argv[]) {
   currentWall = wall1;
 
   // bind geometry data
-  unsigned int vao, vbo;
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
+  unsigned int cubeVao, gridVao, cubeVbo, gridVbo;
+  glGenVertexArrays(1, &cubeVao);
+  glGenVertexArrays(1, &gridVao);
+  glGenBuffers(1, &cubeVbo);
+  glGenBuffers(1, &gridVbo);
 
-  glBindVertexArray(vao);
+  // bind cube data
+  glBindVertexArray(cubeVao);
 
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(unitCubeVertices), unitCubeVertices, GL_STATIC_DRAW);
 
-  // point attribute
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
 
-//  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
-//  glEnableVertexAttribArray(1);
+  // bind grid data
+  glBindVertexArray(gridVao);
+  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(unitLineVertices), unitLineVertices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), ((void *) (3 * sizeof(float))));
-  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
 
 
   // build and compile shader
   // ------------------------
-  Shader shader("res/shader/Vertex.shader", "res/shader/Fragment.shader");
-  shader.use();
-  // import texture for cube:
+  Shader cubeShader("res/shader/CubeVertex.shader", "res/shader/CubeFragment.shader");
+  Shader gridShader("res/shader/GridVertex.shader", "res/shader/GridFragment.shader");
+
+  // import texture:
   unsigned int cubeTexBuffer;
 
   glGenTextures(1, &cubeTexBuffer);
@@ -270,7 +287,7 @@ int main(int argc, char *argv[]) {
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
 
-  unsigned char* data2 =
+  unsigned char *data2 =
       stbi_load("res/texture/wall-texture.png", &width, &height, &nrChannel, 0);
 
   if (data2) {
@@ -296,36 +313,60 @@ int main(int argc, char *argv[]) {
     glClearColor(0.27f, 0.05f, 0.19f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader.use();
 
-    // GOING 3D
+    // camera matrix
     glm::mat4 projection = glm::perspective(glm::radians(camera->Fov), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
-    glUniformMatrix4fv(glGetUniformLocation(shader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
     glm::mat4 view = camera->getViewMatrix();
-    glUniformMatrix4fv(glGetUniformLocation(shader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
     // render
-    // ------------
+    // -------------------------------------
 
-    // draw cubes
-    glBindVertexArray(vao);
-    for (int i = 0; i < currentModel->size(); i++) {
+    // draw model
+    glBindVertexArray(cubeVao);
+    cubeShader.use();
+    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
+    int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
+    for (int i = 0; i < relativeCubePositions1.size(); i++) {
       // assign cube texture
-      glUniform1i(glGetUniformLocation(shader.id, "aTexture"), 0);
-      // calculate the model matrix for each object
-      glm::mat4 modelMatrix = currentModel->getModelMatrix(i);
-      glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+      glUniform1i(cubeTexLocation, 0);
+      // calculate cube model matrix
+      glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
+      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     // draw wall
     for (int i = 0; i < currentWall->size(); i++) {
       // assign wall texture
-      glUniform1i(glGetUniformLocation(shader.id, "aTexture"), 1);
-      // calculate the model matrix for each object
-      glm::mat4 modelMatrix = currentWall->getModelMatrix(i);
-      glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+      glUniform1i(cubeTexLocation, 1);
+      // calculate the model matrix for wall
+      glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
+      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    // draw grid
+    glBindVertexArray(gridVao);
+    gridShader.use();
+    glUniformMatrix4fv(glGetUniformLocation(gridShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(gridShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+    int gridModelLocation = glGetUniformLocation(gridShader.id, "model");
+    for (int i = 0; i < 100; i++) {
+      // horizontal lines
+      glm::mat4 gridModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f + (float) i));
+      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
+      glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
+      glDrawArrays(GL_LINES, 0, 2);
+
+      // vertical lines
+      gridModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-50.0f + (float) i, 0.0f, 0.0f));
+      gridModelMatrix = glm::rotate(gridModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
+      glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
+      glDrawArrays(GL_LINES, 0, 2);
     }
 
     // End frame
@@ -336,8 +377,10 @@ int main(int argc, char *argv[]) {
 
   }
   // deallocate resources
-  glDeleteVertexArrays(1, &vao);
-  glDeleteBuffers(1, &vbo);
+  glDeleteVertexArrays(1, &cubeVao);
+  glDeleteVertexArrays(1, &gridVao);
+  glDeleteBuffers(1, &cubeVbo);
+  glDeleteBuffers(1, &gridVbo);
 
   delete camera;
   delete model1;
