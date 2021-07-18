@@ -44,8 +44,11 @@ Camera *camera;
 Model *model1;
 Model *model2;
 Model *model3;
+Model *model4;
 Model *wall1;
+Model *wall2;
 Model *wall3;
+Model *wall4;
 Model *currentModel;
 Model *currentWall;
 
@@ -159,17 +162,17 @@ int main(int argc, char *argv[]) {
   };
 
   float unitLineVertices[] = {
-      -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // pos * 3, color * 3
-      1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f
+      -1.0f, 0.0f, 0.0f, 0.60f, 0.41f, 0.039f, // pos * 3, color * 3
+      1.0f, 0.0f, 0.0f, 0.60f, 0.41f, 0.039f
   };
 
   float axisVertices[] = {
-      0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // pos * 3, color * 3
-      5.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-      0.0f, 5.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-      0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 1.0f
+      0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f, // pos * 3, color * 3
+      5.0f, 0.0f, 0.0f, 1.00f, 0.20f, 0.20f,
+      0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f,
+      0.0f, 5.0f, 0.0f, 0.20f, 1.00f, 0.20f,
+      0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f,
+      0.0f, 0.0f, 5.0f, 0.20f, 0.20f, 1.00f
   };
 
   std::vector<glm::vec3> relativeCubePositions1 = {
@@ -186,12 +189,12 @@ int main(int argc, char *argv[]) {
 
   std::vector<glm::vec3> relativeCubePositions2 = {
       glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(-1.0f, 0.0f, 0.0f),
+      glm::vec3(1.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 0.0f, -1.0f),
       glm::vec3(0.0f, 0.0f, -2.0f),
       glm::vec3(0.0f, 0.0f, -3.0f),
-      glm::vec3(-2.0f, 0.0f, 0.0f),
-      glm::vec3(-3.0f, 0.0f, 0.0f),
+      glm::vec3(2.0f, 0.0f, 0.0f),
+      glm::vec3(3.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 1.0f, 0.0f),
       glm::vec3(0.0f, 2.0f, 0.0f)
   };
@@ -208,6 +211,21 @@ int main(int argc, char *argv[]) {
         glm::vec3(2.0f, 2.0f, 0.0f)
   };
 
+  std::vector<glm::vec3> relativeCubePositions4 = {
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(1.0f, 0.0f, 0.0f),
+      glm::vec3(2.0f, 0.0f, 0.0f),
+      glm::vec3(3.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 1.0f, 0.0f),
+      glm::vec3(0.0f, 2.0f, 0.0f),
+      glm::vec3(1.0f, 2.0f, 0.0f),
+      glm::vec3(2.0f, 2.0f, 0.0f),
+      glm::vec3(3.0f, 2.0f, 0.0f),
+      glm::vec3(3.0f, 2.0f, 1.0f),
+      glm::vec3(3.0f, 2.0f, 2.0f),
+      glm::vec3(2.0f, 2.0f, 2.0f),
+      glm::vec3(1.0f, 2.0f, 2.0f)
+  };
 
   std::vector<glm::vec3> relativeWallPositions1 = {
       glm::vec3(-1.0f, -1.0f, 0.0f),
@@ -241,6 +259,33 @@ int main(int argc, char *argv[]) {
       glm::vec3(1.0f, 6.0f, 0.0f),
       glm::vec3(2.0f, 6.0f, 0.0f),
       glm::vec3(3.0f, 6.0f, 0.0f)
+  };
+
+  std::vector<glm::vec3> relativeWallPositions2 = {
+      glm::vec3(-1.0f, -1.0f, 0.0f),
+      glm::vec3(0.0f, -1.0f, 0.0f),
+      glm::vec3(1.0f, -1.0f, 0.0f),
+      glm::vec3(2.0f, -1.0f, 0.0f),
+      glm::vec3(3.0f, -1.0f, 0.0f),
+      glm::vec3(4.0f, -1.0f, 0.0f),
+      glm::vec3(-1.0f, 0.0f, 0.0f),
+      glm::vec3(4.0f, 0.0f, 0.0f),
+      glm::vec3(-1.0f, 1.0f, 0.0f),
+      glm::vec3(1.0f, 1.0f, 0.0f),
+      glm::vec3(2.0f, 1.0f, 0.0f),
+      glm::vec3(3.0f, 1.0f, 0.0f),
+      glm::vec3(4.0f, 1.0f, 0.0f),
+      glm::vec3(-1.0f, 2.0f, 0.0f),
+      glm::vec3(1.0f, 2.0f, 0.0f),
+      glm::vec3(2.0f, 2.0f, 0.0f),
+      glm::vec3(3.0f, 2.0f, 0.0f),
+      glm::vec3(4.0f, 2.0f, 0.0f),
+      glm::vec3(-1.0f, 3.0f, 0.0f),
+      glm::vec3(0.0f, 3.0f, 0.0f),
+      glm::vec3(1.0f, 3.0f, 0.0f),
+      glm::vec3(2.0f, 3.0f, 0.0f),
+      glm::vec3(3.0f, 3.0f, 0.0f),
+      glm::vec3(4.0f, 3.0f, 0.0f)
   };
 
   std::vector<glm::vec3> relativeWallPositions3 = {
@@ -284,9 +329,31 @@ int main(int argc, char *argv[]) {
       glm::vec3(1.0f, 5.0f, 0.0f),
       glm::vec3(2.0f, 5.0f, 0.0f),
       glm::vec3(3.0f, 5.0f, 0.0f),
-
   };
 
+  std::vector<glm::vec3> relativeWallPositions4 = {
+      glm::vec3(-1.0f, -1.0f, 0.0f),
+      glm::vec3(0.0f, -1.0f, 0.0f),
+      glm::vec3(1.0f, -1.0f, 0.0f),
+      glm::vec3(2.0f, -1.0f, 0.0f),
+      glm::vec3(3.0f, -1.0f, 0.0f),
+      glm::vec3(4.0f, -1.0f, 0.0f),
+      glm::vec3(-1.0f, 0.0f, 0.0f),
+      glm::vec3(4.0f, 0.0f, 0.0f),
+      glm::vec3(-1.0f, 1.0f, 0.0f),
+      glm::vec3(1.0f, 1.0f, 0.0f),
+      glm::vec3(2.0f, 1.0f, 0.0f),
+      glm::vec3(3.0f, 1.0f, 0.0f),
+      glm::vec3(4.0f, 1.0f, 0.0f),
+      glm::vec3(-1.0f, 2.0f, 0.0f),
+      glm::vec3(4.0f, 2.0f, 0.0f),
+      glm::vec3(-1.0f, 3.0f, 0.0f),
+      glm::vec3(0.0f, 3.0f, 0.0f),
+      glm::vec3(1.0f, 3.0f, 0.0f),
+      glm::vec3(2.0f, 3.0f, 0.0f),
+      glm::vec3(3.0f, 3.0f, 0.0f),
+      glm::vec3(4.0f, 3.0f, 0.0f)
+  };
 
   glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
   glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
@@ -294,9 +361,11 @@ int main(int argc, char *argv[]) {
   model1 = new Model(baseCubePosition, relativeCubePositions1);
   model2 = new Model(baseCubePosition, relativeCubePositions2);
   model3 = new Model(baseCubePosition, relativeCubePositions3);
+  model4 = new Model(baseCubePosition, relativeCubePositions4);
   wall1 = new Model(baseWallPosition, relativeWallPositions1);
-
+  wall2 = new Model(baseWallPosition, relativeWallPositions2);
   wall3 = new Model(baseWallPosition, relativeWallPositions3);
+  wall4 = new Model(baseWallPosition, relativeWallPositions4);
 
 
   currentModel = model1;
@@ -395,7 +464,7 @@ int main(int argc, char *argv[]) {
     processInput(window);
 
     // Each frame, reset color of each pixel to glClearColor
-    glClearColor(0.27f, 0.05f, 0.19f, 1.0f);
+    glClearColor(0.15f, 0.035f, 0.11f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -414,7 +483,7 @@ int main(int argc, char *argv[]) {
     glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
     int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
-    for (size_t i = 0; i < relativeCubePositions1.size(); i++) {
+    for (size_t i = 0; i < currentModel->size(); i++) {
       // assign cube texture
       glUniform1i(cubeTexLocation, 0);
       // calculate cube model matrix
@@ -475,19 +544,23 @@ int main(int argc, char *argv[]) {
   glDeleteBuffers(1, &cubeVbo);
   glDeleteBuffers(1, &gridVbo);
 
+  // delete
+  // camera
   delete camera;
+  // models
   delete model1;
   delete model2;
   delete model3;
-
-
+  delete model4;
+  // walls
   delete wall1;
+  delete wall2;
   delete wall3;
+  delete wall4;
 
 
   // Shutdown GLFW
   glfwTerminate();
-
   return 0;
 }
 
@@ -503,10 +576,13 @@ static void processInput(GLFWwindow *window) {
     currentWall = wall1;
   } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
     currentModel = model2;
-  }
-  else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+    currentWall = wall2;
+  }else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
       currentModel = model3;
       currentWall = wall3;
+  }else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+    currentModel = model4;
+    currentWall = wall4;
   }
 
   // u: scale up model
@@ -516,6 +592,18 @@ static void processInput(GLFWwindow *window) {
 
   // j: scale down model
   if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+    currentModel->scaleDown(deltaTime);
+  }
+
+
+  if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS) {
+    currentWall->scaleUp(deltaTime);
+    currentModel->scaleUp(deltaTime);
+  }
+
+  // j: scale down model
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS) {
+    currentWall->scaleDown(deltaTime);
     currentModel->scaleDown(deltaTime);
   }
 
