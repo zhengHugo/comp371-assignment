@@ -595,13 +595,13 @@ static void processInput(GLFWwindow *window) {
     currentModel->scaleDown(deltaTime);
   }
 
-
+  // =: scale up model and wall
   if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS) {
     currentWall->scaleUp(deltaTime);
     currentModel->scaleUp(deltaTime);
   }
 
-  // j: scale down model
+  // -: scale down model and wall
   if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS) {
     currentWall->scaleDown(deltaTime);
     currentModel->scaleDown(deltaTime);
