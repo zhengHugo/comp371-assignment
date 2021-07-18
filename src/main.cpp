@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 #endif
   //Anti Aliasing
-  glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_SAMPLES, 8);
   // Create Window and rendering context using GLFW, resolution is 800x600
   GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Comp371 - Assignment 01", nullptr, nullptr);
   if (window == nullptr) {
@@ -162,8 +162,8 @@ int main(int argc, char *argv[]) {
   };
 
   float unitLineVertices[] = {
-      -1.0f, 0.0f, 0.0f, 0.60f, 0.41f, 0.039f, // pos * 3, color * 3
-      1.0f, 0.0f, 0.0f, 0.60f, 0.41f, 0.039f
+      -1.0f, 0.0f, 0.0f, 0.365f, 0.224f, 0.122f, // pos * 3, color * 3
+      1.0f, 0.0f, 0.0f, 0.365f, 0.224f, 0.122f
   };
 
   float axisVertices[] = {
@@ -464,7 +464,7 @@ int main(int argc, char *argv[]) {
     processInput(window);
 
     // Each frame, reset color of each pixel to glClearColor
-    glClearColor(0.15f, 0.035f, 0.11f, 1.0f);
+    glClearColor(0.035f, 0.149f, 0.1098f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
