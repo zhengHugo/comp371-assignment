@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
   // Initialize geometry data
   // -----------------------------------
-  float vertices[] = {
+  float unitCubeVertices[] = {
       // unit cube vertices
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
       0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
@@ -150,11 +150,11 @@ int main(int argc, char *argv[]) {
       0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+  };
 
-      // grid vertices
+  float unitLineVertices[] = {
       -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // pos * 3, color * 3
       1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f
-
   };
 
   std::vector<glm::vec3> relativeCubePositions1 = {
@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
   glBindVertexArray(cubeVao);
 
   glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
-  glBufferData(GL_ARRAY_BUFFER, 180 * sizeof(float), vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(unitCubeVertices), unitCubeVertices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
@@ -247,10 +247,10 @@ int main(int argc, char *argv[]) {
   // bind grid data
   glBindVertexArray(gridVao);
   glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-  glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), &vertices[180], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(unitLineVertices), unitLineVertices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
@@ -320,7 +320,6 @@ int main(int argc, char *argv[]) {
     // render
     // -------------------------------------
 
-    clearError();
     // draw model
     glBindVertexArray(cubeVao);
     cubeShader.use();
@@ -363,7 +362,6 @@ int main(int argc, char *argv[]) {
       gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
       glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
       glDrawArrays(GL_LINES, 0, 2);
-      checkError();
     }
 
     // End frame
