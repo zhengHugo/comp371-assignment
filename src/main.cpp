@@ -256,12 +256,11 @@ int main(int argc, char *argv[]) {
   stbi_set_flip_vertically_on_load(true);
   unsigned char *data = stbi_load("res/texture/cube-texture.png", &width, &height, &nrChannel, 0);
   if (data) {
-    std::cout << "data reade" << std::endl;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
   } else {
-    printf("load image failed.");
+    std::cout << "Fail to load image. " << std::endl;
   }
   stbi_image_free(data);
 
@@ -279,7 +278,7 @@ int main(int argc, char *argv[]) {
                  GL_UNSIGNED_BYTE, data2);
     glGenerateMipmap(GL_TEXTURE_2D);
   } else {
-    printf("load image failed.");
+    std::cout << "Fail to load image. " << std::endl;
   }
   stbi_image_free(data2);
 
