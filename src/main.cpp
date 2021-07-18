@@ -11,9 +11,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-
 #define STB_IMAGE_IMPLEMENTATION
-
 #include "stb_image.h"
 
 
@@ -256,7 +254,7 @@ int main(int argc, char *argv[]) {
 
     // render
     glBindVertexArray(vao);
-    for (int i = 0; i < relativeCubePositions1.size(); i++) {
+    for (int i = 0; i < currentModel->size(); i++) {
       // calculate the model matrix for each object
       glUniform1i(glGetUniformLocation(shader.id, "cubeTexture"), 0);
       glm::mat4 modelMatrix = currentModel->getModelMatrix(i);
@@ -354,7 +352,6 @@ static void processInput(GLFWwindow *window) {
 
   }
 }
-
 
 // callback function on window size changed
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {

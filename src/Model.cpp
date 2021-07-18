@@ -58,3 +58,6 @@ void Model::updateModelMatrices() {
   }
 }
 
+unsigned int Model::size() {
+  return relativePositions.size();
+}
