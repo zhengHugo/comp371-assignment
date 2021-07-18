@@ -41,9 +41,9 @@ const unsigned int SCR_HEIGHT = 600;
 Camera *camera;
 Model *model1;
 Model *model2;
-Model *model3;
+Model *wall1;
 Model *currentModel;
-Model *relativeWallModel;
+Model *currentWall;
 
 // for mouse initialization
 bool firstMouse = true; // true when mouse callback is called for the first time; false otherwise
@@ -151,19 +151,6 @@ int main(int argc, char *argv[]) {
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
   };
 
-//  std::vector<glm::vec3> relativeCubePositions1 = {
-//      glm::vec3(0.0f, 0.0f, 0.0f),
-//      glm::vec3(1.0f, 0.0f, 0.0f),
-//      glm::vec3(1.0f, 1.0f, 0.0f),
-//      glm::vec3(1.0f, 2.0f, 0.0f),
-//      glm::vec3(2.0f, 2.0f, 0.0f),
-//      glm::vec3(0.0f, 0.0f, -1.0f),
-//      glm::vec3(1.0f, 0.0f, -1.0f),
-//      glm::vec3(1.0f, 1.0f, -1.0f),
-//      glm::vec3(1.0f, 2.0f, -1.0f),
-//      glm::vec3(2.0f, 2.0f, -1.0f)
-//  };
-
   std::vector<glm::vec3> relativeCubePositions1 = {
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 2.0f, 0.0f),
@@ -189,7 +176,7 @@ int main(int argc, char *argv[]) {
   };
 
 
-  std::vector<glm::vec3> relativeWallPositions2 = {
+  std::vector<glm::vec3> relativeWallPositions1 = {
       glm::vec3(-1.0f, -1.0f, 0.0f),
       glm::vec3(0.0f, -1.0f, 0.0f),
       glm::vec3(1.0f, -1.0f, 0.0f),
@@ -228,10 +215,10 @@ int main(int argc, char *argv[]) {
 
   model1 = new Model(baseCubePosition, relativeCubePositions1);
   model2 = new Model(baseCubePosition, relativeCubePositions2);
-  model3 = new Model(baseWallPosition, relativeWallPositions2);
+  wall1 = new Model(baseWallPosition, relativeWallPositions1);
 
   currentModel = model1;
-  relativeWallModel = model3;
+  currentWall = wall1;
 
   // bind geometry data
   unsigned int vao, vbo;
@@ -259,11 +246,11 @@ int main(int argc, char *argv[]) {
   Shader shader("res/shader/Vertex.shader", "res/shader/Fragment.shader");
   shader.use();
   // import texture for cube:
-  unsigned int TexBufferCubes;
+  unsigned int cubeTexBuffer;
 
-  glGenTextures(1, &TexBufferCubes);
+  glGenTextures(1, &cubeTexBuffer);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, TexBufferCubes);
+  glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
 
   int width, height, nrChannel;
   stbi_set_flip_vertically_on_load(true);
@@ -279,10 +266,10 @@ int main(int argc, char *argv[]) {
   stbi_image_free(data);
 
   // import texture for walls:
-  unsigned int TexBufferWalls;
-  glGenTextures(1, &TexBufferWalls);
+  unsigned int wallTexBuffer;
+  glGenTextures(1, &wallTexBuffer);
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, TexBufferWalls);
+  glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
 
   unsigned char* data2 =
       stbi_load("res/texture/wall-texture.png", &width, &height, &nrChannel, 0);
@@ -319,28 +306,25 @@ int main(int argc, char *argv[]) {
     glm::mat4 view = camera->getViewMatrix();
     glUniformMatrix4fv(glGetUniformLocation(shader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-    // active & bind texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, TexBufferCubes);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, TexBufferWalls);
     // render
+    // ------------
+
+    // draw cubes
     glBindVertexArray(vao);
     for (int i = 0; i < currentModel->size(); i++) {
+      // assign cube texture
+      glUniform1i(glGetUniformLocation(shader.id, "aTexture"), 0);
       // calculate the model matrix for each object
-      // use cube texture
-      glUniform1i(glGetUniformLocation(shader.id, "isCubeOrWall"), 1);
-      glUniform1i(glGetUniformLocation(shader.id, "cubeTexture"), 0);
       glm::mat4 modelMatrix = currentModel->getModelMatrix(i);
       glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-    for (int i = 0; i < relativeWallModel->size(); i++) {
+    // draw wall
+    for (int i = 0; i < currentWall->size(); i++) {
+      // assign wall texture
+      glUniform1i(glGetUniformLocation(shader.id, "aTexture"), 1);
       // calculate the model matrix for each object
-      // use wall texture
-      glUniform1i(glGetUniformLocation(shader.id, "isCubeOrWall"), 0);
-      glUniform1i(glGetUniformLocation(shader.id, "wallTexture"), 1);
-      glm::mat4 modelMatrix = relativeWallModel->getModelMatrix(i);
+      glm::mat4 modelMatrix = currentWall->getModelMatrix(i);
       glUniformMatrix4fv(glGetUniformLocation(shader.id, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
@@ -359,7 +343,7 @@ int main(int argc, char *argv[]) {
   delete camera;
   delete model1;
   delete model2;
-  delete model3;
+  delete wall1;
 
   // Shutdown GLFW
   glfwTerminate();
@@ -376,9 +360,9 @@ static void processInput(GLFWwindow *window) {
   // 1-5: switch models
   if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
     currentModel = model1;
+    currentWall = wall1;
   } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
     currentModel = model2;
-    relativeWallModel = model3;
   }
 
   // u: scale up model
