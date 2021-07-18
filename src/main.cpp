@@ -254,7 +254,7 @@ int main(int argc, char *argv[]) {
 
     // render
     glBindVertexArray(vao);
-    for (int i = 0; i < relativeCubePositions1.size(); i++) {
+    for (int i = 0; i < currentModel->size(); i++) {
       // calculate the model matrix for each object
       glUniform1i(glGetUniformLocation(shader.id, "cubeTexture"), 0);
       glm::mat4 modelMatrix = currentModel->getModelMatrix(i);

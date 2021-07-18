@@ -57,3 +57,7 @@ void Model::updateModelMatrices() {
     modelMatrices[i] = glm::translate(modelMatrices[i], glm::vec3(relativePositions[i]));
   }
 }
+
+unsigned int Model::size() {
+  return relativePositions.size();
+}

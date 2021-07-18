@@ -50,6 +50,8 @@ class Model {
 
   glm::mat4 getModelMatrix(int index);
 
+  unsigned int size();
+
 };
 
 
