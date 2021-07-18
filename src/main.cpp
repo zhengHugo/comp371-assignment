@@ -37,8 +37,8 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos);
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
 
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1024;
+const unsigned int SCR_HEIGHT = 768;
 
 Camera *camera;
 Model *model1;
@@ -73,7 +73,8 @@ int main(int argc, char *argv[]) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 #endif
-
+  //Anti Aliasing
+  glfwWindowHint(GLFW_SAMPLES, 4);
   // Create Window and rendering context using GLFW, resolution is 800x600
   GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Comp371 - Assignment 01", nullptr, nullptr);
   if (window == nullptr) {
@@ -98,14 +99,15 @@ int main(int argc, char *argv[]) {
     glfwTerminate();
     return -1;
   }
-
+  // enable MULTISAMPLE
+  glEnable(GL_MULTISAMPLE);
   // enable depth info
   glEnable(GL_DEPTH_TEST);
 
   // draw lines only
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  camera = new Camera(glm::vec3(0.0f, 10.0f, 10.0f));
+  camera = new Camera(glm::vec3(2.0f, 5.0f, 20.0f));
 
   // Initialize geometry data
   // -----------------------------------
@@ -157,6 +159,15 @@ int main(int argc, char *argv[]) {
   float unitLineVertices[] = {
       -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // pos * 3, color * 3
       1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f
+  };
+
+  float axisVertices[] = {
+      0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // pos * 3, color * 3
+      5.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+      0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+      0.0f, 5.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+      0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+      0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 1.0f
   };
 
   std::vector<glm::vec3> relativeCubePositions1 = {
@@ -218,8 +229,8 @@ int main(int argc, char *argv[]) {
       glm::vec3(3.0f, 6.0f, 0.0f)
   };
 
-  glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
-  glm::vec3 baseWallPosition(0.0f, 0.0f, -3.0f);
+  glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
+  glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
 
   model1 = new Model(baseCubePosition, relativeCubePositions1);
   model2 = new Model(baseCubePosition, relativeCubePositions2);
@@ -229,11 +240,13 @@ int main(int argc, char *argv[]) {
   currentWall = wall1;
 
   // bind geometry data
-  unsigned int cubeVao, gridVao, cubeVbo, gridVbo;
+  unsigned int cubeVao, gridVao, axisVao, cubeVbo, gridVbo, axisVbo;
   glGenVertexArrays(1, &cubeVao);
   glGenVertexArrays(1, &gridVao);
+  glGenVertexArrays(1, &axisVao);
   glGenBuffers(1, &cubeVbo);
   glGenBuffers(1, &gridVbo);
+  glGenBuffers(1, &axisVbo);
 
   // bind cube data
   glBindVertexArray(cubeVao);
@@ -256,11 +269,20 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
+  // bind axis data
+  glBindVertexArray(axisVao);
+  glBindBuffer(GL_ARRAY_BUFFER, axisVbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
 
   // build and compile shader
   // ------------------------
   Shader cubeShader("res/shader/CubeVertex.shader", "res/shader/CubeFragment.shader");
-  Shader gridShader("res/shader/GridVertex.shader", "res/shader/GridFragment.shader");
+  Shader lineShader("res/shader/LineVertex.shader", "res/shader/LineFragment.shader");
 
   // import texture:
   unsigned int cubeTexBuffer;
@@ -329,7 +351,7 @@ int main(int argc, char *argv[]) {
     glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
     int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
-    for (int i = 0; i < relativeCubePositions1.size(); i++) {
+    for (size_t i = 0; i < relativeCubePositions1.size(); i++) {
       // assign cube texture
       glUniform1i(cubeTexLocation, 0);
       // calculate cube model matrix
@@ -338,7 +360,7 @@ int main(int argc, char *argv[]) {
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     // draw wall
-    for (int i = 0; i < currentWall->size(); i++) {
+    for (size_t i = 0; i < currentWall->size(); i++) {
       // assign wall texture
       glUniform1i(cubeTexLocation, 1);
       // calculate the model matrix for wall
@@ -349,11 +371,11 @@ int main(int argc, char *argv[]) {
 
     // draw grid
     glBindVertexArray(gridVao);
-    gridShader.use();
-    glUniformMatrix4fv(glGetUniformLocation(gridShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    glUniformMatrix4fv(glGetUniformLocation(gridShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    lineShader.use();
+    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-    int gridModelLocation = glGetUniformLocation(gridShader.id, "model");
+    int gridModelLocation = glGetUniformLocation(lineShader.id, "model");
     for (int i = 0; i < 100; i++) {
       // horizontal lines
       glm::mat4 gridModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f + (float) i));
@@ -368,6 +390,14 @@ int main(int argc, char *argv[]) {
       glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
       glDrawArrays(GL_LINES, 0, 2);
     }
+    // draw axis
+    glLineWidth(5.0f);
+    glBindVertexArray(axisVao);
+    glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+    glDrawArrays(GL_LINES, 0, 2);
+    glDrawArrays(GL_LINES, 2, 2);
+    glDrawArrays(GL_LINES, 4, 2);
+    glLineWidth(1.0f);
 
     // End frame
     glfwSwapBuffers(window);
