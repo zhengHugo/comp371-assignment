@@ -50,7 +50,7 @@ void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPi
 void Camera::processMouseScroll(float yOffset) {
   Fov -= (float) yOffset;
   if (Fov < 1.0f) Fov = 1.0f;
-  if (Fov > 45.0f) Fov = 45.0f;
+  if (Fov > 60.0f) Fov = 60.0f;
 }
 
 void Camera::updateCameraVectors() {
