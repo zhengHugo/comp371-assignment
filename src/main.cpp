@@ -43,7 +43,9 @@ const unsigned int SCR_HEIGHT = 768;
 Camera *camera;
 Model *model1;
 Model *model2;
+Model *model3;
 Model *wall1;
+Model *wall3;
 Model *currentModel;
 Model *currentWall;
 
@@ -194,6 +196,18 @@ int main(int argc, char *argv[]) {
       glm::vec3(0.0f, 2.0f, 0.0f)
   };
 
+  std::vector<glm::vec3> relativeCubePositions3 = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(0.0f, 2.0f, 0.0f),
+        glm::vec3(0.0f,3.0f, 0.0f),
+        glm::vec3(0.0f, 4.0f, 0.0f),
+        glm::vec3(-1.0f, 3.0f, 0.0f),
+        glm::vec3(1.0f, 3.0f, 0.0f),
+        glm::vec3(-2.0f, 2.0f, 0.0f),
+        glm::vec3(2.0f, 2.0f, 0.0f)
+  };
+
 
   std::vector<glm::vec3> relativeWallPositions1 = {
       glm::vec3(-1.0f, -1.0f, 0.0f),
@@ -229,12 +243,61 @@ int main(int argc, char *argv[]) {
       glm::vec3(3.0f, 6.0f, 0.0f)
   };
 
+  std::vector<glm::vec3> relativeWallPositions3 = {
+      glm::vec3(-3.0f, -1.0f, 0.0f),
+      glm::vec3(-2.0f, -1.0f, 0.0f),
+      glm::vec3(-1.0f, -1.0f, 0.0f),
+      glm::vec3(0.0f, -1.0f, 0.0f),
+      glm::vec3(1.0f, -1.0f, 0.0f),
+      glm::vec3(2.0f, -1.0f, 0.0f),
+      glm::vec3(3.0f, -1.0f, 0.0f),
+      glm::vec3(-3.0f, 0.0f, 0.0f),
+      glm::vec3(-2.0f, 0.0f, 0.0f),
+      glm::vec3(-1.0f, 0.0f, 0.0f),
+      glm::vec3(1.0f, 0.0f, 0.0f),
+      glm::vec3(2.0f, 0.0f, 0.0f),
+      glm::vec3(3.0f, 0.0f, 0.0f),
+      glm::vec3(-3.0f, 1.0f, 0.0f),
+      glm::vec3(-2.0f, 1.0f, 0.0f),
+      glm::vec3(-1.0f, 1.0f, 0.0f),
+      glm::vec3(1.0f, 1.0f, 0.0f),
+      glm::vec3(2.0f, 1.0f, 0.0f),
+      glm::vec3(3.0f, 1.0f, 0.0f),
+      glm::vec3(-3.0f, 2.0f, 0.0f),
+      glm::vec3(-1.0f, 2.0f, 0.0f),
+      glm::vec3(1.0f, 2.0f, 0.0f),
+      glm::vec3(3.0f, 2.0f, 0.0f),
+      glm::vec3(-3.0f, 3.0f, 0.0f),
+      glm::vec3(-2.0f, 3.0f, 0.0f),
+      glm::vec3(2.0f, 3.0f, 0.0f),
+      glm::vec3(3.0f, 3.0f, 0.0f),
+      glm::vec3(-3.0f, 4.0f, 0.0f),
+      glm::vec3(-2.0f, 4.0f, 0.0f),
+      glm::vec3(-1.0f, 4.0f, 0.0f),
+      glm::vec3(1.0f, 4.0f, 0.0f),
+      glm::vec3(2.0f, 4.0f, 0.0f),
+      glm::vec3(3.0f, 4.0f, 0.0f),
+      glm::vec3(-3.0f, 5.0f, 0.0f),
+      glm::vec3(-2.0f, 5.0f, 0.0f),
+      glm::vec3(-1.0f, 5.0f, 0.0f),
+      glm::vec3(0.0f, 5.0f, 0.0f),
+      glm::vec3(1.0f, 5.0f, 0.0f),
+      glm::vec3(2.0f, 5.0f, 0.0f),
+      glm::vec3(3.0f, 5.0f, 0.0f),
+
+  };
+
+
   glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
   glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
 
   model1 = new Model(baseCubePosition, relativeCubePositions1);
   model2 = new Model(baseCubePosition, relativeCubePositions2);
+  model3 = new Model(baseCubePosition, relativeCubePositions3);
   wall1 = new Model(baseWallPosition, relativeWallPositions1);
+
+  wall3 = new Model(baseWallPosition, relativeWallPositions3);
+
 
   currentModel = model1;
   currentWall = wall1;
@@ -415,7 +478,12 @@ int main(int argc, char *argv[]) {
   delete camera;
   delete model1;
   delete model2;
+  delete model3;
+
+
   delete wall1;
+  delete wall3;
+
 
   // Shutdown GLFW
   glfwTerminate();
@@ -435,6 +503,10 @@ static void processInput(GLFWwindow *window) {
     currentWall = wall1;
   } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
     currentModel = model2;
+  }
+  else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+      currentModel = model3;
+      currentWall = wall3;
   }
 
   // u: scale up model
