@@ -25,6 +25,11 @@ void Model::resetPosition() {
   updateModelMatrices();
 }
 
+void Model::resetOrientation() {
+  this->quaternion = glm::quat(glm::vec3(0.0, 0.0, 0.0));
+  updateModelMatrices();
+}
+
 void Model::scaleUp(float deltaTime) {
   Scale += scaleSpeed * deltaTime;
   updateModelMatrices();

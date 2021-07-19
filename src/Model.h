@@ -45,6 +45,8 @@ class Model {
 
   void resetPosition();
 
+  void resetOrientation();
+
   void scaleUp(float deltaTime);
 
   void scaleDown(float deltaTime);

@@ -733,6 +733,10 @@ static void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) {
     camera->goHome();
   }
+  // space: Repositioning the Model
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    updateModelPosition();
+  }
 
 }
 
@@ -771,6 +775,8 @@ static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
 static void updateModelPosition() {
   currentModel->resetPosition();
   currentWall->resetPosition();
+  currentModel->resetOrientation();
+  currentWall->resetOrientation();
   for (int i = 0; i < 6; i++) {
     cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
   }
