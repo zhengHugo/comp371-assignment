@@ -476,6 +476,8 @@ int main(int argc, char *argv[]) {
     // render
     // -------------------------------------
 
+    
+    
     // draw model
     glBindVertexArray(cubeVao);
     cubeShader.use();
@@ -650,6 +652,15 @@ static void processInput(GLFWwindow *window) {
       currentModel->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
     }
 
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {  //translate to line view
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {  // reset
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
   }
 }
