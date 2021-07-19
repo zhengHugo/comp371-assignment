@@ -5,6 +5,7 @@
 #include "Model.h"
 
 Model::Model(glm::vec3 basePosition, std::vector<glm::vec3> &relativePositions) :
+    defaultBasePosition(basePosition),
     basePosition(basePosition),
     relativePositions(relativePositions),
     Scale(1.0f),
@@ -12,6 +13,16 @@ Model::Model(glm::vec3 basePosition, std::vector<glm::vec3> &relativePositions) 
     quaternion(glm::quat(glm::vec3(0.0, 0.0, 0.0))) {
   updateModelMatrices();
 
+}
+
+void Model::setBasePosition(glm::vec3 newBasePosition) {
+  this->basePosition = newBasePosition;
+  updateModelMatrices();
+}
+
+void Model::resetPosition() {
+  this->basePosition = defaultBasePosition;
+  updateModelMatrices();
 }
 
 void Model::scaleUp(float deltaTime) {
@@ -44,7 +55,7 @@ void Model::rotate(float angleInRadian, glm::vec3 axis, float deltaTime) {
   updateModelMatrices();
 }
 
-glm::mat4 Model::getModelMatrix(int index) {
+glm::mat4 Model::getModelMatrix(unsigned int index) {
   return modelMatrices[index];
 }
 
@@ -61,3 +72,4 @@ void Model::updateModelMatrices() {
 unsigned int Model::size() {
   return relativePositions.size();
 }
+
