@@ -476,6 +476,15 @@ int main(int argc, char *argv[]) {
     // render
     // -------------------------------------
 
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+    } else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {  //translate to line view
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {  // reset
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    
     // draw model
     glBindVertexArray(cubeVao);
     cubeShader.use();
