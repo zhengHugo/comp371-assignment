@@ -4,47 +4,26 @@
 
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 worldUp, float yaw, float pitch) :
-    Position(position),
-    WorldUp(worldUp),
-    Yaw(yaw),
-    Pitch(pitch) {
-  updateCameraVectors();
-}
-
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) :
-    Position(glm::vec3(posX, posY, posZ)),
-    WorldUp(glm::vec3(upX, upY, upZ)),
-    Yaw(yaw),
-    Pitch(pitch) {
-  updateCameraVectors();
-}
+Camera::Camera() :
+    Position(DEFAULT_POS),
+    Target(DEFAULT_TARGET),
+    Up(glm::vec3(0.0f, 1.0f, 0.0f)) {}
 
 glm::mat4 Camera::getViewMatrix() const {
-  return glm::lookAt(Position, Position + Front, Up);
+  return glm::lookAt(glm::vec3(Position), glm::vec3(Target), Up);
 }
 
-void Camera::move(CameraMovement direction, float deltaTime) {
-  float movementLength = MovementSpeed * deltaTime;
-  if (direction == CameraMovement::FORWARD) Position += movementLength * Front;
-  if (direction == CameraMovement::BACKWARD) Position -= movementLength * Front;
-  if (direction == CameraMovement::LEFT) Position -= movementLength * Right;
-  if (direction == CameraMovement::RIGHT) Position += movementLength * Right;
+void Camera::rotate(glm::vec3 axis, float deltaTime) {
+  glm::mat4 matrix = glm::rotate(glm::mat4(1.0f), ANGULAR_SPEED * deltaTime, axis);
+  Position = matrix * Position;
+  Target = matrix * Target;
+  Up = glm::vec3(matrix * glm::vec4(Up, 0.0f));
 }
 
-void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPitch) {
-  xOffset *= MouseSensitivity;
-  yOffset *= MouseSensitivity;
-
-  Yaw += xOffset;
-  Pitch -= yOffset;
-
-  if (constrainPitch) {
-    if (Pitch > 89.0f) Pitch = 89.0f;
-    if (Pitch < -89.0f) Pitch = -89.0f;
-  }
-
-  updateCameraVectors();
+void Camera::goHome() {
+  Position = DEFAULT_POS;
+  Target = DEFAULT_TARGET;
+  Up = glm::vec3(0.0f, 1.f, 0.f);
 }
 
 void Camera::processMouseScroll(float yOffset) {
@@ -53,13 +32,19 @@ void Camera::processMouseScroll(float yOffset) {
   if (Fov > 60.0f) Fov = 60.0f;
 }
 
-void Camera::updateCameraVectors() {
-  glm::vec3 front;
-  front.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
-  front.y = sin(glm::radians(Pitch));
-  front.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
-  Front = glm::normalize(front);
-  Right = glm::normalize(glm::cross(Front, WorldUp));
-  Up = glm::normalize(glm::cross(Right, Front));
+void Camera::pan(float offset, float deltaTime) {
+  float movementLength = SPEED * offset * deltaTime;
+  glm::vec3 front = glm::normalize(glm::vec3(Target - Position));
+  glm::vec3 right = glm::normalize(glm::cross(front, Up));
+  Position += glm::vec4(movementLength * right, 0.0f);
+  Target += glm::vec4(movementLength * right, 0.0f);
 }
 
+void Camera::tilt(float offset, float deltaTime) {
+  float tiltAngle = ANGULAR_SPEED * offset * deltaTime;
+  glm::vec3 front = glm::normalize(glm::vec3(Target - Position));
+  glm::vec3 right = glm::normalize(glm::cross(front, Up));
+  glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), -tiltAngle, right);
+  Target = Position + rotationMatrix * (Target - Position);
+  Up = rotationMatrix * glm::vec4(Up, 0.0f);
+}

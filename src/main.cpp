@@ -110,9 +110,8 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
 
   // draw lines only
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  camera = new Camera(glm::vec3(2.0f, 5.0f, 20.0f));
+  camera = new Camera();
 
   // Initialize geometry data
   // -----------------------------------
@@ -654,6 +653,25 @@ static void processInput(GLFWwindow *window) {
     }
   }
 
+  // left: world rotate x -> camera rotate -x
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(-1.0f, 0.0f, 0.0f), deltaTime);
+  }
+
+  // right: world rotate -x -> camera rotate x
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(1.0f, 0.0f, 0.0f), deltaTime);
+  }
+
+  // up: world rotate y -> camera rotate -y
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(0.0f, -1.0f, 0.0f), deltaTime);
+  }
+
+  // down: world rotate -y -> camera rotate y
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+  }
 
   // p
   if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
@@ -667,7 +685,13 @@ static void processInput(GLFWwindow *window) {
     // t
   else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {  // reset
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
   }
+  // home: go home
+  if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) {
+    camera->goHome();
+  }
+
 }
 
 // callback function on window size changed
@@ -688,7 +712,14 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos) {
   lastX = (float) xPos;
   lastY = (float) yPos;
 
-  camera->processMouseMovement(xOffset, yOffset);
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+    camera->pan((float) xOffset, deltaTime);
+  }
+
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+    camera->tilt((float) yOffset, deltaTime);
+  }
+
 }
 
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
