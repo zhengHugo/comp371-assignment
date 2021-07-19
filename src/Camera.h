@@ -16,11 +16,16 @@ enum class CameraMovement {
 };
 
 // default camera data
-const float ANGULAR_SPEED = 0.5f;
-const float SPEED = 8.0f;
-const float FOV = 60.0f;
 
 class Camera {
+ private:
+
+  const float ANGULAR_SPEED = 0.5f;
+  const float SPEED = 1.0f;
+  const float FOV = 60.0f;
+  const glm::vec4 DEFAULT_POS = glm::vec4(2.0f, 5.0f, 20.0f, 1.0f);
+  const glm::vec4 DEFAULT_TARGET = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
  public:
 
   glm::vec4 Position;
@@ -29,7 +34,6 @@ class Camera {
   // directions
   glm::vec3 Up;
 
-  float MovementSpeed{SPEED};
   float Fov{FOV};
 
 
@@ -40,10 +44,7 @@ class Camera {
    * @param yaw yaw angle of camera
    * @param pitch pitch angle of camera
    */
-  explicit Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
-                  glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f),
-                  glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f)
-  );
+  Camera();
 
 //  /**
 //   * Camera constructor
@@ -66,12 +67,21 @@ class Camera {
 
   void rotate(glm::vec3 axis, float deltaTime);
 
+  void goHome();
+
   /**
-   * Process input from a keyboard
-   * @param direction camera movement direction. Must be one of @c FORWARD, @c BACKWARD,@c LEFT, or @c RIGHT
-   * @param deltaTime time passed since the last frame
+   * Pan camera left-right
+   * @param offset mouse movement offset
+   * @param deltaTime time of a frame
    */
-//  void move(CameraMovement direction, float deltaTime);
+  void pan(float offset, float deltaTime);
+
+  /**
+   * Tilt camera up-down
+   * @param offset mouse movement offset
+   * @param deltaTime
+   */
+  void tilt(float offset, float deltaTime);
 
 //  /**
 //   * Process input received from a mouse movement.
@@ -86,13 +96,6 @@ class Camera {
    * @param yOffset
    */
   void processMouseScroll(float yOffset);
-
- private:
-
-  /**
-   * Calculate the camera basis vectors from the updated Euler angles
-   */
-  void updateCameraVectors();
 };
 
 #endif // CAMERA_H

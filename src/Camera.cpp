@@ -4,10 +4,10 @@
 
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 target, glm::vec3 up) :
-    Position(glm::vec4(position, 1.0f)),
-    Target(glm::vec4(target, 1.0f)),
-    Up(up) {}
+Camera::Camera() :
+    Position(DEFAULT_POS),
+    Target(DEFAULT_TARGET),
+    Up(glm::vec3(0.0f, 1.0f, 0.0f)) {}
 
 glm::mat4 Camera::getViewMatrix() const {
   return glm::lookAt(glm::vec3(Position), glm::vec3(Target), Up);
@@ -15,9 +15,15 @@ glm::mat4 Camera::getViewMatrix() const {
 
 void Camera::rotate(glm::vec3 axis, float deltaTime) {
   glm::mat4 matrix = glm::rotate(glm::mat4(1.0f), ANGULAR_SPEED * deltaTime, axis);
-  Position = matrix * (Position - Target) + Target;
+  Position = matrix * Position;
+  Target = matrix * Target;
   Up = glm::vec3(matrix * glm::vec4(Up, 0.0f));
-  glm::vec3 front = Target - Position;
+}
+
+void Camera::goHome() {
+  Position = DEFAULT_POS;
+  Target = DEFAULT_TARGET;
+  Up = glm::vec3(0.0f, 1.f, 0.f);
 }
 
 void Camera::processMouseScroll(float yOffset) {
@@ -26,3 +32,19 @@ void Camera::processMouseScroll(float yOffset) {
   if (Fov > 60.0f) Fov = 60.0f;
 }
 
+void Camera::pan(float offset, float deltaTime) {
+  float movementLength = SPEED * offset * deltaTime;
+  glm::vec3 front = glm::normalize(glm::vec3(Target - Position));
+  glm::vec3 right = glm::normalize(glm::cross(front, Up));
+  Position += glm::vec4(movementLength * right, 0.0f);
+  Target += glm::vec4(movementLength * right, 0.0f);
+}
+
+void Camera::tilt(float offset, float deltaTime) {
+  float tiltAngle = ANGULAR_SPEED * offset * deltaTime;
+  glm::vec3 front = glm::normalize(glm::vec3(Target - Position));
+  glm::vec3 right = glm::normalize(glm::cross(front, Up));
+  glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), -tiltAngle, right);
+  Target = Position + rotationMatrix * (Target - Position);
+  Up = rotationMatrix * glm::vec4(Up, 0.0f);
+}
