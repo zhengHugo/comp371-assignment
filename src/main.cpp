@@ -36,6 +36,7 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos);
 
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
 
+static void updateModelPosition();
 
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
@@ -51,7 +52,8 @@ Model *wall3;
 Model *wall4;
 Model *currentModel;
 Model *currentWall;
-std::vector<Model*> otherObj;
+std::vector<Model *> cornerObjects;
+glm::vec3 *cornerPositions;
 
 // for mouse initialization
 bool firstMouse = true; // true when mouse callback is called for the first time; false otherwise
@@ -355,10 +357,10 @@ int main(int argc, char *argv[]) {
       glm::vec3(4.0f, 3.0f, 0.0f)
   };
 
-  std::vector<glm::vec3> othersPosition = {
-      glm::vec3(-30.0, 0.0f, 30.0f),
-      glm::vec3(30.0f,  0.0f, 30.0f),
-      glm::vec3(30.0f,  0.0f, -30.0f),
+  cornerPositions = new glm::vec3[]{
+      glm::vec3(-30.0, 3.0f, 30.0f),
+      glm::vec3(30.0f, 3.0f, 30.0f),
+      glm::vec3(30.0f, 3.0f, -30.0f),
   };
 
   glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
@@ -372,11 +374,12 @@ int main(int argc, char *argv[]) {
   wall2 = new Model(baseWallPosition, relativeWallPositions2);
   wall3 = new Model(baseWallPosition, relativeWallPositions3);
   wall4 = new Model(baseWallPosition, relativeWallPositions4);
-  
+
   currentModel = model1;
   currentWall = wall1;
   //set an array to store other object
-  otherObj = {model2, wall2, model3, wall3, model4, wall4};
+  cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
+  updateModelPosition();
 
   // bind geometry data
   unsigned int cubeVao, gridVao, axisVao, cubeVbo, gridVbo, axisVbo;
@@ -460,6 +463,7 @@ int main(int argc, char *argv[]) {
   }
   stbi_image_free(data2);
 
+
   // Entering Main Loop
   while (!glfwWindowShouldClose(window)) {
     // update deltaTime
@@ -510,23 +514,21 @@ int main(int argc, char *argv[]) {
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
-    //otherModels
+    // corner models
     for (int j = 0; j < 3; j++) {
-      // translate to new position
-      glm::mat4 transModel = glm::translate(glm::mat4(1.0f), othersPosition[j]);
-      for (size_t i = 0; i < otherObj[j]->size(); i++) {
+      // draw model (at cornerObjects[] even indices)
+      for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
         // assign cube texture
         glUniform1i(cubeTexLocation, 0);
-        // calculate cube model matrix
-        glm::mat4 cubeModelMatrix = otherObj[2*j]->getModelMatrix(i) * transModel;
+        glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
         glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
-      for (size_t i = 0; i < otherObj[j+1]->size(); i++) {
+      // draw wall (at cornerObjects[] odd indices)
+      for (size_t i = 0; i < cornerObjects[2 * j + 1]->size(); i++) {
         // assign wall texture
         glUniform1i(cubeTexLocation, 1);
-        // calculate the model matrix for wall
-        glm::mat4 wallModelMatrix = otherObj[2*j+1]->getModelMatrix(i) * transModel;
+        glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
         glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
@@ -590,11 +592,13 @@ int main(int argc, char *argv[]) {
   delete wall3;
   delete wall4;
 
+  delete cornerPositions;
 
   // Shutdown GLFW
   glfwTerminate();
   return 0;
 }
+
 static void processInput(GLFWwindow *window) {
   // Escape
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -605,19 +609,23 @@ static void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
     currentModel = model1;
     currentWall = wall1;
-    otherObj = {model2, wall2, model3, wall3, model4, wall4};
+    cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
+    updateModelPosition();
   } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
     currentModel = model2;
     currentWall = wall2;
-    otherObj = {model1, wall1, model3, wall3, model4, wall4};
+    cornerObjects = {model1, wall1, model3, wall3, model4, wall4};
+    updateModelPosition();
   } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
     currentModel = model3;
     currentWall = wall3;
-    otherObj = {model1, wall1, model2, wall2, model4, wall4};
+    cornerObjects = {model1, wall1, model2, wall2, model4, wall4};
+    updateModelPosition();
   } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
     currentModel = model4;
     currentWall = wall4;
-    otherObj = {model1, wall1, model2, wall2, model3, wall3};
+    cornerObjects = {model1, wall1, model2, wall2, model3, wall3};
+    updateModelPosition();
   }
 
   // u: scale up model
@@ -758,4 +766,12 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos) {
 
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
   camera->processMouseScroll((float) yOffset);
+}
+
+static void updateModelPosition() {
+  currentModel->resetPosition();
+  currentWall->resetPosition();
+  for (int i = 0; i < 6; i++) {
+    cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
+  }
 }

@@ -23,6 +23,7 @@ const float moveSpeed = 5.0f;
 
 class Model {
  private:
+  glm::vec3 defaultBasePosition;
 
   glm::vec3 basePosition;
 
@@ -40,6 +41,10 @@ class Model {
 
   Model(glm::vec3 basePosition, std::vector<glm::vec3> &relativePositions);
 
+  void setBasePosition(glm::vec3 basePosition);
+
+  void resetPosition();
+
   void scaleUp(float deltaTime);
 
   void scaleDown(float deltaTime);
@@ -48,7 +53,7 @@ class Model {
 
   void rotate(float angleInRadian, glm::vec3 axis, float deltaTime);
 
-  glm::mat4 getModelMatrix(int index);
+  glm::mat4 getModelMatrix(unsigned int index);
 
   unsigned int size();
 
