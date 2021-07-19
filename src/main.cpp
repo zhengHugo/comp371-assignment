@@ -200,15 +200,15 @@ int main(int argc, char *argv[]) {
   };
 
   std::vector<glm::vec3> relativeCubePositions3 = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 2.0f, 0.0f),
-        glm::vec3(0.0f,3.0f, 0.0f),
-        glm::vec3(0.0f, 4.0f, 0.0f),
-        glm::vec3(-1.0f, 3.0f, 0.0f),
-        glm::vec3(1.0f, 3.0f, 0.0f),
-        glm::vec3(-2.0f, 2.0f, 0.0f),
-        glm::vec3(2.0f, 2.0f, 0.0f)
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 1.0f, 0.0f),
+      glm::vec3(0.0f, 2.0f, 0.0f),
+      glm::vec3(0.0f, 3.0f, 0.0f),
+      glm::vec3(0.0f, 4.0f, 0.0f),
+      glm::vec3(-1.0f, 3.0f, 0.0f),
+      glm::vec3(1.0f, 3.0f, 0.0f),
+      glm::vec3(-2.0f, 2.0f, 0.0f),
+      glm::vec3(2.0f, 2.0f, 0.0f)
   };
 
   std::vector<glm::vec3> relativeCubePositions4 = {
@@ -476,8 +476,8 @@ int main(int argc, char *argv[]) {
     // render
     // -------------------------------------
 
-    
-    
+
+
     // draw model
     glBindVertexArray(cubeVao);
     cubeShader.use();
@@ -579,10 +579,10 @@ static void processInput(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
     currentModel = model2;
     currentWall = wall2;
-  }else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-      currentModel = model3;
-      currentWall = wall3;
-  }else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+  } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+    currentModel = model3;
+    currentWall = wall3;
+  } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
     currentModel = model4;
     currentWall = wall4;
   }
@@ -642,6 +642,7 @@ static void processInput(GLFWwindow *window) {
     }
   }
 
+  // d
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
@@ -651,17 +652,21 @@ static void processInput(GLFWwindow *window) {
       // d: rotate right about y-axis
       currentModel->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
     }
+  }
 
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
-        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-    }
-    else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {  //translate to line view
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {  // reset
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
 
+  // p
+  if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
+    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+    glPointSize(5.0f);
+  }
+    // l
+  else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {  //translate to line view
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+    // t
+  else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {  // reset
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 }
 
