@@ -63,6 +63,33 @@ In the terminal type:
 
 Click on the **lab02.exe** from the File Explorer.
 
+### Operation Manual
+```
+COMP371 Assignment1
+
+This is a program displaying 3D object comprising of multiple cubes and a wall with matching hole.
+
+User input interactions as below:
+    for keyboard:
+        press "U/J": object model scale up/down
+        press "+/-": object model and corresponding wall scale up/down
+        press "A": move left
+        press "D": move right
+        press "W": move up
+        press "S": move down
+        press "a": rotate left 5 degrees about Y axis
+        press "d": rotate right 5 degrees about Y axis
+        press lefe/right/up/down arrow: change world orientation
+        press "Home": reset world to initial position and orientation
+        press "P": change rendering mode to points
+        press "L": change rendering mode to lines
+        press "T": change rendering mode to triangles
+        press "Space": reset model to initial position and orientation
+    for mice:
+        mouse moving up and down in y direction: camera tilt
+        mouse moving left and right in x direction: camera pan
+```
+
 ## References
 
 Good place to learn OpenGL
