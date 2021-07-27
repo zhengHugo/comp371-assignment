@@ -32,6 +32,25 @@
   static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
 
   static void updateModelPosition();
+
+  unsigned int LoadImageToGPU(const char *filename, GLint internalformat, GLenum format, int textureSlot) {
+  unsigned int TexBuffer;
+  glGenTextures(1, &TexBuffer);
+  glActiveTexture(GL_TEXTURE0 + textureSlot);
+  glBindTexture(GL_TEXTURE_2D, TexBuffer);
+
+  int width, height, nrChannel;
+  unsigned char *data = stbi_load(filename, &width, &height, &nrChannel, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+    printf("load image failed.");
+  }
+  stbi_image_free(data);
+  return TexBuffer;
+}
   #pragma endregion
 
   #pragma region global Variable Declare
@@ -61,26 +80,190 @@ float lastY = SCR_HEIGHT / 2.0f;
 
 float deltaTime;    // Time between current frame and last frame
 float lastFrame; // Time of last frame
-#pragma endregion
 
-unsigned int LoadImageToGPU(const char *filename, GLint internalformat, GLenum format, int textureSlot) {
-  unsigned int TexBuffer;
-  glGenTextures(1, &TexBuffer);
-  glActiveTexture(GL_TEXTURE0 + textureSlot);
-  glBindTexture(GL_TEXTURE_2D, TexBuffer);
-
-  int width, height, nrChannel;
-  unsigned char *data = stbi_load(filename, &width, &height, &nrChannel, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    printf("load image failed.");
+static void processInput(GLFWwindow *window) {
+  // Escape
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, true);
   }
-  stbi_image_free(data);
-  return TexBuffer;
+
+  // 1-5: switch models
+  if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+    currentModel = model1;
+    currentWall = wall1;
+    cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
+    updateModelPosition();
+  } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+    currentModel = model2;
+    currentWall = wall2;
+    cornerObjects = {model1, wall1, model3, wall3, model4, wall4};
+    updateModelPosition();
+  } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+    currentModel = model3;
+    currentWall = wall3;
+    cornerObjects = {model1, wall1, model2, wall2, model4, wall4};
+    updateModelPosition();
+  } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+    currentModel = model4;
+    currentWall = wall4;
+    cornerObjects = {model1, wall1, model2, wall2, model3, wall3};
+    updateModelPosition();
+  }
+
+  // u: scale up model
+  if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+    currentModel->scaleUp(deltaTime);
+  }
+
+  // j: scale down model
+  if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+    currentModel->scaleDown(deltaTime);
+  }
+
+  // =: scale up model and wall
+  if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS) {
+    currentWall->scaleUp(deltaTime);
+    currentModel->scaleUp(deltaTime);
+  }
+
+  // -: scale down model and wall
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS) {
+    currentWall->scaleDown(deltaTime);
+    currentModel->scaleDown(deltaTime);
+  }
+
+  // shift + w: move up model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    currentModel->move(ModelMovement::UP, deltaTime);
+  }
+
+  // shift + s: move down model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    currentModel->move(ModelMovement::DOWN, deltaTime);
+  }
+
+  // shift + a: move left model
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+  }
+
+
+  // a
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+      // shift + a: move left model
+      currentModel->move(ModelMovement::LEFT, deltaTime);
+    } else {
+      // a: rotate left about y-axis
+      currentModel->rotate(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+    }
+  }
+
+  // d
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+      // shift + d: move right model
+      currentModel->move(ModelMovement::RIGHT, deltaTime);
+    } else {
+      // d: rotate right about y-axis
+      currentModel->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+    }
+  }
+
+  // left: world rotate x -> camera rotate -x
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(-1.0f, 0.0f, 0.0f), deltaTime);
+  }
+
+  // right: world rotate -x -> camera rotate x
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(1.0f, 0.0f, 0.0f), deltaTime);
+  }
+
+  // up: world rotate y -> camera rotate -y
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(0.0f, -1.0f, 0.0f), deltaTime);
+  }
+
+  // down: world rotate -y -> camera rotate y
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    camera->rotate(glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+  }
+
+  // p
+  if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
+    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+    glPointSize(5.0f);
+  }
+    // l
+  else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {  //translate to line view
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+    // t
+  else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {  // reset
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  }
+  // home: go home
+  if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) {
+    camera->goHome();
+  }
+  // space: Repositioning the Model
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    updateModelPosition();
+  }
+
 }
+
+// callback function on window size changed
+static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
+  glViewport(0, 0, width, height);
+}
+
+static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos) {
+  if (firstMouse) {
+    lastX = (float) xPos;
+    lastY = (float) yPos;
+    firstMouse = false;
+  }
+
+  float xOffset = (float) xPos - lastX;
+  float yOffset = (float) yPos - lastY;
+
+  lastX = (float) xPos;
+  lastY = (float) yPos;
+
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+    camera->pan((float) xOffset, deltaTime);
+  }
+
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+    camera->tilt((float) yOffset, deltaTime);
+  }
+
+}
+
+static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
+  camera->processMouseScroll((float) yOffset);
+}
+
+static void updateModelPosition() {
+  currentModel->resetPosition();
+  currentWall->resetPosition();
+  currentModel->resetOrientation();
+  currentWall->resetOrientation();
+  for (int i = 0; i < 6; i++) {
+    cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
+  }
+}
+#pragma endregion
 
 int main(int argc, char *argv[]) {
 
@@ -134,7 +317,9 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
 #pragma endregion
 
+  #pragma region Carmera Declare
   camera = new Camera();
+#pragma endregion
 
   #pragma region Model Data
   // Initialize geometry data
@@ -411,10 +596,6 @@ int main(int argc, char *argv[]) {
   #pragma endregion
 
   #pragma region Init and Load Models to VAO, VBO
-
-  #pragma endregion
-
-
   // bind geometry data
   unsigned int cubeVao, gridVao, axisVao, cubeVbo, gridVbo, axisVbo;
   glGenVertexArrays(1, &cubeVao);
@@ -454,7 +635,7 @@ int main(int argc, char *argv[]) {
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
-
+  #pragma endregion
 
   #pragma region Init and Load Textures
   stbi_set_flip_vertically_on_load(true);
@@ -462,74 +643,74 @@ int main(int argc, char *argv[]) {
   cubeTexBuffer = LoadImageToGPU("res/texture/cube-texture.png", GL_RGBA, GL_RGBA, 0);
   unsigned int wallTexBuffer;
   wallTexBuffer = LoadImageToGPU("res/texture/wall-texture.png", GL_RGBA, GL_RGBA, 1);
-#pragma endregion
-
-  #pragma region Prepare MVP matrices
-  glm::mat4 projection = glm::perspective(glm::radians(camera->Fov), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
-  glm::mat4 view = camera->getViewMatrix();
-#pragma endregion
+  #pragma endregion
 
   // Entering Main Loop
   while (!glfwWindowShouldClose(window)) {
-    // update deltaTime
+    #pragma region Update DeltaTime
     auto currentFrame = (float) glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+    #pragma endregion
 
     // process input
     processInput(window);
-
     // Each frame, reset color of each pixel to glClearColor
     glClearColor(0.035f, 0.149f, 0.1098f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    #pragma region Prepare MVP matrices
+      glm::mat4 projection = glm::perspective(glm::radians(camera->Fov), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
+      glm::mat4 view = camera->getViewMatrix();
+    #pragma endregion
 
-    // draw model
-    glBindVertexArray(cubeVao);
-    cubeShader.use();
-    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
-    int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
-    for (size_t i = 0; i < currentModel->size(); i++) {
-      // assign cube texture
-      glUniform1i(cubeTexLocation, 0);
-      // calculate cube model matrix
-      glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
-      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-    // draw wall
-    for (size_t i = 0; i < currentWall->size(); i++) {
-      // assign wall texture
-      glUniform1i(cubeTexLocation, 1);
-      // calculate the model matrix for wall
-      glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
-      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-
-    // corner models
-    for (int j = 0; j < 3; j++) {
-      // draw model (at cornerObjects[] even indices)
-      for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
+    #pragma region Draw Cubes
+  // draw model
+      glBindVertexArray(cubeVao);
+      cubeShader.use();
+      glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+      glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+      int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
+      int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
+      for (size_t i = 0; i < currentModel->size(); i++) {
         // assign cube texture
         glUniform1i(cubeTexLocation, 0);
-        glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
+        // calculate cube model matrix
+        glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
         glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
-      // draw wall (at cornerObjects[] odd indices)
-      for (size_t i = 0; i < cornerObjects[2 * j + 1]->size(); i++) {
+      // draw wall
+      for (size_t i = 0; i < currentWall->size(); i++) {
         // assign wall texture
         glUniform1i(cubeTexLocation, 1);
-        glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
+        // calculate the model matrix for wall
+        glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
         glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
-    }
 
-
+      // corner models
+      for (int j = 0; j < 3; j++) {
+        // draw model (at cornerObjects[] even indices)
+        for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
+          // assign cube texture
+          glUniform1i(cubeTexLocation, 0);
+          glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
+          glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
+          glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        // draw wall (at cornerObjects[] odd indices)
+        for (size_t i = 0; i < cornerObjects[2 * j + 1]->size(); i++) {
+          // assign wall texture
+          glUniform1i(cubeTexLocation, 1);
+          glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
+          glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
+          glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+      }
+    #pragma endregion
+    #pragma region Draw Line
     // draw grid
     glBindVertexArray(gridVao);
     lineShader.use();
@@ -559,21 +740,22 @@ int main(int argc, char *argv[]) {
     glDrawArrays(GL_LINES, 2, 2);
     glDrawArrays(GL_LINES, 4, 2);
     glLineWidth(1.0f);
+#pragma endregion   s
 
     // End frame
     glfwSwapBuffers(window);
-
     // Detect inputs
     glfwPollEvents();
-
   }
+#pragma region Deallocate Resources
   // deallocate resources
   glDeleteVertexArrays(1, &cubeVao);
+  glDeleteVertexArrays(1, &axisVao);
   glDeleteVertexArrays(1, &gridVao);
   glDeleteBuffers(1, &cubeVbo);
+  glDeleteBuffers(1, &axisVbo);
   glDeleteBuffers(1, &gridVbo);
 
-  // delete
   // camera
   delete camera;
   // models
@@ -586,193 +768,12 @@ int main(int argc, char *argv[]) {
   delete wall2;
   delete wall3;
   delete wall4;
-
+  // positions
   delete cornerPositions;
-
+#pragma endregion
   // Shutdown GLFW
   glfwTerminate();
   return 0;
 }
 
-static void processInput(GLFWwindow *window) {
-  // Escape
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    glfwSetWindowShouldClose(window, true);
-  }
 
-  // 1-5: switch models
-  if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-    currentModel = model1;
-    currentWall = wall1;
-    cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
-    updateModelPosition();
-  } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-    currentModel = model2;
-    currentWall = wall2;
-    cornerObjects = {model1, wall1, model3, wall3, model4, wall4};
-    updateModelPosition();
-  } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-    currentModel = model3;
-    currentWall = wall3;
-    cornerObjects = {model1, wall1, model2, wall2, model4, wall4};
-    updateModelPosition();
-  } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
-    currentModel = model4;
-    currentWall = wall4;
-    cornerObjects = {model1, wall1, model2, wall2, model3, wall3};
-    updateModelPosition();
-  }
-
-  // u: scale up model
-  if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
-    currentModel->scaleUp(deltaTime);
-  }
-
-  // j: scale down model
-  if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-    currentModel->scaleDown(deltaTime);
-  }
-
-  // =: scale up model and wall
-  if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS) {
-    currentWall->scaleUp(deltaTime);
-    currentModel->scaleUp(deltaTime);
-  }
-
-  // -: scale down model and wall
-  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS) {
-    currentWall->scaleDown(deltaTime);
-    currentModel->scaleDown(deltaTime);
-  }
-
-  // shift + w: move up model
-  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
-      && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    currentModel->move(ModelMovement::UP, deltaTime);
-  }
-
-  // shift + s: move down model
-  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
-      && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    currentModel->move(ModelMovement::DOWN, deltaTime);
-  }
-
-  // shift + a: move left model
-  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
-      && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-  }
-
-
-  // a
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-      // shift + a: move left model
-      currentModel->move(ModelMovement::LEFT, deltaTime);
-    } else {
-      // a: rotate left about y-axis
-      currentModel->rotate(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
-    }
-  }
-
-  // d
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-      // shift + d: move right model
-      currentModel->move(ModelMovement::RIGHT, deltaTime);
-    } else {
-      // d: rotate right about y-axis
-      currentModel->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
-    }
-  }
-
-  // left: world rotate x -> camera rotate -x
-  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-    camera->rotate(glm::vec3(-1.0f, 0.0f, 0.0f), deltaTime);
-  }
-
-  // right: world rotate -x -> camera rotate x
-  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-    camera->rotate(glm::vec3(1.0f, 0.0f, 0.0f), deltaTime);
-  }
-
-  // up: world rotate y -> camera rotate -y
-  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-    camera->rotate(glm::vec3(0.0f, -1.0f, 0.0f), deltaTime);
-  }
-
-  // down: world rotate -y -> camera rotate y
-  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-    camera->rotate(glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
-  }
-
-  // p
-  if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
-    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-    glPointSize(5.0f);
-  }
-    // l
-  else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {  //translate to line view
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  }
-    // t
-  else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {  // reset
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-  }
-  // home: go home
-  if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) {
-    camera->goHome();
-  }
-  // space: Repositioning the Model
-  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    updateModelPosition();
-  }
-
-}
-
-// callback function on window size changed
-static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
-  glViewport(0, 0, width, height);
-}
-
-static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos) {
-  if (firstMouse) {
-    lastX = (float) xPos;
-    lastY = (float) yPos;
-    firstMouse = false;
-  }
-
-  float xOffset = (float) xPos - lastX;
-  float yOffset = (float) yPos - lastY;
-
-  lastX = (float) xPos;
-  lastY = (float) yPos;
-
-  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-    camera->pan((float) xOffset, deltaTime);
-  }
-
-  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
-    camera->tilt((float) yOffset, deltaTime);
-  }
-
-}
-
-static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
-  camera->processMouseScroll((float) yOffset);
-}
-
-static void updateModelPosition() {
-  currentModel->resetPosition();
-  currentWall->resetPosition();
-  currentModel->resetOrientation();
-  currentWall->resetOrientation();
-  for (int i = 0; i < 6; i++) {
-    cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
-  }
-}
