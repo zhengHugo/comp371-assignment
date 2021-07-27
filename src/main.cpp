@@ -1,4 +1,5 @@
 #define GLEW_STATIC 1   //This allows linking with Static Library on Windows, without DLL
+#define STB_IMAGE_IMPLEMENTATION // Enable stb library
 
 #include <GL/glew.h>   // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
@@ -7,26 +8,17 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
+#include "stb_image.h"
 
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
 
-#define STB_IMAGE_IMPLEMENTATION
+#pragma region Declare static functions
 
-#include "stb_image.h"
+static void clearError();
 
-
-static void clearError() {
-  while (glGetError() != GL_NO_ERROR);
-}
-
-static void checkError() {
-  while (GLenum error = glGetError()) {
-    std::cout << "[OpenGL Error] (0x" << std::hex << error << std::dec << ")" << std::endl;
-  }
-}
-
+static void checkError();
 
 static void processInput(GLFWwindow *window);
 
@@ -38,8 +30,13 @@ static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
 
 static void updateModelPosition();
 
-const unsigned int SCR_WIDTH = 1024;
-const unsigned int SCR_HEIGHT = 768;
+static unsigned int loadTexture(const char *path);
+
+static void processInput();
+
+#pragma endregion // declare functions
+
+#pragma region Declare global variables
 
 Camera *camera;
 Model *model1;
@@ -53,17 +50,24 @@ Model *wall4;
 Model *currentModel;
 Model *currentWall;
 std::vector<Model *> cornerObjects;
+
+// window width & height
+const unsigned int SCR_WIDTH = 1024;
+const unsigned int SCR_HEIGHT = 768;
 glm::vec3 *cornerPositions;
 
-// for mouse initialization
-bool firstMouse = true; // true when mouse callback is called for the first time; false otherwise
+// true when mouse callback is called for the first time; false otherwise
+bool firstMouse = true;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 
-float deltaTime;    // Time between current frame and last frame
+float deltaTime; // Time between current frame and last frame
 float lastFrame; // Time of last frame
 
+#pragma endregion // declare global variables
+
 int main(int argc, char *argv[]) {
+
   // Initializations
   // --------------------------
 
@@ -84,7 +88,11 @@ int main(int argc, char *argv[]) {
   //Anti Aliasing
   glfwWindowHint(GLFW_SAMPLES, 8);
   // Create Window and rendering context using GLFW, resolution is 800x600
-  GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Comp371 - Assignment 01", nullptr, nullptr);
+  GLFWwindow *window = glfwCreateWindow(SCR_WIDTH,
+                                        SCR_HEIGHT,
+                                        "Comp371 - Assignment 01",
+                                        nullptr,
+                                        nullptr);
   if (window == nullptr) {
     std::cerr << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
@@ -112,19 +120,17 @@ int main(int argc, char *argv[]) {
   // enable depth info
   glEnable(GL_DEPTH_TEST);
 
-  // draw lines only
-
   camera = new Camera();
 
-  // Initialize geometry data
+  // Geometry data
   // -----------------------------------
   float unitCubeVertices[] = {
       // unit cube vertices
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
       0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
       0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
 
       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
@@ -141,11 +147,11 @@ int main(int argc, char *argv[]) {
       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
       -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
       -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
@@ -155,11 +161,11 @@ int main(int argc, char *argv[]) {
       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
       -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
 
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
   };
 
@@ -366,6 +372,7 @@ int main(int argc, char *argv[]) {
   glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
   glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
 
+  // build models
   model1 = new Model(baseCubePosition, relativeCubePositions1);
   model2 = new Model(baseCubePosition, relativeCubePositions2);
   model3 = new Model(baseCubePosition, relativeCubePositions3);
@@ -377,11 +384,17 @@ int main(int argc, char *argv[]) {
 
   currentModel = model1;
   currentWall = wall1;
-  //set an array to store other object
   cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
   updateModelPosition();
 
-  // bind geometry data
+  // build and compile shader
+  Shader cubeShader
+      ("res/shader/CubeVertex.shader", "res/shader/CubeFragment.shader");
+  Shader lineShader
+      ("res/shader/LineVertex.shader", "res/shader/LineFragment.shader");
+
+  // Binding geometry data
+  // ------------------------------------
   unsigned int cubeVao, gridVao, axisVao, cubeVbo, gridVbo, axisVbo;
   glGenVertexArrays(1, &cubeVao);
   glGenVertexArrays(1, &gridVao);
@@ -394,134 +407,139 @@ int main(int argc, char *argv[]) {
   glBindVertexArray(cubeVao);
 
   glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(unitCubeVertices), unitCubeVertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,
+               sizeof(unitCubeVertices),
+               unitCubeVertices,
+               GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(1,
+                        2,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        5 * sizeof(float),
+                        (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
   // bind grid data
   glBindVertexArray(gridVao);
   glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(unitLineVertices), unitLineVertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,
+               sizeof(unitLineVertices),
+               unitLineVertices,
+               GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(1,
+                        3,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        6 * sizeof(float),
+                        (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
   // bind axis data
   glBindVertexArray(axisVao);
   glBindBuffer(GL_ARRAY_BUFFER, axisVbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,
+               sizeof(axisVertices),
+               axisVertices,
+               GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(1,
+                        3,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        6 * sizeof(float),
+                        (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
-  // build and compile shader
-  // ------------------------
-  Shader cubeShader("res/shader/CubeVertex.shader", "res/shader/CubeFragment.shader");
-  Shader lineShader("res/shader/LineVertex.shader", "res/shader/LineFragment.shader");
-
-  // import texture:
-  unsigned int cubeTexBuffer;
-
-  glGenTextures(1, &cubeTexBuffer);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
-
-  int width, height, nrChannel;
+  // load texture
   stbi_set_flip_vertically_on_load(true);
-  unsigned char *data = stbi_load("res/texture/cube-texture.png", &width, &height, &nrChannel, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    std::cout << "Fail to load image. " << std::endl;
-  }
-  stbi_image_free(data);
-
-  // import texture for walls:
+  unsigned int cubeTexBuffer;
+  cubeTexBuffer = loadTexture("res/texture/cube-texture.png");
   unsigned int wallTexBuffer;
-  glGenTextures(1, &wallTexBuffer);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
-
-  unsigned char *data2 =
-      stbi_load("res/texture/wall-texture.png", &width, &height, &nrChannel, 0);
-
-  if (data2) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data2);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    std::cout << "Fail to load image. " << std::endl;
-  }
-  stbi_image_free(data2);
+  wallTexBuffer = loadTexture("res/texture/wall-texture.png");
 
 
   // Entering Main Loop
   while (!glfwWindowShouldClose(window)) {
-    // update deltaTime
+    // update time
     auto currentFrame = (float) glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
     // process input
     processInput(window);
-
     // Each frame, reset color of each pixel to glClearColor
     glClearColor(0.035f, 0.149f, 0.1098f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-    // camera matrix
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Fov), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
-
+    // get camera matrices
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Fov),
+                                            (float) SCR_WIDTH / SCR_HEIGHT,
+                                            0.1f,
+                                            100.f);
     glm::mat4 view = camera->getViewMatrix();
-
-    // render
-    // -------------------------------------
-
-
 
     // draw model
     glBindVertexArray(cubeVao);
     cubeShader.use();
-    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"),
+                       1,
+                       GL_FALSE,
+                       glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"),
+                       1,
+                       GL_FALSE,
+                       glm::value_ptr(projection));
     int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
     int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
     for (size_t i = 0; i < currentModel->size(); i++) {
       // assign cube texture
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
       glUniform1i(cubeTexLocation, 0);
       // calculate cube model matrix
       glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
-      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
+      glUniformMatrix4fv(cubeModelLocation,
+                         1,
+                         GL_FALSE,
+                         glm::value_ptr(cubeModelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     // draw wall
     for (size_t i = 0; i < currentWall->size(); i++) {
       // assign wall texture
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
       glUniform1i(cubeTexLocation, 1);
       // calculate the model matrix for wall
       glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
-      glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
+      glUniformMatrix4fv(cubeModelLocation,
+                         1,
+                         GL_FALSE,
+                         glm::value_ptr(wallModelMatrix));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
-    // corner models
+    // draw corner models
     for (int j = 0; j < 3; j++) {
       // draw model (at cornerObjects[] even indices)
       for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
         // assign cube texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
         glUniform1i(cubeTexLocation, 0);
         glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
-        glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(cubeModelMatrix));
+        glUniformMatrix4fv(cubeModelLocation,
+                           1,
+                           GL_FALSE,
+                           glm::value_ptr(cubeModelMatrix));
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
       // draw wall (at cornerObjects[] odd indices)
@@ -529,37 +547,65 @@ int main(int argc, char *argv[]) {
         // assign wall texture
         glUniform1i(cubeTexLocation, 1);
         glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
-        glUniformMatrix4fv(cubeModelLocation, 1, GL_FALSE, glm::value_ptr(wallModelMatrix));
+        glUniformMatrix4fv(cubeModelLocation,
+                           1,
+                           GL_FALSE,
+                           glm::value_ptr(wallModelMatrix));
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
     }
 
-
     // draw grid
     glBindVertexArray(gridVao);
     lineShader.use();
-    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "projection"),
+                       1,
+                       GL_FALSE,
+                       glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "view"),
+                       1,
+                       GL_FALSE,
+                       glm::value_ptr(view));
 
     int gridModelLocation = glGetUniformLocation(lineShader.id, "model");
     for (int i = 0; i < 100; i++) {
       // horizontal lines
-      glm::mat4 gridModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f + (float) i));
-      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
+      glm::mat4 gridModelMatrix = glm::translate(glm::mat4(1.0f),
+                                                 glm::vec3(0.0f,
+                                                           0.0f,
+                                                           -50.0f + (float) i));
+      gridModelMatrix =
+          glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
+      glUniformMatrix4fv(gridModelLocation,
+                         1,
+                         GL_FALSE,
+                         glm::value_ptr(gridModelMatrix));
       glDrawArrays(GL_LINES, 0, 2);
 
       // vertical lines
-      gridModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-50.0f + (float) i, 0.0f, 0.0f));
-      gridModelMatrix = glm::rotate(gridModelMatrix, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(gridModelMatrix));
+      gridModelMatrix = glm::translate(glm::mat4(1.0f),
+                                       glm::vec3(-50.0f + (float) i,
+                                                 0.0f,
+                                                 0.0f));
+      gridModelMatrix = glm::rotate(gridModelMatrix,
+                                    glm::radians(90.0f),
+                                    glm::vec3(0.0f, 1.0f, 0.0f));
+      gridModelMatrix =
+          glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
+      glUniformMatrix4fv(gridModelLocation,
+                         1,
+                         GL_FALSE,
+                         glm::value_ptr(gridModelMatrix));
       glDrawArrays(GL_LINES, 0, 2);
     }
+
     // draw axis
     glLineWidth(5.0f);
     glBindVertexArray(axisVao);
-    glUniformMatrix4fv(gridModelLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+    glUniformMatrix4fv(gridModelLocation,
+                       1,
+                       GL_FALSE,
+                       glm::value_ptr(glm::mat4(1.0f)));
     glDrawArrays(GL_LINES, 0, 2);
     glDrawArrays(GL_LINES, 2, 2);
     glDrawArrays(GL_LINES, 4, 2);
@@ -567,18 +613,18 @@ int main(int argc, char *argv[]) {
 
     // End frame
     glfwSwapBuffers(window);
-
     // Detect inputs
     glfwPollEvents();
-
   }
+
   // deallocate resources
   glDeleteVertexArrays(1, &cubeVao);
+  glDeleteVertexArrays(1, &axisVao);
   glDeleteVertexArrays(1, &gridVao);
   glDeleteBuffers(1, &cubeVbo);
+  glDeleteBuffers(1, &axisVbo);
   glDeleteBuffers(1, &gridVbo);
 
-  // delete
   // camera
   delete camera;
   // models
@@ -591,12 +637,66 @@ int main(int argc, char *argv[]) {
   delete wall2;
   delete wall3;
   delete wall4;
-
+  // positions
   delete cornerPositions;
-
   // Shutdown GLFW
   glfwTerminate();
   return 0;
+}
+
+#pragma region Helper functions
+static void clearError() {
+  while (glGetError() != GL_NO_ERROR);
+}
+
+static void checkError() {
+  while (GLenum error = glGetError()) {
+    std::cout << "[OpenGL Error] (0x" << std::hex << error << std::dec << ")"
+              << std::endl;
+  }
+}
+
+static unsigned int loadTexture(const char *path) {
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
+
+  int width, height, nrComponents;
+  unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+  if (data) {
+    GLenum format = GL_RGB;
+    if (nrComponents == 1)
+      format = GL_RED;
+    else if (nrComponents == 3)
+      format = GL_RGB;
+    else if (nrComponents == 4)
+      format = GL_RGBA;
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 (int) format,
+                 width,
+                 height,
+                 0,
+                 format,
+                 GL_UNSIGNED_BYTE,
+                 data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
+  } else {
+    std::cout << "Texture failed to load at path: " << path << std::endl;
+    stbi_image_free(data);
+  }
+
+  return textureID;
 }
 
 static void processInput(GLFWwindow *window) {
@@ -652,21 +752,21 @@ static void processInput(GLFWwindow *window) {
 
   // shift + w: move up model
   if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
       && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     currentModel->move(ModelMovement::UP, deltaTime);
   }
 
   // shift + s: move down model
   if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
       && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     currentModel->move(ModelMovement::DOWN, deltaTime);
   }
 
   // shift + a: move left model
   if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-       || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+      || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
       && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
   }
 
@@ -679,7 +779,9 @@ static void processInput(GLFWwindow *window) {
       currentModel->move(ModelMovement::LEFT, deltaTime);
     } else {
       // a: rotate left about y-axis
-      currentModel->rotate(glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+      currentModel->rotate(glm::radians(-90.0f),
+                           glm::vec3(0.0f, 1.0f, 0.0f),
+                           deltaTime);
     }
   }
 
@@ -691,7 +793,9 @@ static void processInput(GLFWwindow *window) {
       currentModel->move(ModelMovement::RIGHT, deltaTime);
     } else {
       // d: rotate right about y-axis
-      currentModel->rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f), deltaTime);
+      currentModel->rotate(glm::radians(90.0f),
+                           glm::vec3(0.0f, 1.0f, 0.0f),
+                           deltaTime);
     }
   }
 
@@ -716,12 +820,14 @@ static void processInput(GLFWwindow *window) {
   }
 
   // p
-  if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {         //translate to point view
+  if (glfwGetKey(window, GLFW_KEY_P)
+      == GLFW_PRESS) {         //translate to point view
     glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
     glPointSize(5.0f);
   }
     // l
-  else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {  //translate to line view
+  else if (glfwGetKey(window, GLFW_KEY_L)
+      == GLFW_PRESS) {  //translate to line view
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   }
     // t
@@ -740,7 +846,19 @@ static void processInput(GLFWwindow *window) {
 
 }
 
-// callback function on window size changed
+static void updateModelPosition() {
+  currentModel->resetPosition();
+  currentWall->resetPosition();
+  currentModel->resetOrientation();
+  currentWall->resetOrientation();
+  for (int i = 0; i < 6; i++) {
+    cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
+  }
+}
+
+#pragma endregion // helper functions
+
+#pragma region Window callback functions
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
@@ -772,12 +890,4 @@ static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
   camera->processMouseScroll((float) yOffset);
 }
 
-static void updateModelPosition() {
-  currentModel->resetPosition();
-  currentWall->resetPosition();
-  currentModel->resetOrientation();
-  currentWall->resetOrientation();
-  for (int i = 0; i < 6; i++) {
-    cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
-  }
-}
+#pragma endregion // Window callback functions
