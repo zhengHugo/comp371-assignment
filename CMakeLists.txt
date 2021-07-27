@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(COMP371_Assignment1)
+project(COMP371_Assignment2)
 
 set(CMAKE_CXX_STANDARD 11)
 
