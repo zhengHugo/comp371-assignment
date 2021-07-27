@@ -1,5 +1,4 @@
 #define GLEW_STATIC 1   //This allows linking with Static Library on Windows, without DLL
-
 #include <GL/glew.h>   // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #include <glm/glm.hpp>  // GLM is an optimized math library with syntax to similar to OpenGL Shading Language
@@ -7,40 +6,35 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
-
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-
 #define STB_IMAGE_IMPLEMENTATION
-
 #include "stb_image.h"
 
-
-static void clearError() {
-  while (glGetError() != GL_NO_ERROR);
-}
-
-static void checkError() {
-  while (GLenum error = glGetError()) {
-    std::cout << "[OpenGL Error] (0x" << std::hex << error << std::dec << ")" << std::endl;
+  #pragma region Methods Declare
+  static void clearError() {
+    while (glGetError() != GL_NO_ERROR);
   }
-}
 
+  static void checkError() {
+    while (GLenum error = glGetError()) {
+      std::cout << "[OpenGL Error] (0x" << std::hex << error << std::dec << ")" << std::endl;
+    }
+  }
 
-static void processInput(GLFWwindow *window);
+  static void processInput(GLFWwindow *window);
 
-static void frameBufferSizeCallback(GLFWwindow *window, int width, int height);
+  static void frameBufferSizeCallback(GLFWwindow *window, int width, int height);
 
-static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos);
+  static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos);
 
-static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
+  static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
 
-static void updateModelPosition();
+  static void updateModelPosition();
+  #pragma endregion
 
-const unsigned int SCR_WIDTH = 1024;
-const unsigned int SCR_HEIGHT = 768;
-
+  #pragma region global Variable Declare
 Camera *camera;
 Model *model1;
 Model *model2;
@@ -54,7 +48,12 @@ Model *currentModel;
 Model *currentWall;
 std::vector<Model *> cornerObjects;
 glm::vec3 *cornerPositions;
+#pragma endregion
 
+  #pragma region Input Declare
+// window width & height
+const unsigned int SCR_WIDTH = 1024;
+const unsigned int SCR_HEIGHT = 768;
 // for mouse initialization
 bool firstMouse = true; // true when mouse callback is called for the first time; false otherwise
 float lastX = SCR_WIDTH / 2.0f;
@@ -62,8 +61,30 @@ float lastY = SCR_HEIGHT / 2.0f;
 
 float deltaTime;    // Time between current frame and last frame
 float lastFrame; // Time of last frame
+#pragma endregion
+
+unsigned int LoadImageToGPU(const char *filename, GLint internalformat, GLenum format, int textureSlot) {
+  unsigned int TexBuffer;
+  glGenTextures(1, &TexBuffer);
+  glActiveTexture(GL_TEXTURE0 + textureSlot);
+  glBindTexture(GL_TEXTURE_2D, TexBuffer);
+
+  int width, height, nrChannel;
+  unsigned char *data = stbi_load(filename, &width, &height, &nrChannel, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+    printf("load image failed.");
+  }
+  stbi_image_free(data);
+  return TexBuffer;
+}
 
 int main(int argc, char *argv[]) {
+
+  #pragma region Open a Window
   // Initializations
   // --------------------------
 
@@ -111,20 +132,20 @@ int main(int argc, char *argv[]) {
   glEnable(GL_MULTISAMPLE);
   // enable depth info
   glEnable(GL_DEPTH_TEST);
-
-  // draw lines only
+#pragma endregion
 
   camera = new Camera();
 
+  #pragma region Model Data
   // Initialize geometry data
   // -----------------------------------
   float unitCubeVertices[] = {
       // unit cube vertices
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
       0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
       0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
 
       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
@@ -141,11 +162,11 @@ int main(int argc, char *argv[]) {
       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
       -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
       -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
@@ -155,11 +176,11 @@ int main(int argc, char *argv[]) {
       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
       -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
 
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
       0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
   };
 
@@ -380,6 +401,19 @@ int main(int argc, char *argv[]) {
   //set an array to store other object
   cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
   updateModelPosition();
+#pragma endregion
+
+  #pragma region Init Shader Program
+  // build and compile shader
+  // ------------------------
+  Shader cubeShader("res/shader/CubeVertex.shader", "res/shader/CubeFragment.shader");
+  Shader lineShader("res/shader/LineVertex.shader", "res/shader/LineFragment.shader");
+  #pragma endregion
+
+  #pragma region Init and Load Models to VAO, VBO
+
+  #pragma endregion
+
 
   // bind geometry data
   unsigned int cubeVao, gridVao, axisVao, cubeVbo, gridVbo, axisVbo;
@@ -421,48 +455,19 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
-  // build and compile shader
-  // ------------------------
-  Shader cubeShader("res/shader/CubeVertex.shader", "res/shader/CubeFragment.shader");
-  Shader lineShader("res/shader/LineVertex.shader", "res/shader/LineFragment.shader");
 
-  // import texture:
-  unsigned int cubeTexBuffer;
-
-  glGenTextures(1, &cubeTexBuffer);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
-
-  int width, height, nrChannel;
+  #pragma region Init and Load Textures
   stbi_set_flip_vertically_on_load(true);
-  unsigned char *data = stbi_load("res/texture/cube-texture.png", &width, &height, &nrChannel, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    std::cout << "Fail to load image. " << std::endl;
-  }
-  stbi_image_free(data);
-
-  // import texture for walls:
+  unsigned int cubeTexBuffer;
+  cubeTexBuffer = LoadImageToGPU("res/texture/cube-texture.png", GL_RGBA, GL_RGBA, 0);
   unsigned int wallTexBuffer;
-  glGenTextures(1, &wallTexBuffer);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
+  wallTexBuffer = LoadImageToGPU("res/texture/wall-texture.png", GL_RGBA, GL_RGBA, 1);
+#pragma endregion
 
-  unsigned char *data2 =
-      stbi_load("res/texture/wall-texture.png", &width, &height, &nrChannel, 0);
-
-  if (data2) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data2);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    std::cout << "Fail to load image. " << std::endl;
-  }
-  stbi_image_free(data2);
-
+  #pragma region Prepare MVP matrices
+  glm::mat4 projection = glm::perspective(glm::radians(camera->Fov), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
+  glm::mat4 view = camera->getViewMatrix();
+#pragma endregion
 
   // Entering Main Loop
   while (!glfwWindowShouldClose(window)) {
@@ -477,16 +482,6 @@ int main(int argc, char *argv[]) {
     // Each frame, reset color of each pixel to glClearColor
     glClearColor(0.035f, 0.149f, 0.1098f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-    // camera matrix
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Fov), (float) SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
-
-    glm::mat4 view = camera->getViewMatrix();
-
-    // render
-    // -------------------------------------
-
 
 
     // draw model
