@@ -13,6 +13,8 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Material.h"
+#include "PointLight.h"
 
 #pragma region Declare static functions
 
@@ -33,6 +35,8 @@ static void updateModelPosition();
 static unsigned int loadTexture(const char *path);
 
 static void processInput();
+
+static void readFloatArrayFromFile(const std::string &path);
 
 #pragma endregion // declare functions
 
@@ -115,6 +119,7 @@ int main(int argc, char *argv[]) {
     glfwTerminate();
     return -1;
   }
+
   // enable MULTISAMPLE
   glEnable(GL_MULTISAMPLE);
   // enable depth info
@@ -126,47 +131,48 @@ int main(int argc, char *argv[]) {
   // -----------------------------------
   float unitCubeVertices[] = {
       // unit cube vertices
-      0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+      // TODO: read data from file
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+      0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-      -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-      -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-      -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+      -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+      -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-      0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-      0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+      0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
 
-      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
   };
 
   float unitLineVertices[] = {
@@ -387,6 +393,14 @@ int main(int argc, char *argv[]) {
   cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
   updateModelPosition();
 
+  // light declarations
+  PointLight pointLight = PointLight(
+      glm::vec3(15.0f, 20.0f, 20.0f),
+      glm::vec3(glm::radians(0.0f), 0, 0),
+      glm::vec3(70.0f)
+  );
+
+
   // build and compile shader
   Shader cubeShader
       ("res/shader/CubeVertex.shader", "res/shader/CubeFragment.shader");
@@ -407,64 +421,47 @@ int main(int argc, char *argv[]) {
   glBindVertexArray(cubeVao);
 
   glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               sizeof(unitCubeVertices),
-               unitCubeVertices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(unitCubeVertices), unitCubeVertices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
-  glVertexAttribPointer(1,
-                        2,
-                        GL_FLOAT,
-                        GL_FALSE,
-                        5 * sizeof(float),
-                        (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
 
   // bind grid data
   glBindVertexArray(gridVao);
   glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               sizeof(unitLineVertices),
-               unitLineVertices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(unitLineVertices), unitLineVertices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-  glVertexAttribPointer(1,
-                        3,
-                        GL_FLOAT,
-                        GL_FALSE,
-                        6 * sizeof(float),
-                        (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
   // bind axis data
   glBindVertexArray(axisVao);
   glBindBuffer(GL_ARRAY_BUFFER, axisVbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               sizeof(axisVertices),
-               axisVertices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-  glVertexAttribPointer(1,
-                        3,
-                        GL_FLOAT,
-                        GL_FALSE,
-                        6 * sizeof(float),
-                        (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
-  // load texture
-  stbi_set_flip_vertically_on_load(true);
-  unsigned int cubeTexBuffer;
-  cubeTexBuffer = loadTexture("res/texture/cube-texture.png");
-  unsigned int wallTexBuffer;
-  wallTexBuffer = loadTexture("res/texture/wall-texture.png");
+  auto *metal = new Material(cubeShader,
+                             loadTexture("res/texture/metal.png"),
+                             loadTexture("res/texture/metal.png"),
+                             glm::vec3(0.1f, 0.1f, 0.1f),
+                             4.0f);
 
+  auto *brick = new Material(cubeShader,
+                             loadTexture("res/texture/brick.png"),
+                             loadTexture("res/texture/blackout.png"),
+                             glm::vec3(1.0f, 1.0f, 1.0f),
+                             32.0f);
 
   // Entering Main Loop
   while (!glfwWindowShouldClose(window)) {
@@ -485,45 +482,50 @@ int main(int argc, char *argv[]) {
                                             0.1f,
                                             100.f);
     glm::mat4 view = camera->getViewMatrix();
-
+    // import cameraPos
+    cubeShader.use();
+    cubeShader.setVec3("cameraPos", camera->Position);
     // draw model
     glBindVertexArray(cubeVao);
-    cubeShader.use();
-    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"),
-                       1,
-                       GL_FALSE,
-                       glm::value_ptr(view));
-    glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"),
-                       1,
-                       GL_FALSE,
-                       glm::value_ptr(projection));
-    int cubeTexLocation = glGetUniformLocation(cubeShader.id, "aTexture");
-    int cubeModelLocation = glGetUniformLocation(cubeShader.id, "model");
+    cubeShader.setMat4("view", view);
+    cubeShader.setMat4("projection", projection);
+    //load shader for light
+    cubeShader.setVec3("ambientColor", glm::vec3(0.3f));
+    cubeShader.setVec3("pointLight.pos", pointLight.position);
+    cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
+    cubeShader.setVec3("pointLight.color", pointLight.color);
+    cubeShader.setFloat("pointLight.constant", pointLight.constant);
+    cubeShader.setFloat("pointLight.linear", pointLight.linear);
+    cubeShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+
     for (size_t i = 0; i < currentModel->size(); i++) {
       // assign cube texture
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
-      glUniform1i(cubeTexLocation, 0);
+      glBindTexture(GL_TEXTURE_2D, metal->diffuse);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, metal->specular);
+      cubeShader.setInt("material.diffuse", 0);
+      cubeShader.setInt("material.specular", 1);
+      cubeShader.setFloat("material.shininess", metal->shininess);
       // calculate cube model matrix
       glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
-      glUniformMatrix4fv(cubeModelLocation,
-                         1,
-                         GL_FALSE,
-                         glm::value_ptr(cubeModelMatrix));
+      cubeShader.setMat4("model", cubeModelMatrix);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
+
     // draw wall
     for (size_t i = 0; i < currentWall->size(); i++) {
       // assign wall texture
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, brick->diffuse);
       glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
-      glUniform1i(cubeTexLocation, 1);
+      glBindTexture(GL_TEXTURE_2D, brick->specular);
+      cubeShader.setInt("material.diffuse", 0);
+      cubeShader.setInt("material.specular", 1);
+      cubeShader.setFloat("material.shininess", brick->shininess);
       // calculate the model matrix for wall
       glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
-      glUniformMatrix4fv(cubeModelLocation,
-                         1,
-                         GL_FALSE,
-                         glm::value_ptr(wallModelMatrix));
+      cubeShader.setMat4("model", wallModelMatrix);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
@@ -533,24 +535,28 @@ int main(int argc, char *argv[]) {
       for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
         // assign cube texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
-        glUniform1i(cubeTexLocation, 0);
+        glBindTexture(GL_TEXTURE_2D, metal->diffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, metal->specular);
+        cubeShader.setInt("material.diffuse", 0);
+        cubeShader.setInt("material.specular", 1);
+        cubeShader.setFloat("material.shininess", metal->shininess);
         glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
-        glUniformMatrix4fv(cubeModelLocation,
-                           1,
-                           GL_FALSE,
-                           glm::value_ptr(cubeModelMatrix));
+        cubeShader.setMat4("model", cubeModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
       // draw wall (at cornerObjects[] odd indices)
       for (size_t i = 0; i < cornerObjects[2 * j + 1]->size(); i++) {
         // assign wall texture
-        glUniform1i(cubeTexLocation, 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, brick->diffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, brick->specular);
+        cubeShader.setInt("material.diffuse", 0);
+        cubeShader.setInt("material.specular", 1);
+        cubeShader.setFloat("material.shininess", brick->shininess);
         glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
-        glUniformMatrix4fv(cubeModelLocation,
-                           1,
-                           GL_FALSE,
-                           glm::value_ptr(wallModelMatrix));
+        cubeShader.setMat4("model", wallModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
     }
@@ -558,54 +564,39 @@ int main(int argc, char *argv[]) {
     // draw grid
     glBindVertexArray(gridVao);
     lineShader.use();
-    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "projection"),
-                       1,
-                       GL_FALSE,
-                       glm::value_ptr(projection));
-    glUniformMatrix4fv(glGetUniformLocation(lineShader.id, "view"),
-                       1,
-                       GL_FALSE,
-                       glm::value_ptr(view));
+    lineShader.setMat4("projection", projection);
+    lineShader.setMat4("view", view);
 
     int gridModelLocation = glGetUniformLocation(lineShader.id, "model");
     for (int i = 0; i < 100; i++) {
       // horizontal lines
       glm::mat4 gridModelMatrix = glm::translate(glm::mat4(1.0f),
-                                                 glm::vec3(0.0f,
-                                                           0.0f,
-                                                           -50.0f + (float) i));
-      gridModelMatrix =
-          glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      glUniformMatrix4fv(gridModelLocation,
-                         1,
-                         GL_FALSE,
-                         glm::value_ptr(gridModelMatrix));
+                                                 glm::vec3(0.0f, 0.0f, -50.0f + (float) i));
+      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
+      lineShader.setMat4("model", gridModelMatrix);
       glDrawArrays(GL_LINES, 0, 2);
 
       // vertical lines
       gridModelMatrix = glm::translate(glm::mat4(1.0f),
-                                       glm::vec3(-50.0f + (float) i,
-                                                 0.0f,
-                                                 0.0f));
+                                       glm::vec3(-50.0f + (float) i, 0.0f, 0.0f));
       gridModelMatrix = glm::rotate(gridModelMatrix,
                                     glm::radians(90.0f),
                                     glm::vec3(0.0f, 1.0f, 0.0f));
-      gridModelMatrix =
-          glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      glUniformMatrix4fv(gridModelLocation,
-                         1,
-                         GL_FALSE,
-                         glm::value_ptr(gridModelMatrix));
+      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
+      lineShader.setMat4("model", gridModelMatrix);
       glDrawArrays(GL_LINES, 0, 2);
     }
 
     // draw axis
+    clearError();
+#if __APPLE__
+    // line width is only available on window
+#else
+    // On windows, set line width to get a better view
     glLineWidth(5.0f);
+#endif
     glBindVertexArray(axisVao);
-    glUniformMatrix4fv(gridModelLocation,
-                       1,
-                       GL_FALSE,
-                       glm::value_ptr(glm::mat4(1.0f)));
+    lineShader.setMat4("model", glm::mat4(1.0f));
     glDrawArrays(GL_LINES, 0, 2);
     glDrawArrays(GL_LINES, 2, 2);
     glDrawArrays(GL_LINES, 4, 2);
@@ -615,6 +606,8 @@ int main(int argc, char *argv[]) {
     glfwSwapBuffers(window);
     // Detect inputs
     glfwPollEvents();
+
+    checkError();
   }
 
   // deallocate resources
@@ -645,6 +638,7 @@ int main(int argc, char *argv[]) {
 }
 
 #pragma region Helper functions
+
 static void clearError() {
   while (glGetError() != GL_NO_ERROR);
 }
@@ -672,22 +666,12 @@ static unsigned int loadTexture(const char *path) {
       format = GL_RGBA;
 
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 (int) format,
-                 width,
-                 height,
-                 0,
-                 format,
-                 GL_UNSIGNED_BYTE,
-                 data);
+    glTexImage2D(GL_TEXTURE_2D, 0, (int) format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     stbi_image_free(data);
@@ -859,6 +843,7 @@ static void updateModelPosition() {
 #pragma endregion // helper functions
 
 #pragma region Window callback functions
+
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
