@@ -6,8 +6,6 @@
 #define COMP371_ASSIGNMENT2_MATERIAL_H
 #include "Shader.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 class Material {
  public:
@@ -17,8 +15,11 @@ class Material {
   glm::vec3 ambient;
   float shininess;
 
-  Material(Shader &shader, unsigned int diffuse, unsigned int specular, glm::vec3 ambient, float shininess);
+  Material(Shader &shader,
+           unsigned int diffuse,
+           unsigned int specular,
+           glm::vec3 ambient,
+           float shininess);
 };
-
 
 #endif //COMP371_ASSIGNMENT2_MATERIAL_H

@@ -395,9 +395,9 @@ int main(int argc, char *argv[]) {
 
   // light declarations
   PointLight pointLight = PointLight(
-      glm::vec3(2.0f, 10.0f, 10.0f),
+      glm::vec3(15.0f, 20.0f, 20.0f),
       glm::vec3(glm::radians(0.0f), 0, 0),
-      glm::vec3(5.0f)
+      glm::vec3(70.0f)
   );
 
 
@@ -452,18 +452,25 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
-  auto *material = new Material(cubeShader,
-                                loadTexture("res/texture/container2.png"),
-                                loadTexture("res/texture/container2_specular.png"),
-                                glm::vec3(0.5f, 0.5f, 0.5f),
+  auto *metal = new Material(cubeShader,
+                                loadTexture("res/texture/metal.png"),
+                                loadTexture("res/texture/metal.png"),
+                                glm::vec3(0.1f, 0.1f, 0.1f),
+                                4.0f);
+
+  auto *brick = new Material(cubeShader,
+                                loadTexture("res/texture/brick.png"),
+                                loadTexture("res/texture/blackout.png"),
+                                glm::vec3(1.0f, 1.0f, 1.0f),
                                 32.0f);
+
 
   // load texture
 //  stbi_set_flip_vertically_on_load(true);
 //  unsigned int cubeTexBuffer;
-//  cubeTexBuffer = loadTexture("res/texture/cube-texture.png");
+//  cubeTexBuffer = loadTexture("res/texture/metal.png");
 //  unsigned int wallTexBuffer;
-//  wallTexBuffer = loadTexture("res/texture/wall-texture.png");
+//  wallTexBuffer = loadTexture("res/texture/brick.png");
 
 
   // Entering Main Loop
@@ -492,73 +499,77 @@ int main(int argc, char *argv[]) {
     glBindVertexArray(cubeVao);
     cubeShader.setMat4("view", view);
     cubeShader.setMat4("projection", projection);
+    //load shader for light
+    cubeShader.setVec3("ambientColor", glm::vec3(0.3f));
+    cubeShader.setVec3("pointLight.pos", pointLight.position);
+    cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
+    cubeShader.setVec3("pointLight.color", pointLight.color);
+    cubeShader.setFloat("pointLight.constant", pointLight.constant);
+    cubeShader.setFloat("pointLight.linear", pointLight.linear);
+    cubeShader.setFloat("pointLight.quadratic", pointLight.quadratic);
 
     for (size_t i = 0; i < currentModel->size(); i++) {
-      //load shader for light
-      cubeShader.setVec3("ambientColor", glm::vec3(0.3f));
-      cubeShader.setVec3("pointLight.pos", pointLight.position);
-      cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
-      cubeShader.setVec3("pointLight.color", pointLight.color);
-      cubeShader.setFloat("pointLight.constant", pointLight.constant);
-      cubeShader.setFloat("pointLight.linear", pointLight.linear);
-      cubeShader.setFloat("pointLight.quadratic", pointLight.quadratic);
-
       // assign cube texture
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, material->diffuse);
+      glBindTexture(GL_TEXTURE_2D, metal->diffuse);
       glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, material->specular);
+      glBindTexture(GL_TEXTURE_2D, metal->specular);
       cubeShader.setInt("material.diffuse", 0);
       cubeShader.setInt("material.specular", 1);
-      cubeShader.setFloat("material.shininess", material->shininess);
-
+      cubeShader.setFloat("material.shininess", metal->shininess);
       // calculate cube model matrix
       glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
       cubeShader.setMat4("model", cubeModelMatrix);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-//    // draw wall
-//    for (size_t i = 0; i < currentWall->size(); i++) {
-//      // assign wall texture
-//      glActiveTexture(GL_TEXTURE1);
-//      glBindTexture(GL_TEXTURE_2D, wallTexBuffer);
-//      glUniform1i(cubeTexLocation, 1);
-//      // calculate the model matrix for wall
-//      glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
-//      glUniformMatrix4fv(cubeModelLocation,
-//                         1,
-//                         GL_FALSE,
-//                         glm::value_ptr(wallModelMatrix));
-//      glDrawArrays(GL_TRIANGLES, 0, 36);
-//    }
-//
-//    // draw corner models
-//    for (int j = 0; j < 3; j++) {
-//      // draw model (at cornerObjects[] even indices)
-//      for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
-//        // assign cube texture
-//        glActiveTexture(GL_TEXTURE0);
-//        glBindTexture(GL_TEXTURE_2D, cubeTexBuffer);
-//        glUniform1i(cubeTexLocation, 0);
-//        glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
-//        glUniformMatrix4fv(cubeModelLocation,
-//                           1,
-//                           GL_FALSE,
-//                           glm::value_ptr(cubeModelMatrix));
-//        glDrawArrays(GL_TRIANGLES, 0, 36);
-//      }
-//      // draw wall (at cornerObjects[] odd indices)
-//      for (size_t i = 0; i < cornerObjects[2 * j + 1]->size(); i++) {
-//        // assign wall texture
-//        glUniform1i(cubeTexLocation, 1);
-//        glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
-//        glUniformMatrix4fv(cubeModelLocation,
-//                           1,
-//                           GL_FALSE,
-//                           glm::value_ptr(wallModelMatrix));
-//        glDrawArrays(GL_TRIANGLES, 0, 36);
-//      }
-//    }
+
+    // draw wall
+    for (size_t i = 0; i < currentWall->size(); i++) {
+      // assign wall texture
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, brick->diffuse);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, brick->specular);
+      cubeShader.setInt("material.diffuse", 0);
+      cubeShader.setInt("material.specular", 1);
+      cubeShader.setFloat("material.shininess", brick->shininess);
+      // calculate the model matrix for wall
+      glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
+      cubeShader.setMat4("model", wallModelMatrix);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    // draw corner models
+    for (int j = 0; j < 3; j++) {
+      // draw model (at cornerObjects[] even indices)
+      for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
+        // assign cube texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, metal->diffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, metal->specular);
+        cubeShader.setInt("material.diffuse", 0);
+        cubeShader.setInt("material.specular", 1);
+        cubeShader.setFloat("material.shininess", metal->shininess);
+        glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
+        cubeShader.setMat4("model", cubeModelMatrix);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      }
+      // draw wall (at cornerObjects[] odd indices)
+      for (size_t i = 0; i < cornerObjects[2 * j + 1]->size(); i++) {
+        // assign wall texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, brick->diffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, brick->specular);
+        cubeShader.setInt("material.diffuse", 0);
+        cubeShader.setInt("material.specular", 1);
+        cubeShader.setFloat("material.shininess", brick->shininess);
+        glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
+        cubeShader.setMat4("model", wallModelMatrix);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      }
+    }
 
     // draw grid
     glBindVertexArray(gridVao);

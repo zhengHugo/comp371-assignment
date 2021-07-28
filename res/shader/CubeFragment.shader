@@ -44,7 +44,7 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
 
     //ambient
     vec3 ambient = ambientColor * texture(material.diffuse, TexCoord).rgb;
-    vec3 result = ambient + diffuseColor + specularColor;
+    vec3 result = ambient*material.ambient + diffuseColor + specularColor;
     return result;
 }
 
