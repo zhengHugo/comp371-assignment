@@ -190,18 +190,22 @@ int main(int argc, char *argv[]) {
       -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f
   };
 
-  float unitLineVertices[] = {
-      -1.0f, 0.0f, 0.0f, 0.365f, 0.224f, 0.122f, // pos * 3, color * 3
-      1.0f, 0.0f, 0.0f, 0.365f, 0.224f, 0.122f
-  };
 
   float axisVertices[] = {
       0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f, // pos * 3, color * 3
-      5.0f, 0.0f, 0.0f, 1.00f, 0.20f, 0.20f,
+      4.3f, 0.0f, 0.0f, 0.696f, 0.298f, 0.192f,
+      4.3f, 0.0f, 0.0f, 1.0f, 0.298f, 0.192f,
+      5.0f, 0.0f, 0.0f, 1.0f, 0.298f, 0.192f,
+
       0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f,
-      0.0f, 5.0f, 0.0f, 0.20f, 1.00f, 0.20f,
+      0.0f, 4.3f, 0.0f, 0.235f, 0.594f, 0.286f,
+      0.0f, 4.3f, 0.0f, 0.235f, 0.894f, 0.286f,
+      0.0f, 5.0f, 0.0f, 0.235f, 0.894f, 0.286f,
+
       0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f,
-      0.0f, 0.0f, 5.0f, 0.20f, 0.20f, 1.00f
+      0.0f, 0.0f, 4.3f, 0.235f, 0.494f, 0.586f,
+      0.0f, 0.0f, 4.3f, 0.235f, 0.494f, 0.986f,
+      0.0f, 0.0f, 5.0f, 0.235f, 0.494f, 0.986f,
   };
 
   std::vector<glm::vec3> relativeCubePositions1 = {
@@ -689,6 +693,7 @@ int main(int argc, char *argv[]) {
       cubeShader.setInt("enableLightBox", 0);
     // end of light box
 
+
     //draw ground
     glBindVertexArray(groundVao);
     // assign ground texture
@@ -715,9 +720,10 @@ int main(int argc, char *argv[]) {
     lineShader.setMat4("projection", projection);
     lineShader.setMat4("view", view);
     lineShader.setMat4("model", glm::mat4(1.0f));
-    glDrawArrays(GL_LINES, 0, 2);
-    glDrawArrays(GL_LINES, 2, 2);
-    glDrawArrays(GL_LINES, 4, 2);
+    for (int i = 0; i < 10; i += 2) {
+      glDrawArrays(GL_LINES, i, 2);
+      glDrawArrays(GL_LINES, i+2, 2);
+    }
     glLineWidth(1.0f);
 
     // End frame
