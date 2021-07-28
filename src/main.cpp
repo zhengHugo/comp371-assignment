@@ -407,7 +407,6 @@ int main(int argc, char *argv[]) {
   Shader lineShader
       ("res/shader/LineVertex.shader", "res/shader/LineFragment.shader");
 
-  clearError();
   // Binding geometry data
   // ------------------------------------
   unsigned int cubeVao, gridVao, axisVao, cubeVbo, gridVbo, axisVbo;
@@ -453,25 +452,16 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(1);
 
   auto *metal = new Material(cubeShader,
-                                loadTexture("res/texture/metal.png"),
-                                loadTexture("res/texture/metal.png"),
-                                glm::vec3(0.1f, 0.1f, 0.1f),
-                                4.0f);
+                             loadTexture("res/texture/metal.png"),
+                             loadTexture("res/texture/metal.png"),
+                             glm::vec3(0.1f, 0.1f, 0.1f),
+                             4.0f);
 
   auto *brick = new Material(cubeShader,
-                                loadTexture("res/texture/brick.png"),
-                                loadTexture("res/texture/blackout.png"),
-                                glm::vec3(1.0f, 1.0f, 1.0f),
-                                32.0f);
-
-
-  // load texture
-//  stbi_set_flip_vertically_on_load(true);
-//  unsigned int cubeTexBuffer;
-//  cubeTexBuffer = loadTexture("res/texture/metal.png");
-//  unsigned int wallTexBuffer;
-//  wallTexBuffer = loadTexture("res/texture/brick.png");
-
+                             loadTexture("res/texture/brick.png"),
+                             loadTexture("res/texture/blackout.png"),
+                             glm::vec3(1.0f, 1.0f, 1.0f),
+                             32.0f);
 
   // Entering Main Loop
   while (!glfwWindowShouldClose(window)) {
@@ -598,7 +588,13 @@ int main(int argc, char *argv[]) {
     }
 
     // draw axis
+    clearError();
+#if __APPLE__
+    // line width is only available on window
+#else
+    // On windows, set line width to get a better view
     glLineWidth(5.0f);
+#endif
     glBindVertexArray(axisVao);
     lineShader.setMat4("model", glm::mat4(1.0f));
     glDrawArrays(GL_LINES, 0, 2);
