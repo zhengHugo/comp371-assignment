@@ -571,6 +571,9 @@ int main(int argc, char *argv[]) {
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 128.0f);
 
+  unsigned int emissionMap;
+  emissionMap = loadTexture("res/texture/Emission.png");
+
   //Anisotropic texture filtering
     //get the maximum Anisotropic filtering level your PC supports.
     GLfloat fLargest;
@@ -600,6 +603,7 @@ int main(int argc, char *argv[]) {
     // import cameraPos
     cubeShader.use();
     cubeShader.setVec3("cameraPos", camera->Position);
+
     // draw model
     glBindVertexArray(cubeVao);
     cubeShader.setMat4("view", view);
@@ -612,7 +616,9 @@ int main(int argc, char *argv[]) {
     cubeShader.setFloat("pointLight.constant", pointLight.constant);
     cubeShader.setFloat("pointLight.linear", pointLight.linear);
     cubeShader.setFloat("pointLight.quadratic", pointLight.quadratic);
-
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, emissionMap);
+    cubeShader.setInt("emissionMap", 2);
     for (size_t i = 0; i < currentModel->size(); i++) {
       // assign cube texture
       glActiveTexture(GL_TEXTURE0);
@@ -683,15 +689,16 @@ int main(int argc, char *argv[]) {
       glBindTexture(GL_TEXTURE_2D, lightBox->specular);
       cubeShader.setInt("material.diffuse", 0);
       cubeShader.setInt("material.specular", 1);
-      cubeShader.setInt("emissionMap", 2);
-      cubeShader.setInt("enableLightBox", 1);
+      cubeShader.setInt("toggleLightBox", 0);
+      cubeShader.setInt("toggleGlow", 1);
       cubeShader.setFloat("material.shininess", lightBox->shininess);
       // calculate the model matrix for wall
       glm::mat4 cubeModelMatrix = lightBoxModel->getModelMatrix(0);
       cubeShader.setMat4("model", cubeModelMatrix);
       glDrawArrays(GL_TRIANGLES, 0, 36);
-      cubeShader.setInt("enableLightBox", 0);
     // end of light box
+      cubeShader.setInt("toggleLightBox", 0);
+      cubeShader.setInt("toggleGlow", 0);
 
 
     //draw ground

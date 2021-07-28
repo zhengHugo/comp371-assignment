@@ -25,7 +25,9 @@ uniform PointLight pointLight;
 
 uniform vec3 ambientColor;
 uniform vec3 cameraPos;
-uniform int enableLightBox = 0;
+uniform int toggleLightBox = 0;
+uniform int toggleGlow = 0;
+uniform sampler2D emissionMap;
 
 
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
@@ -46,8 +48,23 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
     //ambient
     vec3 ambient = ambientColor * texture(material.diffuse, TexCoord).rgb;
 
-    return enableLightBox == 1 ?
-                  texture(material.diffuse, TexCoord).rgb : ambient*material.ambient + diffuseColor + specularColor;
+    vec3 result;
+
+    if (toggleLightBox == 1) {
+        if (toggleGlow == 1){
+            result = texture(material.diffuse, TexCoord).rgb + texture(emissionMap, TexCoord).rgb;
+        }
+        else{
+            result = texture(material.diffuse, TexCoord).rgb;
+        }
+    }else{
+        if (toggleGlow == 1){
+            result = ambient*material.ambient + diffuseColor + specularColor + texture(emissionMap, TexCoord).rgb;
+        }else{
+            result = ambient*material.ambient + diffuseColor + specularColor;
+        }
+    }
+    return result;
 }
 
 void main(){
