@@ -694,14 +694,14 @@ int main(int argc, char *argv[]) {
       //not going to change
       cubeShader.setInt("toggleLightBox", 1);
       //glow effect: can be placed in any cube draw process
-      cubeShader.setInt("toggleGlow", 1);
+      cubeShader.setInt("toggleGlow", 0);
       cubeShader.setFloat("material.shininess", lightBox->shininess);
       // calculate the model matrix for wall
       glm::mat4 cubeModelMatrix = lightBoxModel->getModelMatrix(0);
       cubeShader.setMat4("model", cubeModelMatrix);
       glDrawArrays(GL_TRIANGLES, 0, 36);
       cubeShader.setInt("toggleLightBox", 0);
-    // end of light box
+      // end of light box
       //cubeShader.setInt("toggleGlow", 0);
 
 
