@@ -47,10 +47,14 @@ Model *model1;
 Model *model2;
 Model *model3;
 Model *model4;
+Model* model5;
+
 Model *wall1;
 Model *wall2;
 Model *wall3;
 Model *wall4;
+Model* wall5;
+
 Model *lightBoxModel;
 Model *currentModel;
 Model *currentWall;
@@ -242,6 +246,27 @@ int main(int argc, char *argv[]) {
       glm::vec3(1.0f, 2.0f, 2.0f)
   };
 
+  std::vector<glm::vec3> relativeCubePositions5 = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 0.0f, 0.0f),
+        glm::vec3(3.0f, 0.0f, 0.0f),
+
+        glm::vec3(3.0f, 1.0f, 0.0f),
+        glm::vec3(3.0f, 2.0f, 0.0f),
+
+        glm::vec3(2.0f, 2.0f, 0.0f),
+        glm::vec3(1.0f, 2.0f, 0.0f),
+        glm::vec3(0.0f, 2.0f, 0.0f),
+
+        glm::vec3(0.0f, 3.0f, 0.0f),
+        glm::vec3(0.0f, 4.0f, 0.0f),
+
+        glm::vec3(1.0f, 4.0f, 0.0f),
+        glm::vec3(2.0f, 4.0f, 0.0f),
+        glm::vec3(3.0f, 4.0f, 0.0f)
+  };
+
   std::vector<glm::vec3> relativeWallPositions1 = {
       glm::vec3(-1.0f, -1.0f, 0.0f),
       glm::vec3(0.0f, -1.0f, 0.0f),
@@ -370,11 +395,51 @@ int main(int argc, char *argv[]) {
       glm::vec3(4.0f, 3.0f, 0.0f)
   };
 
+  std::vector<glm::vec3> relativeWallPositions5 = {
+        glm::vec3(-1.0f, -1.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f),
+        glm::vec3(1.0f, -1.0f, 0.0f),
+        glm::vec3(2.0f, -1.0f, 0.0f),
+        glm::vec3(3.0f, -1.0f, 0.0f),
+        glm::vec3(4.0f, -1.0f, 0.0f),
+
+        glm::vec3(-1.0f, 0.0f, 0.0f),
+        glm::vec3(4.0f, 0.0f, 0.0f),
+
+        glm::vec3(-1.0f, 1.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 0.0f),
+        glm::vec3(2.0f, 1.0f, 0.0f),
+        glm::vec3(4.0f, 1.0f, 0.0f),
+
+        glm::vec3(-1.0f, 2.0f, 0.0f),
+        glm::vec3(4.0f, 2.0f, 0.0f),
+
+        glm::vec3(-1.0f, 3.0f, 0.0f),
+        glm::vec3(1.0f, 3.0f, 0.0f),
+        glm::vec3(2.0f, 3.0f, 0.0f),
+        glm::vec3(3.0f, 3.0f, 0.0f),
+        glm::vec3(4.0f, 3.0f, 0.0f),
+
+        glm::vec3(-1.0f, 4.0f, 0.0f),
+        glm::vec3(4.0f, 4.0f, 0.0f),
+
+        glm::vec3(-1.0f, 5.0f, 0.0f),
+        glm::vec3(0.0f, 5.0f, 0.0f),
+        glm::vec3(1.0f, 5.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, 0.0f),
+        glm::vec3(3.0f, 5.0f, 0.0f),
+        glm::vec3(4.0f, 5.0f, 0.0f),
+
+  };
+
   cornerPositions = new glm::vec3[]{
       glm::vec3(-30.0, 3.0f, 30.0f),
       glm::vec3(30.0f, 3.0f, 30.0f),
       glm::vec3(30.0f, 3.0f, -30.0f),
+      glm::vec3(-30.0f, 3.0f, -30.0f),
   };
+  
   std::vector<glm::vec3> relativeLightBoxPosition{
     glm::vec3 (0,0,0)
   };
@@ -389,15 +454,17 @@ int main(int argc, char *argv[]) {
   model2 = new Model(baseCubePosition, relativeCubePositions2);
   model3 = new Model(baseCubePosition, relativeCubePositions3);
   model4 = new Model(baseCubePosition, relativeCubePositions4);
+  model5 = new Model(baseCubePosition, relativeCubePositions5);
   wall1 = new Model(baseWallPosition, relativeWallPositions1);
   wall2 = new Model(baseWallPosition, relativeWallPositions2);
   wall3 = new Model(baseWallPosition, relativeWallPositions3);
   wall4 = new Model(baseWallPosition, relativeWallPositions4);
+  wall5 = new Model(baseWallPosition, relativeWallPositions5);
   lightBoxModel = new Model(pointLightPosition, relativeLightBoxPosition);
 
   currentModel = model1;
   currentWall = wall1;
-  cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
+  cornerObjects = {model2, wall2, model3, wall3, model4, wall4, model5, wall5};
   updateModelPosition();
 
   // light declarations
@@ -543,7 +610,7 @@ int main(int argc, char *argv[]) {
     }
 
     // draw corner models
-    for (int j = 0; j < 3; j++) {
+    for (int j = 0; j < (cornerObjects.size()/2); j++) {
       // draw model (at cornerObjects[] even indices)
       for (size_t i = 0; i < cornerObjects[2 * j]->size(); i++) {
         // assign cube texture
@@ -653,12 +720,14 @@ int main(int argc, char *argv[]) {
   delete model2;
   delete model3;
   delete model4;
+  delete model5;
   delete lightBoxModel;
   // walls
   delete wall1;
   delete wall2;
   delete wall3;
   delete wall4;
+  delete wall5;
   // positions
   delete cornerPositions;
   // Shutdown GLFW
@@ -722,22 +791,27 @@ static void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
     currentModel = model1;
     currentWall = wall1;
-    cornerObjects = {model2, wall2, model3, wall3, model4, wall4};
+    cornerObjects = {model2, wall2, model3, wall3, model4, wall4, model5, wall5};
     updateModelPosition();
   } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
     currentModel = model2;
     currentWall = wall2;
-    cornerObjects = {model1, wall1, model3, wall3, model4, wall4};
+    cornerObjects = {model1, wall1, model3, wall3, model4, wall4, model5, wall5 };
     updateModelPosition();
   } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
     currentModel = model3;
     currentWall = wall3;
-    cornerObjects = {model1, wall1, model2, wall2, model4, wall4};
+    cornerObjects = {model1, wall1, model2, wall2, model4, wall4, model5, wall5 };
     updateModelPosition();
   } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
     currentModel = model4;
     currentWall = wall4;
-    cornerObjects = {model1, wall1, model2, wall2, model3, wall3};
+    cornerObjects = {model1, wall1, model2, wall2, model3, wall3, model5, wall5 };
+    updateModelPosition();
+  } else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+    currentModel = model5;
+    currentWall = wall5;
+    cornerObjects = { model1, wall1, model2, wall2, model3, wall3, model4, wall4 };
     updateModelPosition();
   }
 
@@ -864,7 +938,7 @@ static void updateModelPosition() {
   currentWall->resetPosition();
   currentModel->resetOrientation();
   currentWall->resetOrientation();
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 8; i++) {
     cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
   }
 }
