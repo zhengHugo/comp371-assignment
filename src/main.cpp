@@ -585,6 +585,7 @@ int main(int argc, char *argv[]) {
   while (!glfwWindowShouldClose(window)) {
     // update time
     auto currentFrame = (float) glfwGetTime();
+    float timeValueForColor = sin(currentFrame) / 2.0f + 0.5f;
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
@@ -619,6 +620,7 @@ int main(int argc, char *argv[]) {
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, emissionMap);
     cubeShader.setInt("emissionMap", 2);
+    cubeShader.setFloat("timeValue", timeValueForColor);
     for (size_t i = 0; i < currentModel->size(); i++) {
       // assign cube texture
       glActiveTexture(GL_TEXTURE0);
@@ -689,16 +691,18 @@ int main(int argc, char *argv[]) {
       glBindTexture(GL_TEXTURE_2D, lightBox->specular);
       cubeShader.setInt("material.diffuse", 0);
       cubeShader.setInt("material.specular", 1);
-      cubeShader.setInt("toggleLightBox", 0);
+      //not going to change
+      cubeShader.setInt("toggleLightBox", 1);
+      //glow effect: can be placed in any cube draw process
       cubeShader.setInt("toggleGlow", 1);
       cubeShader.setFloat("material.shininess", lightBox->shininess);
       // calculate the model matrix for wall
       glm::mat4 cubeModelMatrix = lightBoxModel->getModelMatrix(0);
       cubeShader.setMat4("model", cubeModelMatrix);
       glDrawArrays(GL_TRIANGLES, 0, 36);
-    // end of light box
       cubeShader.setInt("toggleLightBox", 0);
-      cubeShader.setInt("toggleGlow", 0);
+    // end of light box
+      //cubeShader.setInt("toggleGlow", 0);
 
 
     //draw ground

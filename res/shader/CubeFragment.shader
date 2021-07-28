@@ -28,6 +28,7 @@ uniform vec3 cameraPos;
 uniform int toggleLightBox = 0;
 uniform int toggleGlow = 0;
 uniform sampler2D emissionMap;
+uniform float timeValue;
 
 
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
@@ -48,23 +49,7 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
     //ambient
     vec3 ambient = ambientColor * texture(material.diffuse, TexCoord).rgb;
 
-    vec3 result;
-
-    if (toggleLightBox == 1) {
-        if (toggleGlow == 1){
-            result = texture(material.diffuse, TexCoord).rgb + texture(emissionMap, TexCoord).rgb;
-        }
-        else{
-            result = texture(material.diffuse, TexCoord).rgb;
-        }
-    }else{
-        if (toggleGlow == 1){
-            result = ambient*material.ambient + diffuseColor + specularColor + texture(emissionMap, TexCoord).rgb;
-        }else{
-            result = ambient*material.ambient + diffuseColor + specularColor;
-        }
-    }
-    return result;
+    return toggleLightBox == 1 ? texture(material.diffuse, TexCoord).rgb : ambient*material.ambient + diffuseColor + specularColor;
 }
 
 void main(){
@@ -72,5 +57,6 @@ void main(){
     vec3 normal = normalize(Normal);
     vec3 dirToCamara = normalize(cameraPos - FragPos);
     lightEffect = getPointLightEffect(pointLight, normal, dirToCamara);
+    if(toggleGlow == 1){lightEffect += texture(emissionMap, TexCoord).rgb * timeValue;}
     FragColor = vec4(lightEffect, 1.0);
 }
