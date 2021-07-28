@@ -56,8 +56,9 @@ Model *wall4;
 Model* wall5;
 
 Model *lightBoxModel;
-Model *currentModel;
+Model *groundModel;
 Model *currentWall;
+Model *currentModel;
 std::vector<Model *> cornerObjects;
 
 // window width & height
@@ -178,6 +179,15 @@ int main(int argc, char *argv[]) {
       0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
       -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
+  };
+
+  float unitGroundVertices[] = {
+      -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,
+      50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,
+      50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
+      50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
+      -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+      -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f
   };
 
   float unitLineVertices[] = {
@@ -443,8 +453,11 @@ int main(int argc, char *argv[]) {
   std::vector<glm::vec3> relativeLightBoxPosition{
     glm::vec3 (0,0,0)
   };
+  std::vector<glm::vec3> relativeGroundPosition{
+      glm::vec3 (0,0,0)
+  };
 
-
+  glm::vec3 groundPosition(0,0,0);
   glm::vec3 pointLightPosition(15.0f, 20.0f, 20.0f);
   glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
   glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
@@ -461,6 +474,7 @@ int main(int argc, char *argv[]) {
   wall4 = new Model(baseWallPosition, relativeWallPositions4);
   wall5 = new Model(baseWallPosition, relativeWallPositions5);
   lightBoxModel = new Model(pointLightPosition, relativeLightBoxPosition);
+  groundModel = new Model(groundPosition, relativeGroundPosition);
 
   currentModel = model1;
   currentWall = wall1;
@@ -471,7 +485,7 @@ int main(int argc, char *argv[]) {
   PointLight pointLight = PointLight(
              pointLightPosition,
       glm::vec3(glm::radians(0.0f), 0, 0),
-      glm::vec3(70.0f)
+      glm::vec3(1.0f,1.0f,0.88f)*70.0f
   );
 
 
@@ -483,13 +497,13 @@ int main(int argc, char *argv[]) {
 
   // Binding geometry data
   // ------------------------------------
-  unsigned int cubeVao, gridVao, axisVao, cubeVbo, gridVbo, axisVbo;
+  unsigned int cubeVao, axisVao, groundVao, cubeVbo, axisVbo, groundVbo;
   glGenVertexArrays(1, &cubeVao);
-  glGenVertexArrays(1, &gridVao);
   glGenVertexArrays(1, &axisVao);
+  glGenVertexArrays(1, &groundVao);
   glGenBuffers(1, &cubeVbo);
-  glGenBuffers(1, &gridVbo);
   glGenBuffers(1, &axisVbo);
+  glGenBuffers(1, &groundVbo);
 
   // bind cube data
   glBindVertexArray(cubeVao);
@@ -505,15 +519,19 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(1);
   glEnableVertexAttribArray(2);
 
-  // bind grid data
-  glBindVertexArray(gridVao);
-  glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(unitLineVertices), unitLineVertices, GL_STATIC_DRAW);
+  // bind ground data
+  glBindVertexArray(groundVao);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+  glBindBuffer(GL_ARRAY_BUFFER, groundVbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(unitGroundVertices), unitGroundVertices, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
 
   // bind axis data
   glBindVertexArray(axisVao);
@@ -527,21 +545,34 @@ int main(int argc, char *argv[]) {
 
   auto *metal = new Material(cubeShader,
                              loadTexture("res/texture/metal.png"),
-                             loadTexture("res/texture/metal.png"),
+                             loadTexture("res/texture/metal_specular.png"),
                              glm::vec3(0.1f, 0.1f, 0.1f),
-                             4.0f);
+                             8.0f);
 
   auto *brick = new Material(cubeShader,
                              loadTexture("res/texture/brick.png"),
-                             loadTexture("res/texture/blackout.png"),
+                             loadTexture("res/texture/brick_specular.png"),
                              glm::vec3(1.0f, 1.0f, 1.0f),
-                             32.0f);
+                             64.0f);
 
   auto *lightBox = new Material(cubeShader,
                              loadTexture("res/texture/sea_lantern.png"),
                              loadTexture("res/texture/sea_lantern.png"),
                              glm::vec3(1.0f, 1.0f, 1.0f),
-                             32.0f);
+                             1.0f);
+
+  Material tile(cubeShader,
+                loadTexture("res/texture/tile.png"),
+                loadTexture("res/texture/tile_specular.png"),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                128.0f);
+
+  //Anisotropic texture filtering
+    //get the maximum Anisotropic filtering level your PC supports.
+    GLfloat fLargest;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
+    // turn on "AF"
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
 
   // Entering Main Loop
   while (!glfwWindowShouldClose(window)) {
@@ -658,31 +689,19 @@ int main(int argc, char *argv[]) {
       cubeShader.setInt("enableLightBox", 0);
     // end of light box
 
-    // draw grid
-    glBindVertexArray(gridVao);
-    lineShader.use();
-    lineShader.setMat4("projection", projection);
-    lineShader.setMat4("view", view);
+    //draw ground
+    glBindVertexArray(groundVao);
+    // assign ground texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tile.diffuse);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, tile.specular);
+    cubeShader.setInt("material.diffuse", 0);
+    cubeShader.setInt("material.specular", 1);
+    cubeShader.setFloat("material.shininess", tile.shininess);
+    cubeShader.setMat4("model", groundModel->getModelMatrix(0));
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    int gridModelLocation = glGetUniformLocation(lineShader.id, "model");
-    for (int i = 0; i < 100; i++) {
-      // horizontal lines
-      glm::mat4 gridModelMatrix = glm::translate(glm::mat4(1.0f),
-                                                 glm::vec3(0.0f, 0.0f, -50.0f + (float) i));
-      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      lineShader.setMat4("model", gridModelMatrix);
-      glDrawArrays(GL_LINES, 0, 2);
-
-      // vertical lines
-      gridModelMatrix = glm::translate(glm::mat4(1.0f),
-                                       glm::vec3(-50.0f + (float) i, 0.0f, 0.0f));
-      gridModelMatrix = glm::rotate(gridModelMatrix,
-                                    glm::radians(90.0f),
-                                    glm::vec3(0.0f, 1.0f, 0.0f));
-      gridModelMatrix = glm::scale(gridModelMatrix, glm::vec3(50.0f, 1.0f, 1.0f));
-      lineShader.setMat4("model", gridModelMatrix);
-      glDrawArrays(GL_LINES, 0, 2);
-    }
 
     // draw axis
 #if __APPLE__
@@ -692,6 +711,9 @@ int main(int argc, char *argv[]) {
     glLineWidth(5.0f);
 #endif
     glBindVertexArray(axisVao);
+    lineShader.use();
+    lineShader.setMat4("projection", projection);
+    lineShader.setMat4("view", view);
     lineShader.setMat4("model", glm::mat4(1.0f));
     glDrawArrays(GL_LINES, 0, 2);
     glDrawArrays(GL_LINES, 2, 2);
@@ -708,10 +730,10 @@ int main(int argc, char *argv[]) {
   // deallocate resources
   glDeleteVertexArrays(1, &cubeVao);
   glDeleteVertexArrays(1, &axisVao);
-  glDeleteVertexArrays(1, &gridVao);
+  glDeleteVertexArrays(1, &groundVao);
   glDeleteBuffers(1, &cubeVbo);
   glDeleteBuffers(1, &axisVbo);
-  glDeleteBuffers(1, &gridVbo);
+  glDeleteBuffers(1, &groundVbo);
 
   // camera
   delete camera;
