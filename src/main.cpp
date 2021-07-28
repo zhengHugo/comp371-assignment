@@ -51,6 +51,7 @@ Model *wall1;
 Model *wall2;
 Model *wall3;
 Model *wall4;
+Model *lightBoxModel;
 Model *currentModel;
 Model *currentWall;
 std::vector<Model *> cornerObjects;
@@ -374,7 +375,12 @@ int main(int argc, char *argv[]) {
       glm::vec3(30.0f, 3.0f, 30.0f),
       glm::vec3(30.0f, 3.0f, -30.0f),
   };
+  std::vector<glm::vec3> relativeLightBoxPosition{
+    glm::vec3 (0,0,0)
+  };
 
+
+  glm::vec3 pointLightPosition(15.0f, 20.0f, 20.0f);
   glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
   glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
 
@@ -387,6 +393,7 @@ int main(int argc, char *argv[]) {
   wall2 = new Model(baseWallPosition, relativeWallPositions2);
   wall3 = new Model(baseWallPosition, relativeWallPositions3);
   wall4 = new Model(baseWallPosition, relativeWallPositions4);
+  lightBoxModel = new Model(pointLightPosition, relativeLightBoxPosition);
 
   currentModel = model1;
   currentWall = wall1;
@@ -395,7 +402,7 @@ int main(int argc, char *argv[]) {
 
   // light declarations
   PointLight pointLight = PointLight(
-      glm::vec3(15.0f, 20.0f, 20.0f),
+             pointLightPosition,
       glm::vec3(glm::radians(0.0f), 0, 0),
       glm::vec3(70.0f)
   );
@@ -460,6 +467,12 @@ int main(int argc, char *argv[]) {
   auto *brick = new Material(cubeShader,
                              loadTexture("res/texture/brick.png"),
                              loadTexture("res/texture/blackout.png"),
+                             glm::vec3(1.0f, 1.0f, 1.0f),
+                             32.0f);
+
+  auto *lightBox = new Material(cubeShader,
+                             loadTexture("res/texture/sea_lantern.png"),
+                             loadTexture("res/texture/sea_lantern.png"),
                              glm::vec3(1.0f, 1.0f, 1.0f),
                              32.0f);
 
@@ -560,6 +573,23 @@ int main(int argc, char *argv[]) {
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
     }
+    // draw a light box to indicate light position
+      // assign light box texture
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, lightBox->diffuse);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, lightBox->specular);
+      cubeShader.setInt("material.diffuse", 0);
+      cubeShader.setInt("material.specular", 1);
+      cubeShader.setInt("emissionMap", 2);
+      cubeShader.setInt("enableLightBox", 1);
+      cubeShader.setFloat("material.shininess", lightBox->shininess);
+      // calculate the model matrix for wall
+      glm::mat4 cubeModelMatrix = lightBoxModel->getModelMatrix(0);
+      cubeShader.setMat4("model", cubeModelMatrix);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+      cubeShader.setInt("enableLightBox", 0);
+    // end of light box
 
     // draw grid
     glBindVertexArray(gridVao);
@@ -588,7 +618,6 @@ int main(int argc, char *argv[]) {
     }
 
     // draw axis
-    clearError();
 #if __APPLE__
     // line width is only available on window
 #else
@@ -607,7 +636,6 @@ int main(int argc, char *argv[]) {
     // Detect inputs
     glfwPollEvents();
 
-    checkError();
   }
 
   // deallocate resources
@@ -625,6 +653,7 @@ int main(int argc, char *argv[]) {
   delete model2;
   delete model3;
   delete model4;
+  delete lightBoxModel;
   // walls
   delete wall1;
   delete wall2;

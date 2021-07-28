@@ -25,6 +25,7 @@ uniform PointLight pointLight;
 
 uniform vec3 ambientColor;
 uniform vec3 cameraPos;
+uniform int enableLightBox = 0;
 
 
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
@@ -44,15 +45,15 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
 
     //ambient
     vec3 ambient = ambientColor * texture(material.diffuse, TexCoord).rgb;
-    vec3 result = ambient*material.ambient + diffuseColor + specularColor;
-    return result;
+
+    return enableLightBox == 1 ?
+                  texture(material.diffuse, TexCoord).rgb : ambient*material.ambient + diffuseColor + specularColor;
 }
 
 void main(){
     vec3 lightEffect;
     vec3 normal = normalize(Normal);
     vec3 dirToCamara = normalize(cameraPos - FragPos);
-
     lightEffect = getPointLightEffect(pointLight, normal, dirToCamara);
     FragColor = vec4(lightEffect, 1.0);
 }
