@@ -50,6 +50,10 @@ void Model::move(ModelMovement direction, float deltaTime) {
     basePosition += moveSpeed * deltaTime * glm::vec3(-1.0f, 0.0f, 0.0f);
   } else if (direction == ModelMovement::RIGHT) {
     basePosition += moveSpeed * deltaTime * glm::vec3(1.0f, 0.0f, 0.0f);
+  } else if (direction == ModelMovement::FORWARD) {
+    basePosition += moveSpeed * deltaTime * glm::vec3(0.0f, 0.0f, -1.0f);
+  } else if (direction == ModelMovement::BACKWARD) {
+    basePosition += moveSpeed * deltaTime * glm::vec3(0.0f, 0.0f, 1.0f);
   }
   updateModelMatrices();
 

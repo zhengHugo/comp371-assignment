@@ -14,7 +14,9 @@ enum class ModelMovement {
   UP,
   DOWN,
   LEFT,
-  RIGHT
+  RIGHT,
+  FORWARD,
+  BACKWARD
 };
 
 // default parameter

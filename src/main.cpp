@@ -925,6 +925,58 @@ static void processInput(GLFWwindow *window) {
     }
   }
 
+  // w
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+      if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+          glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+          // shift + w: move left model
+          currentModel->move(ModelMovement::UP, deltaTime);
+      }
+      else {
+          // w: rotate left about x-axis
+          currentModel->rotate(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), deltaTime);
+      }
+  }
+
+  // s
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+      if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+          glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+          // shift + s: move left model
+          currentModel->move(ModelMovement::DOWN, deltaTime);
+      }
+      else {
+          // s: rotate left about x-axis
+          currentModel->rotate(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f), deltaTime);
+      }
+  }
+
+  // q
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+      if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+          glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+          // shift + q: move forward model
+          currentModel->move(ModelMovement::FORWARD, deltaTime);
+      }
+      else {
+          // q: rotate left about z-axis
+          currentModel->rotate(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f), deltaTime);
+      }
+  }
+
+  // e
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+      if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+          glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+          // shift + e: move left model
+          currentModel->move(ModelMovement::BACKWARD, deltaTime);
+      }
+      else {
+          // e: rotate left about z-axis
+          currentModel->rotate(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f), deltaTime);
+      }
+  }
+
   // left: world rotate x -> camera rotate -x
   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
     camera->rotate(glm::vec3(-1.0f, 0.0f, 0.0f), deltaTime);
