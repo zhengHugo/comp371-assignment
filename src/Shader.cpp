@@ -65,7 +65,7 @@ Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
     int length;
     glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &length);
     char *infoLog = new char[length];
-    glGetShaderInfoLog(vertex, length, &length, infoLog);
+    glGetShaderInfoLog(fragment, length, &length, infoLog);
     std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     delete[] infoLog;
   }
