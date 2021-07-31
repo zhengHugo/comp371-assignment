@@ -28,6 +28,8 @@ uniform vec3 ambientColor;
 uniform vec3 cameraPos;
 uniform int toggleLightBox = 0;
 uniform int toggleGlow = 0;
+uniform int toggleTexture = 1;
+uniform int toggleShadow = 1;
 uniform sampler2D emissionMap;
 uniform sampler2D shadowMap;
 uniform float timeValue;
@@ -54,6 +56,15 @@ vec3 hsv2rgb(vec3 c) {
 }
 
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float shadow) {
+    vec3 diffuseTexture,specularTexture;
+    if (toggleTexture == 1){
+        diffuseTexture = texture(material.diffuse, TexCoord).rgb;
+        specularTexture = texture(material.specular, TexCoord).rgb;
+    }else{
+        diffuseTexture = vec3(1);
+        specularTexture = vec3(1);
+    }
+
     vec3 dirToLight = normalize(light.pos - FragPos);
     // attenuation
     float dist = length(light.pos - FragPos);
@@ -61,19 +72,19 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float 
 
     //diffuse
     float diffuseIntensity = max(dot(dirToLight, normal), 0) * attenuation;
-    vec3 diffuseColor = diffuseIntensity * light.color * texture(material.diffuse, TexCoord).rgb;
+    vec3 diffuseColor = diffuseIntensity * light.color * diffuseTexture;
 
     //specular
     vec3 reflectVec = reflect(-dirToLight, normal);
     float specularIntensity = pow(max(dot(reflectVec, dirToCamara), 0.0), material.shininess) * attenuation;
-    vec3 specularColor = specularIntensity * light.color * texture(material.specular, TexCoord).rgb;
+    vec3 specularColor = specularIntensity * light.color * specularTexture;
 
     //ambient
-    vec3 ambient = ambientColor * texture(material.diffuse, TexCoord).rgb;
-
+    vec3 ambient = ambientColor * diffuseTexture;
+    float shadowStrength = 0.85;
     return toggleLightBox == 1 ?
-        texture(material.diffuse, TexCoord).rgb :
-        ambient * material.ambient + (1.0 - shadow) * (diffuseColor + specularColor);
+        diffuseTexture :
+        ambient * material.ambient + (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
 }
 
 float calculateShadow(vec4 fragPosLightSpace, float bias) {
@@ -86,13 +97,26 @@ float calculateShadow(vec4 fragPosLightSpace, float bias) {
     // get depth of current frag from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag is in shadow
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    //PCF
+    float shadow = 0.0;
+    vec2 texelSize = (1.0 / textureSize(shadowMap, 0))*0.6f;
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
     // no shadow out of frustum in light view
     if (projCoords.z > 1.0) {
         shadow = 0.0;
     }
     return shadow;
 }
+
 
 // for debug
 float linearizeDepth(float depth) {
@@ -109,6 +133,9 @@ void main(){
     vec3 lightDir = normalize(pointLight.pos - FragPos);
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
     float shadow = calculateShadow(FragPosLightSpace, bias);
+    if (toggleShadow == 0){
+        shadow = 0.0f;
+    }
 
     // light
     vec3 dirToCamara = normalize(cameraPos - FragPos);
@@ -119,6 +146,4 @@ void main(){
     }
 
     FragColor = vec4(lightEffect, 1.0);
-//    float depthValue = texture(shadowMap, TexCoord).r;
-//    FragColor = vec4(vec3(linearizeDepth(depthValue) / farPlane), 1.0);
 }
