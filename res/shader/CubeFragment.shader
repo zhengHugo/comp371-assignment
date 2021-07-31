@@ -50,6 +50,11 @@ vec3 hsv2rgb(vec3 c)
 
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
     vec3 dirToLight = normalize(light.pos - FragPos);
+    //introducing Blinn-Phong
+    // The only difference between Blinn-Phong and Phong specular reflection is
+    // that we now measure the angle between the normal and halfway vector
+    // instead of the angle between the view and reflection vector.
+    vec3 halfwayDir = normalize(dirToLight+dirToCamara);
     // attenuation
     float dist = length(light.pos - FragPos);
     float attenuation = 1.0 / (light.constant + light.linear* dist + light.quadratic * (dist * dist));
@@ -59,8 +64,9 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara) {
     vec3 diffuseColor = diffuseIntensity * light.color * texture(material.diffuse, TexCoord).rgb;
 
     //specular
-    vec3 reflectVec = reflect(-dirToLight, normal);
-    float specularIntensity = pow(max(dot(reflectVec, dirToCamara), 0.0), material.shininess) * attenuation;
+    //vec3 reflectVec = reflect(-dirToLight, normal);
+    //float specularIntensity = pow(max(dot(reflectVec, dirToCamara), 0.0), material.shininess) * attenuation;
+    float specularIntensity = pow(max(dot(normal, halfwayDir), 0.0), material.shininess) * attenuation;
     vec3 specularColor = specularIntensity * light.color * texture(material.specular, TexCoord).rgb;
 
     //ambient
