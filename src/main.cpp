@@ -30,6 +30,8 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos);
 
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
 
+static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+
 static void updateModelPosition();
 
 static unsigned int loadTexture(const char *path);
@@ -63,6 +65,11 @@ Model *currentWall;
 Model *currentModel;
 std::vector<Model *> cornerObjects;
 
+//toggle value
+int isGlow = 0;
+int isTexture = 1;
+int isShadow = 1;
+
 // window width & height
 int scrWidth = 1024;
 int scrHeight = 768;
@@ -70,8 +77,8 @@ glm::vec3 *cornerPositions;
 
 // true when mouse callback is called for the first time; false otherwise
 bool firstMouse = true;
-float lastX = (float)scrWidth / 2.0f;
-float lastY = (float)scrHeight / 2.0f;
+float lastX = (float) scrWidth / 2.0f;
+float lastY = (float) scrHeight / 2.0f;
 
 float deltaTime; // Time between current frame and last frame
 float lastFrame; // Time of last frame
@@ -116,6 +123,7 @@ int main(int argc, char *argv[]) {
   glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
   glfwSetCursorPosCallback(window, cursorPosCallback);
   glfwSetScrollCallback(window, scrollCallback);
+  glfwSetKeyCallback(window, keyCallback);
 
   // tell GLFW to capture our mouse
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -464,7 +472,7 @@ int main(int argc, char *argv[]) {
   };
 
   glm::vec3 groundPosition(0, 0, 0);
-  glm::vec3 pointLightPosition(10.0f, 30.0f, 10.0f);
+  glm::vec3 pointLightPosition(3.0f, 30.0f, 6.0f);
 //  glm::vec3 pointLightPosition(20.0f, 20.0f, 20.0f);
   glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
   glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
@@ -584,7 +592,7 @@ int main(int argc, char *argv[]) {
   Material metal(cubeShader,
                  loadTexture("res/texture/metal.png"),
                  loadTexture("res/texture/metal_specular.png"),
-                 glm::vec3(0.1f, 0.1f, 0.1f),
+                 glm::vec3(0.2f, 0.2f, 0.2f),
                  8.0f);
 
   Material brick(cubeShader,
@@ -709,6 +717,8 @@ int main(int argc, char *argv[]) {
     cubeShader.setInt("emissionMap", 2);
     cubeShader.setInt("shadowMap", 3);
     cubeShader.setFloat("timeValue", timeValueForColor);
+    cubeShader.setInt("toggleTexture", isTexture);
+    cubeShader.setInt("toggleShadow", isShadow);
     glBindVertexArray(cubeVao);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, emissionMap);
@@ -722,12 +732,15 @@ int main(int argc, char *argv[]) {
       glBindTexture(GL_TEXTURE_2D, metal.specular);
       cubeShader.setInt("material.diffuse", 0);
       cubeShader.setInt("material.specular", 1);
+      //glow effect: can be placed in any cube draw process
+      cubeShader.setInt("toggleGlow", isGlow);
       cubeShader.setFloat("material.shininess", metal.shininess);
       // calculate cube model matrix
       glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
       cubeShader.setMat4("model", cubeModelMatrix);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
+    cubeShader.setInt("toggleGlow", 0);
 
     // draw wall
     for (size_t i = 0; i < currentWall->size(); i++) {
@@ -786,8 +799,6 @@ int main(int argc, char *argv[]) {
     cubeShader.setInt("material.specular", 1);
     //not going to change
     cubeShader.setInt("toggleLightBox", 1);
-    //glow effect: can be placed in any cube draw process
-    cubeShader.setInt("toggleGlow", 0);
     cubeShader.setFloat("material.shininess", lightBox.shininess);
     // calculate the model matrix for wall
     glm::mat4 cubeModelMatrix = lightBoxModel->getModelMatrix(0);
@@ -795,7 +806,7 @@ int main(int argc, char *argv[]) {
     glDrawArrays(GL_TRIANGLES, 0, 36);
     cubeShader.setInt("toggleLightBox", 0);
     // end of light box
-    //cubeShader.setInt("toggleGlow", 0);
+
 
 
     //draw ground
@@ -1235,6 +1246,35 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos) {
 
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
   camera->processMouseScroll((float) yOffset);
+}
+
+static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+  // g: toggle glow
+  if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+    if (isGlow == 1) {
+      isGlow = 0;
+    } else {
+      isGlow = 1;
+    }
+  }
+
+  // x: toggle texture
+  if (key == GLFW_KEY_X && action == GLFW_PRESS) {
+    if (isTexture == 1) {
+      isTexture = 0;
+    } else {
+      isTexture = 1;
+    }
+  }
+
+  // b: toggle shadow
+  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+    if (isShadow == 1) {
+      isShadow = 0;
+    } else {
+      isShadow = 1;
+    }
+  }
 }
 
 #pragma endregion // Window callback functions
