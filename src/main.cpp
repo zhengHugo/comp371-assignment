@@ -30,7 +30,7 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos);
 
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 static void updateModelPosition();
 
@@ -77,8 +77,8 @@ glm::vec3 *cornerPositions;
 
 // true when mouse callback is called for the first time; false otherwise
 bool firstMouse = true;
-float lastX = (float)scrWidth / 2.0f;
-float lastY = (float)scrHeight / 2.0f;
+float lastX = (float) scrWidth / 2.0f;
+float lastY = (float) scrHeight / 2.0f;
 
 float deltaTime; // Time between current frame and last frame
 float lastFrame; // Time of last frame
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
   glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
   glfwSetCursorPosCallback(window, cursorPosCallback);
   glfwSetScrollCallback(window, scrollCallback);
-  glfwSetKeyCallback(window, key_callback);
+  glfwSetKeyCallback(window, keyCallback);
 
   // tell GLFW to capture our mouse
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -1248,31 +1248,30 @@ static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
   camera->processMouseScroll((float) yOffset);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
   // g: toggle glow
   if (key == GLFW_KEY_G && action == GLFW_PRESS) {
-    if(isGlow == 1){
+    if (isGlow == 1) {
       isGlow = 0;
-    }else{
+    } else {
       isGlow = 1;
     }
   }
 
   // x: toggle texture
   if (key == GLFW_KEY_X && action == GLFW_PRESS) {
-    if(isTexture == 1){
+    if (isTexture == 1) {
       isTexture = 0;
-    }else{
+    } else {
       isTexture = 1;
     }
   }
 
   // b: toggle shadow
   if (key == GLFW_KEY_B && action == GLFW_PRESS) {
-    if(isShadow == 1){
+    if (isShadow == 1) {
       isShadow = 0;
-    }else{
+    } else {
       isShadow = 1;
     }
   }
