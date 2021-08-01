@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
   glfwSetScrollCallback(window, scrollCallback);
 
   // tell GLFW to capture our mouse
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // initialize GLEW
   glewExperimental = true; // Needed for core profile
@@ -1235,6 +1235,17 @@ static void cursorPosCallback(GLFWwindow *window, double xPos, double yPos) {
 
 static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset) {
   camera->processMouseScroll((float) yOffset);
+}
+
+void reshape(int w, int h) {
+    if (h == 0)
+        h = 1;
+    float aspectRatio = (float)w / h;
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glViewport(0, 0, w, h);
+    gluPerspective(45, aspectRatio, 0, 1000);
+    glMatrixMode(GL_MODELVIEW);
 }
 
 #pragma endregion // Window callback functions
