@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(COMP371_Assignment2)
+project(COMP371_Project)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -19,6 +19,7 @@ find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 include(BuildGLEW)
 include(BuildGLFW)
 include(BuildGLM)
+include(BuildFreeType)
 
 # main
 set(EXEC main)
@@ -30,10 +31,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_executable(${EXEC} ${SRC})
 
 target_include_directories(${EXEC} PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/include)
-target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm)
+target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm freetype)
 
 list(APPEND BIN ${EXEC})
-# end lab02
 
 # install files to install location
 install(TARGETS ${BIN} DESTINATION ${CMAKE_INSTALL_PREFIX})

@@ -10,6 +10,9 @@
 #include <vector>
 #include "stb_image.h"
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
@@ -87,6 +90,13 @@ float lastFrame; // Time of last frame
 
 int main(int argc, char *argv[]) {
 
+  FT_Library ft;
+  if (FT_Init_FreeType(&ft))
+  {
+    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+    return -1;
+  }
+
   // Initializations
   // --------------------------
 
@@ -126,7 +136,7 @@ int main(int argc, char *argv[]) {
   glfwSetKeyCallback(window, keyCallback);
 
   // tell GLFW to capture our mouse
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // initialize GLEW
   glewExperimental = true; // Needed for core profile
@@ -735,6 +745,7 @@ int main(int argc, char *argv[]) {
       //glow effect: can be placed in any cube draw process
       cubeShader.setInt("toggleGlow", isGlow);
       cubeShader.setFloat("material.shininess", metal.shininess);
+      cubeShader.setVec3("material.ambient", metal.ambient);
       // calculate cube model matrix
       glm::mat4 cubeModelMatrix = currentModel->getModelMatrix(i);
       cubeShader.setMat4("model", cubeModelMatrix);
@@ -752,6 +763,7 @@ int main(int argc, char *argv[]) {
       cubeShader.setInt("material.diffuse", 0);
       cubeShader.setInt("material.specular", 1);
       cubeShader.setFloat("material.shininess", brick.shininess);
+      cubeShader.setVec3("material.ambient", brick.ambient);
       // calculate the model matrix for wall
       glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
       cubeShader.setMat4("model", wallModelMatrix);
@@ -770,6 +782,7 @@ int main(int argc, char *argv[]) {
         cubeShader.setInt("material.diffuse", 0);
         cubeShader.setInt("material.specular", 1);
         cubeShader.setFloat("material.shininess", metal.shininess);
+        cubeShader.setVec3("material.ambient", metal.ambient);
         glm::mat4 cubeModelMatrix = cornerObjects[2 * j]->getModelMatrix(i);
         cubeShader.setMat4("model", cubeModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -784,6 +797,7 @@ int main(int argc, char *argv[]) {
         cubeShader.setInt("material.diffuse", 0);
         cubeShader.setInt("material.specular", 1);
         cubeShader.setFloat("material.shininess", brick.shininess);
+        cubeShader.setVec3("material.ambient", brick.ambient);
         glm::mat4 wallModelMatrix = cornerObjects[2 * j + 1]->getModelMatrix(i);
         cubeShader.setMat4("model", wallModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -819,6 +833,7 @@ int main(int argc, char *argv[]) {
     cubeShader.setInt("material.diffuse", 0);
     cubeShader.setInt("material.specular", 1);
     cubeShader.setFloat("material.shininess", tile.shininess);
+    cubeShader.setVec3("material.ambient", tile.ambient);
     cubeShader.setMat4("model", groundModel->getModelMatrix(0));
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
