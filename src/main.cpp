@@ -613,6 +613,78 @@ int main(int argc, char *argv[]) {
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 128.0f);
 
+  Material number1(cubeShader,
+                loadTexture("res/texture/numbers/number1.png"),
+                loadTexture("res/texture/numbers/number1_specular.png"),
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                128.0f);
+
+  Material *number[8];
+  for(int i = 0; i < 8; i ++){
+    std::string address1 = "res/texture/numbers/number"+std::to_string((int)i)+".png";
+    std::string address2 = "res/texture/numbers/number"+std::to_string((int)i)+"_specular.png";
+    number[i] = new Material(cubeShader,
+                              loadTexture(address1.c_str()),
+                              loadTexture(address2.c_str()),
+                              glm::vec3(1.0f, 1.0f, 1.0f),
+                              128.0f);
+  }
+
+
+  Material number0(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number1(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number2(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number3(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number4(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number5(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number6(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number7(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
+  Material number8(cubeShader,
+                   loadTexture("res/texture/numbers/number1.png"),
+                   loadTexture("res/texture/numbers/number1_specular.png"),
+                   glm::vec3(1.0f, 1.0f, 1.0f),
+                   128.0f);
+
   unsigned int emissionMap;
   emissionMap = loadTexture("res/texture/Emission.png");
 
