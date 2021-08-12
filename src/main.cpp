@@ -5,11 +5,9 @@
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
 #include <glm/glm.hpp>  // GLM is an optimized math library with syntax to similar to OpenGL Shading Language
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
 #include "stb_image.h"
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -18,6 +16,9 @@
 #include "Model.h"
 #include "Material.h"
 #include "PointLight.h"
+#include "Cube.h"
+
+#include "geometryData.h"
 
 #pragma region Declare static functions
 
@@ -153,319 +154,6 @@ int main(int argc, char *argv[]) {
 
   camera = new Camera();
 
-  // Geometry data
-  // -----------------------------------
-  float unitCubeVertices[] = {
-      // unit cube vertices
-      // TODO: read data from file
-      // Back face
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
-      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right
-      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
-      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
-      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // top-left
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-      // Front face
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom-left
-      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-      0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // bottom-right
-      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // top-left
-      // Left face
-      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
-      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-      -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-left
-      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,// bottom-left
-      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
-      -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,// bottom-right
-      // Right face
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // top-left
-      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-right
-      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, //  top-left
-      // Bottom face
-      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-left
-      0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // top-left
-      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-left
-      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-      -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
-      // Top face
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top-right
-      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
-      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
-      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f // top-left
-  };
-
-  float unitGroundVertices[] = {
-      -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-      50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-      50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-      50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-      -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-      -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f  // top-left
-  };
-
-  float axisVertices[] = {
-      0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f, // pos * 3, color * 3
-      4.3f, 0.0f, 0.0f, 0.696f, 0.298f, 0.192f,
-      4.3f, 0.0f, 0.0f, 1.0f, 0.298f, 0.192f,
-      5.0f, 0.0f, 0.0f, 1.0f, 0.298f, 0.192f,
-
-      0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f,
-      0.0f, 4.3f, 0.0f, 0.235f, 0.594f, 0.286f,
-      0.0f, 4.3f, 0.0f, 0.235f, 0.894f, 0.286f,
-      0.0f, 5.0f, 0.0f, 0.235f, 0.894f, 0.286f,
-
-      0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f,
-      0.0f, 0.0f, 4.3f, 0.235f, 0.494f, 0.586f,
-      0.0f, 0.0f, 4.3f, 0.235f, 0.494f, 0.986f,
-      0.0f, 0.0f, 5.0f, 0.235f, 0.494f, 0.986f,
-  };
-
-  std::vector<glm::vec3> relativeCubePositions1 = {
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 2.0f, 0.0f),
-      glm::vec3(0.0f, 3.0f, 0.0f),
-      glm::vec3(1.0f, 3.0f, 0.0f),
-      glm::vec3(2.0f, 3.0f, 0.0f),
-      glm::vec3(2.0f, 4.0f, 0.0f),
-      glm::vec3(2.0f, 5.0f, 0.0f),
-      glm::vec3(1.0f, 5.0f, 0.0f),
-      glm::vec3(0.0f, 5.0f, 0.0f)
-  };
-
-  std::vector<glm::vec3> relativeCubePositions2 = {
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(1.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 0.0f, -1.0f),
-      glm::vec3(0.0f, 0.0f, -2.0f),
-      glm::vec3(0.0f, 0.0f, -3.0f),
-      glm::vec3(2.0f, 0.0f, 0.0f),
-      glm::vec3(3.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      glm::vec3(0.0f, 2.0f, 0.0f)
-  };
-
-  std::vector<glm::vec3> relativeCubePositions3 = {
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      glm::vec3(0.0f, 2.0f, 0.0f),
-      glm::vec3(0.0f, 3.0f, 0.0f),
-      glm::vec3(0.0f, 4.0f, 0.0f),
-      glm::vec3(-1.0f, 3.0f, 0.0f),
-      glm::vec3(1.0f, 3.0f, 0.0f),
-      glm::vec3(-2.0f, 2.0f, 0.0f),
-      glm::vec3(2.0f, 2.0f, 0.0f)
-  };
-
-  std::vector<glm::vec3> relativeCubePositions4 = {
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(1.0f, 0.0f, 0.0f),
-      glm::vec3(2.0f, 0.0f, 0.0f),
-      glm::vec3(3.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      glm::vec3(0.0f, 2.0f, 0.0f),
-      glm::vec3(1.0f, 2.0f, 0.0f),
-      glm::vec3(2.0f, 2.0f, 0.0f),
-      glm::vec3(3.0f, 2.0f, 0.0f),
-      glm::vec3(3.0f, 2.0f, 1.0f),
-      glm::vec3(3.0f, 2.0f, 2.0f),
-      glm::vec3(2.0f, 2.0f, 2.0f),
-      glm::vec3(1.0f, 2.0f, 2.0f)
-  };
-
-  std::vector<glm::vec3> relativeCubePositions5 = {
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(1.0f, 0.0f, 0.0f),
-      glm::vec3(2.0f, 0.0f, 0.0f),
-      glm::vec3(3.0f, 0.0f, 0.0f),
-
-      glm::vec3(3.0f, 1.0f, 0.0f),
-      glm::vec3(3.0f, 2.0f, 0.0f),
-
-      glm::vec3(2.0f, 2.0f, 0.0f),
-      glm::vec3(1.0f, 2.0f, 0.0f),
-      glm::vec3(0.0f, 2.0f, 0.0f),
-
-      glm::vec3(0.0f, 3.0f, 0.0f),
-      glm::vec3(0.0f, 4.0f, 0.0f),
-
-      glm::vec3(1.0f, 4.0f, 0.0f),
-      glm::vec3(2.0f, 4.0f, 0.0f),
-      glm::vec3(3.0f, 4.0f, 0.0f)
-  };
-
-  std::vector<glm::vec3> relativeWallPositions1 = {
-      glm::vec3(-1.0f, -1.0f, 0.0f),
-      glm::vec3(0.0f, -1.0f, 0.0f),
-      glm::vec3(1.0f, -1.0f, 0.0f),
-      glm::vec3(2.0f, -1.0f, 0.0f),
-      glm::vec3(3.0f, -1.0f, 0.0f),
-      glm::vec3(-1.0f, 0.0f, 0.0f),
-      glm::vec3(1.0f, 0.0f, 0.0f),
-      glm::vec3(2.0f, 0.0f, 0.0f),
-      glm::vec3(3.0f, 0.0f, 0.0f),
-      glm::vec3(-1.0f, 1.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      glm::vec3(1.0f, 1.0f, 0.0f),
-      glm::vec3(2.0f, 1.0f, 0.0f),
-      glm::vec3(3.0f, 1.0f, 0.0f),
-      glm::vec3(-1.0f, 2.0f, 0.0f),
-      glm::vec3(1.0f, 2.0f, 0.0f),
-      glm::vec3(2.0f, 2.0f, 0.0f),
-      glm::vec3(3.0f, 2.0f, 0.0f),
-      glm::vec3(-1.0f, 3.0f, 0.0f),
-      glm::vec3(3.0f, 3.0f, 0.0f),
-      glm::vec3(-1.0f, 4.0f, 0.0f),
-      glm::vec3(0.0f, 4.0f, 0.0f),
-      glm::vec3(1.0f, 4.0f, 0.0f),
-      glm::vec3(3.0f, 4.0f, 0.0f),
-      glm::vec3(-1.0f, 5.0f, 0.0f),
-      glm::vec3(3.0f, 5.0f, 0.0f),
-      glm::vec3(-1.0f, 6.0f, 0.0f),
-      glm::vec3(0.0f, 6.0f, 0.0f),
-      glm::vec3(1.0f, 6.0f, 0.0f),
-      glm::vec3(2.0f, 6.0f, 0.0f),
-      glm::vec3(3.0f, 6.0f, 0.0f)
-  };
-
-  std::vector<glm::vec3> relativeWallPositions2 = {
-      glm::vec3(-1.0f, -1.0f, 0.0f),
-      glm::vec3(0.0f, -1.0f, 0.0f),
-      glm::vec3(1.0f, -1.0f, 0.0f),
-      glm::vec3(2.0f, -1.0f, 0.0f),
-      glm::vec3(3.0f, -1.0f, 0.0f),
-      glm::vec3(4.0f, -1.0f, 0.0f),
-      glm::vec3(-1.0f, 0.0f, 0.0f),
-      glm::vec3(4.0f, 0.0f, 0.0f),
-      glm::vec3(-1.0f, 1.0f, 0.0f),
-      glm::vec3(1.0f, 1.0f, 0.0f),
-      glm::vec3(2.0f, 1.0f, 0.0f),
-      glm::vec3(3.0f, 1.0f, 0.0f),
-      glm::vec3(4.0f, 1.0f, 0.0f),
-      glm::vec3(-1.0f, 2.0f, 0.0f),
-      glm::vec3(1.0f, 2.0f, 0.0f),
-      glm::vec3(2.0f, 2.0f, 0.0f),
-      glm::vec3(3.0f, 2.0f, 0.0f),
-      glm::vec3(4.0f, 2.0f, 0.0f),
-      glm::vec3(-1.0f, 3.0f, 0.0f),
-      glm::vec3(0.0f, 3.0f, 0.0f),
-      glm::vec3(1.0f, 3.0f, 0.0f),
-      glm::vec3(2.0f, 3.0f, 0.0f),
-      glm::vec3(3.0f, 3.0f, 0.0f),
-      glm::vec3(4.0f, 3.0f, 0.0f)
-  };
-
-  std::vector<glm::vec3> relativeWallPositions3 = {
-      glm::vec3(-3.0f, -1.0f, 0.0f),
-      glm::vec3(-2.0f, -1.0f, 0.0f),
-      glm::vec3(-1.0f, -1.0f, 0.0f),
-      glm::vec3(0.0f, -1.0f, 0.0f),
-      glm::vec3(1.0f, -1.0f, 0.0f),
-      glm::vec3(2.0f, -1.0f, 0.0f),
-      glm::vec3(3.0f, -1.0f, 0.0f),
-      glm::vec3(-3.0f, 0.0f, 0.0f),
-      glm::vec3(-2.0f, 0.0f, 0.0f),
-      glm::vec3(-1.0f, 0.0f, 0.0f),
-      glm::vec3(1.0f, 0.0f, 0.0f),
-      glm::vec3(2.0f, 0.0f, 0.0f),
-      glm::vec3(3.0f, 0.0f, 0.0f),
-      glm::vec3(-3.0f, 1.0f, 0.0f),
-      glm::vec3(-2.0f, 1.0f, 0.0f),
-      glm::vec3(-1.0f, 1.0f, 0.0f),
-      glm::vec3(1.0f, 1.0f, 0.0f),
-      glm::vec3(2.0f, 1.0f, 0.0f),
-      glm::vec3(3.0f, 1.0f, 0.0f),
-      glm::vec3(-3.0f, 2.0f, 0.0f),
-      glm::vec3(-1.0f, 2.0f, 0.0f),
-      glm::vec3(1.0f, 2.0f, 0.0f),
-      glm::vec3(3.0f, 2.0f, 0.0f),
-      glm::vec3(-3.0f, 3.0f, 0.0f),
-      glm::vec3(-2.0f, 3.0f, 0.0f),
-      glm::vec3(2.0f, 3.0f, 0.0f),
-      glm::vec3(3.0f, 3.0f, 0.0f),
-      glm::vec3(-3.0f, 4.0f, 0.0f),
-      glm::vec3(-2.0f, 4.0f, 0.0f),
-      glm::vec3(-1.0f, 4.0f, 0.0f),
-      glm::vec3(1.0f, 4.0f, 0.0f),
-      glm::vec3(2.0f, 4.0f, 0.0f),
-      glm::vec3(3.0f, 4.0f, 0.0f),
-      glm::vec3(-3.0f, 5.0f, 0.0f),
-      glm::vec3(-2.0f, 5.0f, 0.0f),
-      glm::vec3(-1.0f, 5.0f, 0.0f),
-      glm::vec3(0.0f, 5.0f, 0.0f),
-      glm::vec3(1.0f, 5.0f, 0.0f),
-      glm::vec3(2.0f, 5.0f, 0.0f),
-      glm::vec3(3.0f, 5.0f, 0.0f),
-  };
-
-  std::vector<glm::vec3> relativeWallPositions4 = {
-      glm::vec3(-1.0f, -1.0f, 0.0f),
-      glm::vec3(0.0f, -1.0f, 0.0f),
-      glm::vec3(1.0f, -1.0f, 0.0f),
-      glm::vec3(2.0f, -1.0f, 0.0f),
-      glm::vec3(3.0f, -1.0f, 0.0f),
-      glm::vec3(4.0f, -1.0f, 0.0f),
-      glm::vec3(-1.0f, 0.0f, 0.0f),
-      glm::vec3(4.0f, 0.0f, 0.0f),
-      glm::vec3(-1.0f, 1.0f, 0.0f),
-      glm::vec3(1.0f, 1.0f, 0.0f),
-      glm::vec3(2.0f, 1.0f, 0.0f),
-      glm::vec3(3.0f, 1.0f, 0.0f),
-      glm::vec3(4.0f, 1.0f, 0.0f),
-      glm::vec3(-1.0f, 2.0f, 0.0f),
-      glm::vec3(4.0f, 2.0f, 0.0f),
-      glm::vec3(-1.0f, 3.0f, 0.0f),
-      glm::vec3(0.0f, 3.0f, 0.0f),
-      glm::vec3(1.0f, 3.0f, 0.0f),
-      glm::vec3(2.0f, 3.0f, 0.0f),
-      glm::vec3(3.0f, 3.0f, 0.0f),
-      glm::vec3(4.0f, 3.0f, 0.0f)
-  };
-
-  std::vector<glm::vec3> relativeWallPositions5 = {
-      glm::vec3(-1.0f, -1.0f, 0.0f),
-      glm::vec3(0.0f, -1.0f, 0.0f),
-      glm::vec3(1.0f, -1.0f, 0.0f),
-      glm::vec3(2.0f, -1.0f, 0.0f),
-      glm::vec3(3.0f, -1.0f, 0.0f),
-      glm::vec3(4.0f, -1.0f, 0.0f),
-
-      glm::vec3(-1.0f, 0.0f, 0.0f),
-      glm::vec3(4.0f, 0.0f, 0.0f),
-
-      glm::vec3(-1.0f, 1.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      glm::vec3(1.0f, 1.0f, 0.0f),
-      glm::vec3(2.0f, 1.0f, 0.0f),
-      glm::vec3(4.0f, 1.0f, 0.0f),
-
-      glm::vec3(-1.0f, 2.0f, 0.0f),
-      glm::vec3(4.0f, 2.0f, 0.0f),
-
-      glm::vec3(-1.0f, 3.0f, 0.0f),
-      glm::vec3(1.0f, 3.0f, 0.0f),
-      glm::vec3(2.0f, 3.0f, 0.0f),
-      glm::vec3(3.0f, 3.0f, 0.0f),
-      glm::vec3(4.0f, 3.0f, 0.0f),
-
-      glm::vec3(-1.0f, 4.0f, 0.0f),
-      glm::vec3(4.0f, 4.0f, 0.0f),
-
-      glm::vec3(-1.0f, 5.0f, 0.0f),
-      glm::vec3(0.0f, 5.0f, 0.0f),
-      glm::vec3(1.0f, 5.0f, 0.0f),
-      glm::vec3(2.0f, 5.0f, 0.0f),
-      glm::vec3(3.0f, 5.0f, 0.0f),
-      glm::vec3(4.0f, 5.0f, 0.0f),
-
-  };
 
   cornerPositions = new glm::vec3[]{
       glm::vec3(-30.0, 3.0f, 30.0f),
@@ -812,13 +500,13 @@ int main(int argc, char *argv[]) {
     cubeShader.setInt("material.diffuse", 0);
     cubeShader.setInt("material.specular", 1);
     //not going to change
-    cubeShader.setInt("toggleLightBox", 1);
+    cubeShader.setBool("isLightBox", true);
     cubeShader.setFloat("material.shininess", lightBox.shininess);
     // calculate the model matrix for wall
     glm::mat4 cubeModelMatrix = lightBoxModel->getModelMatrix(0);
     cubeShader.setMat4("model", cubeModelMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    cubeShader.setInt("toggleLightBox", 0);
+    cubeShader.setInt("isLightBox", false);
     // end of light box
 
 
@@ -1149,84 +837,6 @@ static void updateModelPosition() {
     cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
   }
 }
-
-static void renderScene(const Shader &shader) {
-  shader.use();
-
-}
-
-//unsigned int cubeVao = 0;
-//unsigned int cubeVbo = 0;
-//static void drawCube() {
-//  if (cubeVao == 0) {
-//    float unitCubeVertices[] = {
-//        // unit cube vertices
-//        // TODO: read data from file
-//        // Back face
-//        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
-//        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right
-//        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
-//        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
-//        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // top-left
-//        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-//        // Front face
-//        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom-left
-//        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-//        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // bottom-right
-//        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-//        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-//        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // top-left
-//        // Left face
-//        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
-//        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-//        -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-left
-//        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,// bottom-left
-//        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
-//        -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,// bottom-right
-//        // Right face
-//        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // top-left
-//        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-right
-//        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-//        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-//        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-//        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, //  top-left
-//        // Bottom face
-//        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-//        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-left
-//        0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // top-left
-//        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-left
-//        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-//        -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
-//        // Top face
-//        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-//        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top-right
-//        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
-//        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
-//        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-//        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f // top-left
-//    };
-//    glGenVertexArrays(1, &cubeVao);
-//    glGenBuffers(1, &cubeVbo);
-//    // fill buffer
-//    glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(unitCubeVertices), unitCubeVertices, GL_STATIC_DRAW);
-//
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
-//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
-//
-//    glEnableVertexAttribArray(0);
-//    glEnableVertexAttribArray(1);
-//    glEnableVertexAttribArray(2);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindVertexArray(0);
-//  }
-//  glBindVertexArray(cubeVao);
-//  glDrawArrays(GL_TRIANGLES, 0, 36);
-//  glBindVertexArray(0);
-//
-//}
 
 #pragma endregion // helper functions
 

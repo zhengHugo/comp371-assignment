@@ -2,8 +2,8 @@
 // Created by LittleRedRidingU  on 2021/7/27.
 //
 
-#ifndef COMP371_ASSIGNMENT2_MATERIAL_H
-#define COMP371_ASSIGNMENT2_MATERIAL_H
+#ifndef COMP371_PROJECT_MATERIAL_H
+#define COMP371_PROJECT_MATERIAL_H
 #include "Shader.h"
 #include <glm/glm.hpp>
 
@@ -22,4 +22,4 @@ class Material {
            float shininess);
 };
 
-#endif //COMP371_ASSIGNMENT2_MATERIAL_H
+#endif //COMP371_PROJECT_MATERIAL_H

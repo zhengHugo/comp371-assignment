@@ -2,8 +2,8 @@
 // Created by Yuguo Zheng on 2021-07-16.
 //
 
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef COMP371_PROJECT_MODEL_H
+#define COMP371_PROJECT_MODEL_H
 
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -64,4 +64,4 @@ class Model {
 };
 
 
-#endif //MODEL_H
+#endif //COMP371_PROJECT_MODEL_H
