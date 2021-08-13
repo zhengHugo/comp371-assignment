@@ -2,8 +2,8 @@
 // Created by LittleRedRidingU  on 2021/7/27.
 //
 
-#ifndef COMP371_ASSIGNMENT2_POINTLIGHT_H
-#define COMP371_ASSIGNMENT2_POINTLIGHT_H
+#ifndef COMP371_PROJECT__POINTLIGHT_H
+#define COMP371_PROJECT__POINTLIGHT_H
 #include <glm/glm.hpp>
 
 class PointLight {
@@ -20,4 +20,4 @@ class PointLight {
 };
 
 
-#endif //COMP371_ASSIGNMENT2_POINTLIGHT_H
+#endif //COMP371_PROJECT__POINTLIGHT_H

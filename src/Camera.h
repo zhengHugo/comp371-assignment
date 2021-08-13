@@ -2,8 +2,8 @@
 // Created by Yuguo Zheng on 2021-07-14.
 //
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef COMP371_PROJECT_SRC_CAMERA_H
+#define COMP371_PROJECT_SRC_CAMERA_H
 
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -46,19 +46,6 @@ class Camera {
    */
   Camera();
 
-//  /**
-//   * Camera constructor
-//   * @param posX x value of camera position
-//   * @param posY y value of camera position
-//   * @param posZ z value of camera position
-//   * @param upX x value of up vector in world space
-//   * @param upY y value of up vector in world space
-//   * @param upZ z value of up vector in world space
-//   * @param yaw yaw angle of camera
-//   * @param pitch pitch angle of camera
-//   */
-//  Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
-
   /**
    * Computer view matrix from Euler angles and the LookAt matrix
    * @return the view matrix
@@ -83,14 +70,6 @@ class Camera {
    */
   void tilt(float offset, float deltaTime);
 
-//  /**
-//   * Process input received from a mouse movement.
-//   * @param xOffset offset value in the x direction
-//   * @param yOffset offset value in the y direction
-//   * @param constraintPitch set true to constrain pitch value in [-89.0, 89.0]
-//   */
-//  void processMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
-
   /**
    * Process input received from a mouse scroll-wheel
    * @param yOffset
@@ -98,4 +77,4 @@ class Camera {
   void processMouseScroll(float yOffset);
 };
 
-#endif // CAMERA_H
+#endif // COMP371_PROJECT_SRC_CAMERA_H

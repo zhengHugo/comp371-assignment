@@ -3,8 +3,8 @@
 //
 
 
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#ifndef COMP371_PROJECT_SHADER_HPP
+#define COMP371_PROJECT_SHADER_HPP
 
 #include <GL/glew.h>   // Include GLEW - OpenGL Extension Wrangler
 #include <GLFW/glfw3.h> // GLFW provides a cross-platform interface for creating a graphical context,
@@ -32,4 +32,4 @@ public:
     void setMat4(const std::string &name, glm::mat4 value) const;
 };
 
-#endif //SHADER_HPP
+#endif //COMP371_PROJECT_SHADER_HPP
