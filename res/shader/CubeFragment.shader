@@ -27,9 +27,9 @@ uniform PointLight pointLight;
 uniform vec3 ambientColor;
 uniform vec3 cameraPos;
 uniform bool isLightBox = false;
-uniform bool shouldGlow = false;
-uniform int toggleTexture = 1;
-uniform int toggleShadow = 1;
+uniform bool isGlowingOn = false;
+uniform bool isTextureOn = true;
+uniform bool isShadowOn = true;
 uniform sampler2D emissionMap;
 uniform sampler2D shadowMap;
 uniform float timeValue;
@@ -57,7 +57,7 @@ vec3 hsv2rgb(vec3 c) {
 
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float shadow) {
     vec3 diffuseTexture, specularTexture;
-    if (toggleTexture == 1){
+    if (isTextureOn){
         diffuseTexture = texture(material.diffuse, TexCoord).rgb;
         specularTexture = texture(material.specular, TexCoord).rgb;
     } else {
@@ -83,8 +83,8 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float 
     vec3 ambient = ambientColor * diffuseTexture;
     float shadowStrength = 0.85;
     return isLightBox ?
-            diffuseTexture :
-            ambient * material.ambient + (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
+    diffuseTexture :
+    ambient * material.ambient + (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
 }
 
 float calculateShadow(vec4 fragPosLightSpace, float bias) {
@@ -133,7 +133,7 @@ void main(){
     vec3 lightDir = normalize(pointLight.pos - FragPos);
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
     float shadow = calculateShadow(FragPosLightSpace, bias);
-    if (toggleShadow == 0){
+    if (!isShadowOn){
         shadow = 0.0f;
     }
 
@@ -141,7 +141,7 @@ void main(){
     vec3 dirToCamara = normalize(cameraPos - FragPos);
     lightEffect = getPointLightEffect(pointLight, normal, dirToCamara, shadow);
     vec3 hsvEmissionMap = rgb2hsv(texture(emissionMap, TexCoord).rgb);
-    if (shouldGlow) {
+    if (isGlowingOn) {
         lightEffect += hsv2rgb(vec3(timeValue, hsvEmissionMap.y, hsvEmissionMap.z));
     }
 

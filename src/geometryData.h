@@ -11,7 +11,6 @@
 // -----------------------------------
 float unitCubeVertices[] = {
     // unit cube vertices
-    // TODO: read data from file
     // Back face
     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right
@@ -62,7 +61,42 @@ float unitGroundVertices[] = {
     50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
     50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
     -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f  // top-left
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, -1.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+    -50.0f, -1.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
 };
 
 float axisVertices[] = {
@@ -82,242 +116,242 @@ float axisVertices[] = {
     0.0f, 0.0f, 5.0f, 0.235f, 0.494f, 0.986f,
 };
 
-std::vector<glm::vec3> relativeCubePositions1 = {
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(0.0f, 2.0f, 0.0f),
-    glm::vec3(0.0f, 3.0f, 0.0f),
-    glm::vec3(1.0f, 3.0f, 0.0f),
-    glm::vec3(2.0f, 3.0f, 0.0f),
-    glm::vec3(2.0f, 4.0f, 0.0f),
-    glm::vec3(2.0f, 5.0f, 0.0f),
-    glm::vec3(1.0f, 5.0f, 0.0f),
-    glm::vec3(0.0f, 5.0f, 0.0f)
-};
-
-std::vector<glm::vec3> relativeCubePositions2 = {
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(1.0f, 0.0f, 0.0f),
-    glm::vec3(0.0f, 0.0f, -1.0f),
-    glm::vec3(0.0f, 0.0f, -2.0f),
-    glm::vec3(0.0f, 0.0f, -3.0f),
-    glm::vec3(2.0f, 0.0f, 0.0f),
-    glm::vec3(3.0f, 0.0f, 0.0f),
-    glm::vec3(0.0f, 1.0f, 0.0f),
-    glm::vec3(0.0f, 2.0f, 0.0f)
-};
-
-std::vector<glm::vec3> relativeCubePositions3 = {
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(0.0f, 1.0f, 0.0f),
-    glm::vec3(0.0f, 2.0f, 0.0f),
-    glm::vec3(0.0f, 3.0f, 0.0f),
-    glm::vec3(0.0f, 4.0f, 0.0f),
-    glm::vec3(-1.0f, 3.0f, 0.0f),
-    glm::vec3(1.0f, 3.0f, 0.0f),
-    glm::vec3(-2.0f, 2.0f, 0.0f),
-    glm::vec3(2.0f, 2.0f, 0.0f)
-};
-
-std::vector<glm::vec3> relativeCubePositions4 = {
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(1.0f, 0.0f, 0.0f),
-    glm::vec3(2.0f, 0.0f, 0.0f),
-    glm::vec3(3.0f, 0.0f, 0.0f),
-    glm::vec3(0.0f, 1.0f, 0.0f),
-    glm::vec3(0.0f, 2.0f, 0.0f),
-    glm::vec3(1.0f, 2.0f, 0.0f),
-    glm::vec3(2.0f, 2.0f, 0.0f),
-    glm::vec3(3.0f, 2.0f, 0.0f),
-    glm::vec3(3.0f, 2.0f, 1.0f),
-    glm::vec3(3.0f, 2.0f, 2.0f),
-    glm::vec3(2.0f, 2.0f, 2.0f),
-    glm::vec3(1.0f, 2.0f, 2.0f)
-};
-
-std::vector<glm::vec3> relativeCubePositions5 = {
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(1.0f, 0.0f, 0.0f),
-    glm::vec3(2.0f, 0.0f, 0.0f),
-    glm::vec3(3.0f, 0.0f, 0.0f),
-
-    glm::vec3(3.0f, 1.0f, 0.0f),
-    glm::vec3(3.0f, 2.0f, 0.0f),
-
-    glm::vec3(2.0f, 2.0f, 0.0f),
-    glm::vec3(1.0f, 2.0f, 0.0f),
-    glm::vec3(0.0f, 2.0f, 0.0f),
-
-    glm::vec3(0.0f, 3.0f, 0.0f),
-    glm::vec3(0.0f, 4.0f, 0.0f),
-
-    glm::vec3(1.0f, 4.0f, 0.0f),
-    glm::vec3(2.0f, 4.0f, 0.0f),
-    glm::vec3(3.0f, 4.0f, 0.0f)
-};
-
-std::vector<glm::vec3> relativeWallPositions1 = {
-    glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(0.0f, -1.0f, 0.0f),
-    glm::vec3(1.0f, -1.0f, 0.0f),
-    glm::vec3(2.0f, -1.0f, 0.0f),
-    glm::vec3(3.0f, -1.0f, 0.0f),
-    glm::vec3(-1.0f, 0.0f, 0.0f),
-    glm::vec3(1.0f, 0.0f, 0.0f),
-    glm::vec3(2.0f, 0.0f, 0.0f),
-    glm::vec3(3.0f, 0.0f, 0.0f),
-    glm::vec3(-1.0f, 1.0f, 0.0f),
-    glm::vec3(0.0f, 1.0f, 0.0f),
-    glm::vec3(1.0f, 1.0f, 0.0f),
-    glm::vec3(2.0f, 1.0f, 0.0f),
-    glm::vec3(3.0f, 1.0f, 0.0f),
-    glm::vec3(-1.0f, 2.0f, 0.0f),
-    glm::vec3(1.0f, 2.0f, 0.0f),
-    glm::vec3(2.0f, 2.0f, 0.0f),
-    glm::vec3(3.0f, 2.0f, 0.0f),
-    glm::vec3(-1.0f, 3.0f, 0.0f),
-    glm::vec3(3.0f, 3.0f, 0.0f),
-    glm::vec3(-1.0f, 4.0f, 0.0f),
-    glm::vec3(0.0f, 4.0f, 0.0f),
-    glm::vec3(1.0f, 4.0f, 0.0f),
-    glm::vec3(3.0f, 4.0f, 0.0f),
-    glm::vec3(-1.0f, 5.0f, 0.0f),
-    glm::vec3(3.0f, 5.0f, 0.0f),
-    glm::vec3(-1.0f, 6.0f, 0.0f),
-    glm::vec3(0.0f, 6.0f, 0.0f),
-    glm::vec3(1.0f, 6.0f, 0.0f),
-    glm::vec3(2.0f, 6.0f, 0.0f),
-    glm::vec3(3.0f, 6.0f, 0.0f)
-};
-
-std::vector<glm::vec3> relativeWallPositions2 = {
-    glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(0.0f, -1.0f, 0.0f),
-    glm::vec3(1.0f, -1.0f, 0.0f),
-    glm::vec3(2.0f, -1.0f, 0.0f),
-    glm::vec3(3.0f, -1.0f, 0.0f),
-    glm::vec3(4.0f, -1.0f, 0.0f),
-    glm::vec3(-1.0f, 0.0f, 0.0f),
-    glm::vec3(4.0f, 0.0f, 0.0f),
-    glm::vec3(-1.0f, 1.0f, 0.0f),
-    glm::vec3(1.0f, 1.0f, 0.0f),
-    glm::vec3(2.0f, 1.0f, 0.0f),
-    glm::vec3(3.0f, 1.0f, 0.0f),
-    glm::vec3(4.0f, 1.0f, 0.0f),
-    glm::vec3(-1.0f, 2.0f, 0.0f),
-    glm::vec3(1.0f, 2.0f, 0.0f),
-    glm::vec3(2.0f, 2.0f, 0.0f),
-    glm::vec3(3.0f, 2.0f, 0.0f),
-    glm::vec3(4.0f, 2.0f, 0.0f),
-    glm::vec3(-1.0f, 3.0f, 0.0f),
-    glm::vec3(0.0f, 3.0f, 0.0f),
-    glm::vec3(1.0f, 3.0f, 0.0f),
-    glm::vec3(2.0f, 3.0f, 0.0f),
-    glm::vec3(3.0f, 3.0f, 0.0f),
-    glm::vec3(4.0f, 3.0f, 0.0f)
-};
-
-std::vector<glm::vec3> relativeWallPositions3 = {
-    glm::vec3(-3.0f, -1.0f, 0.0f),
-    glm::vec3(-2.0f, -1.0f, 0.0f),
-    glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(0.0f, -1.0f, 0.0f),
-    glm::vec3(1.0f, -1.0f, 0.0f),
-    glm::vec3(2.0f, -1.0f, 0.0f),
-    glm::vec3(3.0f, -1.0f, 0.0f),
-    glm::vec3(-3.0f, 0.0f, 0.0f),
-    glm::vec3(-2.0f, 0.0f, 0.0f),
-    glm::vec3(-1.0f, 0.0f, 0.0f),
-    glm::vec3(1.0f, 0.0f, 0.0f),
-    glm::vec3(2.0f, 0.0f, 0.0f),
-    glm::vec3(3.0f, 0.0f, 0.0f),
-    glm::vec3(-3.0f, 1.0f, 0.0f),
-    glm::vec3(-2.0f, 1.0f, 0.0f),
-    glm::vec3(-1.0f, 1.0f, 0.0f),
-    glm::vec3(1.0f, 1.0f, 0.0f),
-    glm::vec3(2.0f, 1.0f, 0.0f),
-    glm::vec3(3.0f, 1.0f, 0.0f),
-    glm::vec3(-3.0f, 2.0f, 0.0f),
-    glm::vec3(-1.0f, 2.0f, 0.0f),
-    glm::vec3(1.0f, 2.0f, 0.0f),
-    glm::vec3(3.0f, 2.0f, 0.0f),
-    glm::vec3(-3.0f, 3.0f, 0.0f),
-    glm::vec3(-2.0f, 3.0f, 0.0f),
-    glm::vec3(2.0f, 3.0f, 0.0f),
-    glm::vec3(3.0f, 3.0f, 0.0f),
-    glm::vec3(-3.0f, 4.0f, 0.0f),
-    glm::vec3(-2.0f, 4.0f, 0.0f),
-    glm::vec3(-1.0f, 4.0f, 0.0f),
-    glm::vec3(1.0f, 4.0f, 0.0f),
-    glm::vec3(2.0f, 4.0f, 0.0f),
-    glm::vec3(3.0f, 4.0f, 0.0f),
-    glm::vec3(-3.0f, 5.0f, 0.0f),
-    glm::vec3(-2.0f, 5.0f, 0.0f),
-    glm::vec3(-1.0f, 5.0f, 0.0f),
-    glm::vec3(0.0f, 5.0f, 0.0f),
-    glm::vec3(1.0f, 5.0f, 0.0f),
-    glm::vec3(2.0f, 5.0f, 0.0f),
-    glm::vec3(3.0f, 5.0f, 0.0f),
-};
-
-std::vector<glm::vec3> relativeWallPositions4 = {
-    glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(0.0f, -1.0f, 0.0f),
-    glm::vec3(1.0f, -1.0f, 0.0f),
-    glm::vec3(2.0f, -1.0f, 0.0f),
-    glm::vec3(3.0f, -1.0f, 0.0f),
-    glm::vec3(4.0f, -1.0f, 0.0f),
-    glm::vec3(-1.0f, 0.0f, 0.0f),
-    glm::vec3(4.0f, 0.0f, 0.0f),
-    glm::vec3(-1.0f, 1.0f, 0.0f),
-    glm::vec3(1.0f, 1.0f, 0.0f),
-    glm::vec3(2.0f, 1.0f, 0.0f),
-    glm::vec3(3.0f, 1.0f, 0.0f),
-    glm::vec3(4.0f, 1.0f, 0.0f),
-    glm::vec3(-1.0f, 2.0f, 0.0f),
-    glm::vec3(4.0f, 2.0f, 0.0f),
-    glm::vec3(-1.0f, 3.0f, 0.0f),
-    glm::vec3(0.0f, 3.0f, 0.0f),
-    glm::vec3(1.0f, 3.0f, 0.0f),
-    glm::vec3(2.0f, 3.0f, 0.0f),
-    glm::vec3(3.0f, 3.0f, 0.0f),
-    glm::vec3(4.0f, 3.0f, 0.0f)
-};
-
-std::vector<glm::vec3> relativeWallPositions5 = {
-    glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(0.0f, -1.0f, 0.0f),
-    glm::vec3(1.0f, -1.0f, 0.0f),
-    glm::vec3(2.0f, -1.0f, 0.0f),
-    glm::vec3(3.0f, -1.0f, 0.0f),
-    glm::vec3(4.0f, -1.0f, 0.0f),
-
-    glm::vec3(-1.0f, 0.0f, 0.0f),
-    glm::vec3(4.0f, 0.0f, 0.0f),
-
-    glm::vec3(-1.0f, 1.0f, 0.0f),
-    glm::vec3(0.0f, 1.0f, 0.0f),
-    glm::vec3(1.0f, 1.0f, 0.0f),
-    glm::vec3(2.0f, 1.0f, 0.0f),
-    glm::vec3(4.0f, 1.0f, 0.0f),
-
-    glm::vec3(-1.0f, 2.0f, 0.0f),
-    glm::vec3(4.0f, 2.0f, 0.0f),
-
-    glm::vec3(-1.0f, 3.0f, 0.0f),
-    glm::vec3(1.0f, 3.0f, 0.0f),
-    glm::vec3(2.0f, 3.0f, 0.0f),
-    glm::vec3(3.0f, 3.0f, 0.0f),
-    glm::vec3(4.0f, 3.0f, 0.0f),
-
-    glm::vec3(-1.0f, 4.0f, 0.0f),
-    glm::vec3(4.0f, 4.0f, 0.0f),
-
-    glm::vec3(-1.0f, 5.0f, 0.0f),
-    glm::vec3(0.0f, 5.0f, 0.0f),
-    glm::vec3(1.0f, 5.0f, 0.0f),
-    glm::vec3(2.0f, 5.0f, 0.0f),
-    glm::vec3(3.0f, 5.0f, 0.0f),
-    glm::vec3(4.0f, 5.0f, 0.0f),
-
-};
+//std::vector<glm::vec3> relativeCubePositions1 = {
+//    glm::vec3(0.0f, 0.0f, 0.0f),
+//    glm::vec3(0.0f, 2.0f, 0.0f),
+//    glm::vec3(0.0f, 3.0f, 0.0f),
+//    glm::vec3(1.0f, 3.0f, 0.0f),
+//    glm::vec3(2.0f, 3.0f, 0.0f),
+//    glm::vec3(2.0f, 4.0f, 0.0f),
+//    glm::vec3(2.0f, 5.0f, 0.0f),
+//    glm::vec3(1.0f, 5.0f, 0.0f),
+//    glm::vec3(0.0f, 5.0f, 0.0f)
+//};
+//
+//std::vector<glm::vec3> relativeCubePositions2 = {
+//    glm::vec3(0.0f, 0.0f, 0.0f),
+//    glm::vec3(1.0f, 0.0f, 0.0f),
+//    glm::vec3(0.0f, 0.0f, -1.0f),
+//    glm::vec3(0.0f, 0.0f, -2.0f),
+//    glm::vec3(0.0f, 0.0f, -3.0f),
+//    glm::vec3(2.0f, 0.0f, 0.0f),
+//    glm::vec3(3.0f, 0.0f, 0.0f),
+//    glm::vec3(0.0f, 1.0f, 0.0f),
+//    glm::vec3(0.0f, 2.0f, 0.0f)
+//};
+//
+//std::vector<glm::vec3> relativeCubePositions3 = {
+//    glm::vec3(0.0f, 0.0f, 0.0f),
+//    glm::vec3(0.0f, 1.0f, 0.0f),
+//    glm::vec3(0.0f, 2.0f, 0.0f),
+//    glm::vec3(0.0f, 3.0f, 0.0f),
+//    glm::vec3(0.0f, 4.0f, 0.0f),
+//    glm::vec3(-1.0f, 3.0f, 0.0f),
+//    glm::vec3(1.0f, 3.0f, 0.0f),
+//    glm::vec3(-2.0f, 2.0f, 0.0f),
+//    glm::vec3(2.0f, 2.0f, 0.0f)
+//};
+//
+//std::vector<glm::vec3> relativeCubePositions4 = {
+//    glm::vec3(0.0f, 0.0f, 0.0f),
+//    glm::vec3(1.0f, 0.0f, 0.0f),
+//    glm::vec3(2.0f, 0.0f, 0.0f),
+//    glm::vec3(3.0f, 0.0f, 0.0f),
+//    glm::vec3(0.0f, 1.0f, 0.0f),
+//    glm::vec3(0.0f, 2.0f, 0.0f),
+//    glm::vec3(1.0f, 2.0f, 0.0f),
+//    glm::vec3(2.0f, 2.0f, 0.0f),
+//    glm::vec3(3.0f, 2.0f, 0.0f),
+//    glm::vec3(3.0f, 2.0f, 1.0f),
+//    glm::vec3(3.0f, 2.0f, 2.0f),
+//    glm::vec3(2.0f, 2.0f, 2.0f),
+//    glm::vec3(1.0f, 2.0f, 2.0f)
+//};
+//
+//std::vector<glm::vec3> relativeCubePositions5 = {
+//    glm::vec3(0.0f, 0.0f, 0.0f),
+//    glm::vec3(1.0f, 0.0f, 0.0f),
+//    glm::vec3(2.0f, 0.0f, 0.0f),
+//    glm::vec3(3.0f, 0.0f, 0.0f),
+//
+//    glm::vec3(3.0f, 1.0f, 0.0f),
+//    glm::vec3(3.0f, 2.0f, 0.0f),
+//
+//    glm::vec3(2.0f, 2.0f, 0.0f),
+//    glm::vec3(1.0f, 2.0f, 0.0f),
+//    glm::vec3(0.0f, 2.0f, 0.0f),
+//
+//    glm::vec3(0.0f, 3.0f, 0.0f),
+//    glm::vec3(0.0f, 4.0f, 0.0f),
+//
+//    glm::vec3(1.0f, 4.0f, 0.0f),
+//    glm::vec3(2.0f, 4.0f, 0.0f),
+//    glm::vec3(3.0f, 4.0f, 0.0f)
+//};
+//
+//std::vector<glm::vec3> relativeWallPositions1 = {
+//    glm::vec3(-1.0f, -1.0f, 0.0f),
+//    glm::vec3(0.0f, -1.0f, 0.0f),
+//    glm::vec3(1.0f, -1.0f, 0.0f),
+//    glm::vec3(2.0f, -1.0f, 0.0f),
+//    glm::vec3(3.0f, -1.0f, 0.0f),
+//    glm::vec3(-1.0f, 0.0f, 0.0f),
+//    glm::vec3(1.0f, 0.0f, 0.0f),
+//    glm::vec3(2.0f, 0.0f, 0.0f),
+//    glm::vec3(3.0f, 0.0f, 0.0f),
+//    glm::vec3(-1.0f, 1.0f, 0.0f),
+//    glm::vec3(0.0f, 1.0f, 0.0f),
+//    glm::vec3(1.0f, 1.0f, 0.0f),
+//    glm::vec3(2.0f, 1.0f, 0.0f),
+//    glm::vec3(3.0f, 1.0f, 0.0f),
+//    glm::vec3(-1.0f, 2.0f, 0.0f),
+//    glm::vec3(1.0f, 2.0f, 0.0f),
+//    glm::vec3(2.0f, 2.0f, 0.0f),
+//    glm::vec3(3.0f, 2.0f, 0.0f),
+//    glm::vec3(-1.0f, 3.0f, 0.0f),
+//    glm::vec3(3.0f, 3.0f, 0.0f),
+//    glm::vec3(-1.0f, 4.0f, 0.0f),
+//    glm::vec3(0.0f, 4.0f, 0.0f),
+//    glm::vec3(1.0f, 4.0f, 0.0f),
+//    glm::vec3(3.0f, 4.0f, 0.0f),
+//    glm::vec3(-1.0f, 5.0f, 0.0f),
+//    glm::vec3(3.0f, 5.0f, 0.0f),
+//    glm::vec3(-1.0f, 6.0f, 0.0f),
+//    glm::vec3(0.0f, 6.0f, 0.0f),
+//    glm::vec3(1.0f, 6.0f, 0.0f),
+//    glm::vec3(2.0f, 6.0f, 0.0f),
+//    glm::vec3(3.0f, 6.0f, 0.0f)
+//};
+//
+//std::vector<glm::vec3> relativeWallPositions2 = {
+//    glm::vec3(-1.0f, -1.0f, 0.0f),
+//    glm::vec3(0.0f, -1.0f, 0.0f),
+//    glm::vec3(1.0f, -1.0f, 0.0f),
+//    glm::vec3(2.0f, -1.0f, 0.0f),
+//    glm::vec3(3.0f, -1.0f, 0.0f),
+//    glm::vec3(4.0f, -1.0f, 0.0f),
+//    glm::vec3(-1.0f, 0.0f, 0.0f),
+//    glm::vec3(4.0f, 0.0f, 0.0f),
+//    glm::vec3(-1.0f, 1.0f, 0.0f),
+//    glm::vec3(1.0f, 1.0f, 0.0f),
+//    glm::vec3(2.0f, 1.0f, 0.0f),
+//    glm::vec3(3.0f, 1.0f, 0.0f),
+//    glm::vec3(4.0f, 1.0f, 0.0f),
+//    glm::vec3(-1.0f, 2.0f, 0.0f),
+//    glm::vec3(1.0f, 2.0f, 0.0f),
+//    glm::vec3(2.0f, 2.0f, 0.0f),
+//    glm::vec3(3.0f, 2.0f, 0.0f),
+//    glm::vec3(4.0f, 2.0f, 0.0f),
+//    glm::vec3(-1.0f, 3.0f, 0.0f),
+//    glm::vec3(0.0f, 3.0f, 0.0f),
+//    glm::vec3(1.0f, 3.0f, 0.0f),
+//    glm::vec3(2.0f, 3.0f, 0.0f),
+//    glm::vec3(3.0f, 3.0f, 0.0f),
+//    glm::vec3(4.0f, 3.0f, 0.0f)
+//};
+//
+//std::vector<glm::vec3> relativeWallPositions3 = {
+//    glm::vec3(-3.0f, -1.0f, 0.0f),
+//    glm::vec3(-2.0f, -1.0f, 0.0f),
+//    glm::vec3(-1.0f, -1.0f, 0.0f),
+//    glm::vec3(0.0f, -1.0f, 0.0f),
+//    glm::vec3(1.0f, -1.0f, 0.0f),
+//    glm::vec3(2.0f, -1.0f, 0.0f),
+//    glm::vec3(3.0f, -1.0f, 0.0f),
+//    glm::vec3(-3.0f, 0.0f, 0.0f),
+//    glm::vec3(-2.0f, 0.0f, 0.0f),
+//    glm::vec3(-1.0f, 0.0f, 0.0f),
+//    glm::vec3(1.0f, 0.0f, 0.0f),
+//    glm::vec3(2.0f, 0.0f, 0.0f),
+//    glm::vec3(3.0f, 0.0f, 0.0f),
+//    glm::vec3(-3.0f, 1.0f, 0.0f),
+//    glm::vec3(-2.0f, 1.0f, 0.0f),
+//    glm::vec3(-1.0f, 1.0f, 0.0f),
+//    glm::vec3(1.0f, 1.0f, 0.0f),
+//    glm::vec3(2.0f, 1.0f, 0.0f),
+//    glm::vec3(3.0f, 1.0f, 0.0f),
+//    glm::vec3(-3.0f, 2.0f, 0.0f),
+//    glm::vec3(-1.0f, 2.0f, 0.0f),
+//    glm::vec3(1.0f, 2.0f, 0.0f),
+//    glm::vec3(3.0f, 2.0f, 0.0f),
+//    glm::vec3(-3.0f, 3.0f, 0.0f),
+//    glm::vec3(-2.0f, 3.0f, 0.0f),
+//    glm::vec3(2.0f, 3.0f, 0.0f),
+//    glm::vec3(3.0f, 3.0f, 0.0f),
+//    glm::vec3(-3.0f, 4.0f, 0.0f),
+//    glm::vec3(-2.0f, 4.0f, 0.0f),
+//    glm::vec3(-1.0f, 4.0f, 0.0f),
+//    glm::vec3(1.0f, 4.0f, 0.0f),
+//    glm::vec3(2.0f, 4.0f, 0.0f),
+//    glm::vec3(3.0f, 4.0f, 0.0f),
+//    glm::vec3(-3.0f, 5.0f, 0.0f),
+//    glm::vec3(-2.0f, 5.0f, 0.0f),
+//    glm::vec3(-1.0f, 5.0f, 0.0f),
+//    glm::vec3(0.0f, 5.0f, 0.0f),
+//    glm::vec3(1.0f, 5.0f, 0.0f),
+//    glm::vec3(2.0f, 5.0f, 0.0f),
+//    glm::vec3(3.0f, 5.0f, 0.0f),
+//};
+//
+//std::vector<glm::vec3> relativeWallPositions4 = {
+//    glm::vec3(-1.0f, -1.0f, 0.0f),
+//    glm::vec3(0.0f, -1.0f, 0.0f),
+//    glm::vec3(1.0f, -1.0f, 0.0f),
+//    glm::vec3(2.0f, -1.0f, 0.0f),
+//    glm::vec3(3.0f, -1.0f, 0.0f),
+//    glm::vec3(4.0f, -1.0f, 0.0f),
+//    glm::vec3(-1.0f, 0.0f, 0.0f),
+//    glm::vec3(4.0f, 0.0f, 0.0f),
+//    glm::vec3(-1.0f, 1.0f, 0.0f),
+//    glm::vec3(1.0f, 1.0f, 0.0f),
+//    glm::vec3(2.0f, 1.0f, 0.0f),
+//    glm::vec3(3.0f, 1.0f, 0.0f),
+//    glm::vec3(4.0f, 1.0f, 0.0f),
+//    glm::vec3(-1.0f, 2.0f, 0.0f),
+//    glm::vec3(4.0f, 2.0f, 0.0f),
+//    glm::vec3(-1.0f, 3.0f, 0.0f),
+//    glm::vec3(0.0f, 3.0f, 0.0f),
+//    glm::vec3(1.0f, 3.0f, 0.0f),
+//    glm::vec3(2.0f, 3.0f, 0.0f),
+//    glm::vec3(3.0f, 3.0f, 0.0f),
+//    glm::vec3(4.0f, 3.0f, 0.0f)
+//};
+//
+//std::vector<glm::vec3> relativeWallPositions5 = {
+//    glm::vec3(-1.0f, -1.0f, 0.0f),
+//    glm::vec3(0.0f, -1.0f, 0.0f),
+//    glm::vec3(1.0f, -1.0f, 0.0f),
+//    glm::vec3(2.0f, -1.0f, 0.0f),
+//    glm::vec3(3.0f, -1.0f, 0.0f),
+//    glm::vec3(4.0f, -1.0f, 0.0f),
+//
+//    glm::vec3(-1.0f, 0.0f, 0.0f),
+//    glm::vec3(4.0f, 0.0f, 0.0f),
+//
+//    glm::vec3(-1.0f, 1.0f, 0.0f),
+//    glm::vec3(0.0f, 1.0f, 0.0f),
+//    glm::vec3(1.0f, 1.0f, 0.0f),
+//    glm::vec3(2.0f, 1.0f, 0.0f),
+//    glm::vec3(4.0f, 1.0f, 0.0f),
+//
+//    glm::vec3(-1.0f, 2.0f, 0.0f),
+//    glm::vec3(4.0f, 2.0f, 0.0f),
+//
+//    glm::vec3(-1.0f, 3.0f, 0.0f),
+//    glm::vec3(1.0f, 3.0f, 0.0f),
+//    glm::vec3(2.0f, 3.0f, 0.0f),
+//    glm::vec3(3.0f, 3.0f, 0.0f),
+//    glm::vec3(4.0f, 3.0f, 0.0f),
+//
+//    glm::vec3(-1.0f, 4.0f, 0.0f),
+//    glm::vec3(4.0f, 4.0f, 0.0f),
+//
+//    glm::vec3(-1.0f, 5.0f, 0.0f),
+//    glm::vec3(0.0f, 5.0f, 0.0f),
+//    glm::vec3(1.0f, 5.0f, 0.0f),
+//    glm::vec3(2.0f, 5.0f, 0.0f),
+//    glm::vec3(3.0f, 5.0f, 0.0f),
+//    glm::vec3(4.0f, 5.0f, 0.0f),
+//
+//};
 #endif //COMP371_PROJECT_SRC_GEOMETRYDATA_H_

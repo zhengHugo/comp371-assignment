@@ -12,25 +12,42 @@ class Cube {
  private:
   const long vertexArrayLength = 288;
 
-  Material material;
   float *vertices;
+  unsigned int vao = 0;
 
-  glm::vec3 position;
-  glm::quat quaternion;
-  float scale;
-
-  glm::mat4 modelMatrix;
+  Material material;
+  glm::vec3 position{glm::vec3(0.0f)};
+  glm::quat quaternion{glm::quat(glm::vec3(0.0f))};
+  float scale = 1.0f;
+  glm::mat4 modelMatrix{glm::mat4(1.0f)};
 
   void updateModelMatrix();
 
  public:
+  /**
+   * Create a cube with provided material and with unit cube vertices
+   * @param material
+   */
   explicit Cube(const Material &material);
 
-  Cube(float *vertices, Material &material);
+  /**
+   * Create a cube with provided material and provided vertices
+   * @param material
+   * @param vertices
+   */
+  Cube(Material &material, float *vertices);
 
   glm::mat4 getModelMatrix();
 
-  void draw(Shader &shader, bool shaderHasMaterial, bool shouldGlow);
+  void setPosition(glm::vec3 newPosition);
+
+  /**
+   * Draw this cube
+   * @param shader
+   * @param shaderHasMaterial whether the shader requires a material
+   * @param isGlowingOn whether glowing effect is on
+   */
+  void draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn);
 
   void draw(Shader &shader, bool shaderHasMaterial);
 };
