@@ -28,21 +28,21 @@ file(GLOB SRC src/*.cpp)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_library(irrklang SHARED IMPORTED)
+if (MSVC)
+set_property(TARGET irrklang PROPERTY
+        IMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/thirdparty/irrKlang-1.6.0/Win32-visualStudio/irrKlang.lib)
+endif (MSVC)
+
+if (UNIX)
+set_property(TARGET irrklang PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/thirdparty/irrKlang-1.6.0/macosx-gcc/libirrklang.dylib)
+endif (UNIX)
+
 add_executable(${EXEC} ${SRC})
 
 target_include_directories(${EXEC} PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/include)
 target_link_libraries(${EXEC} OpenGL::GL glew_s glfw glm freetype)
 
-if (MSVC)
-
-endif (MSVC)
-
-if (UNIX)
-    #    add_compile_options(-L/Users/hugozheng/CLionProjects/COMP371_Project/thirdparty/irrKlang-64bit-1.6.0/macosx-gcc)
-endif (UNIX)
-#message("${COMPILE_OPTIONS}")
-add_library(irrklang SHARED IMPORTED)
-set_property(TARGET irrklang PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/thirdparty/irrKlang-64bit-1.6.0/macosx-gcc/libirrklang.dylib)
 target_link_libraries(${EXEC} irrklang)
 
 list(APPEND BIN ${EXEC})
