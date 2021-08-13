@@ -143,63 +143,111 @@ int main(int argc, char *argv[]) {
 
   camera = new Camera();
 
-  // Geometry data
-  // -----------------------------------
-  float unitCubeVertices[] = {
-      // unit cube vertices
-      // TODO: read data from file
-      // Back face
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
-      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right
-      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
-      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
-      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // top-left
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-      // Front face
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom-left
-      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-      0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // bottom-right
-      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // top-left
-      // Left face
-      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
-      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-      -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-left
-      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,// bottom-left
-      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
-      -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,// bottom-right
-      // Right face
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // top-left
-      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-right
-      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, //  top-left
-      // Bottom face
-      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-left
-      0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // top-left
-      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-left
-      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-      -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
-      // Top face
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top-right
-      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
-      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
-      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f // top-left
-  };
+//   Geometry data
+//   -----------------------------------
+//  float unitCubeVertices[] = {
+//      // unit cube vertices
+//      // TODO: read data from file
+//      // Back face
+//      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // Bottom-left
+//      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // bottom-right
+//      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // top-right
+//      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // top-right
+//      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // top-left
+//      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // bottom-left
+//      // Front face
+//      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // Bottom-left
+//      0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, //  bottom-right
+//      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // top-right
+//      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // top-right
+//      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, //top-left
+//      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // bottom-left
+//      // Left face
+//      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+//      -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,// bottom-right
+//      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top-left
+//      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,// bottom-left
+//      // Right face
+//      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+//      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // bottom-right
+//      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // top-left
+//      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+//      // Bottom face
+//      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,  // bottom-left
+//      0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // bottom-right
+//      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // top-left
+//      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,  // bottom-left
+//      // Top face
+//      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+//      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // bottom-right
+//      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // top-right
+//      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // top-left
+//      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+//  };
 
   float unitGroundVertices[] = {
-      -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-      50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-      50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-      50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
       -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-      -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f  // top-left
+      50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-right
+      50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // top-right
+      50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // top-right
+      -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // top-left
+      -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
   };
+
+  float unitCubeVertices[] = {
+      // unit Rubik Sheet vertices
+      // TODO: read data from file
+      // Back face
+      0.5f, -0.5f, -0.05f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // Bottom-left
+      -0.5f, -0.5f, -0.05f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // bottom-right
+      -0.5f, 0.5f, -0.05f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // top-right
+      -0.5f, 0.5f, -0.05f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // top-right
+      0.5f, 0.5f, -0.05f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // top-left
+      0.5f, -0.5f, -0.05f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // bottom-left
+      // Front face
+      -0.5f, -0.5f, 0.05f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // Bottom-left
+      0.5f, -0.5f, 0.05f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, //  bottom-right
+      0.5f, 0.5f, 0.05f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // top-right
+      0.5f, 0.5f, 0.05f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // top-right
+      -0.5f, 0.5f, 0.05f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, //top-left
+      -0.5f, -0.5f, 0.05f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // bottom-left
+      // Left face
+      -0.5f, -0.5f, -0.05f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+      -0.5f, -0.5f, 0.05f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,// bottom-right
+      -0.5f, 0.5f, 0.05f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top-right
+      -0.5f, 0.5f, 0.05f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top-right
+      -0.5f, 0.5f, -0.05f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top-left
+      -0.5f, -0.5f, -0.05f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,// bottom-left
+      // Right face
+      0.5f, -0.5f, 0.05f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+      0.5f, -0.5f, -0.05f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-right
+      0.5f, 0.5f, -0.05f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top-right
+      0.5f, 0.5f, -0.05f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // top-right
+      0.5f, 0.5f, 0.05f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // top-left
+      0.5f, -0.5f, 0.05f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+      // Bottom face
+      -0.5f, -0.5f, -0.05f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+      0.5f, -0.5f, -0.05f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
+      0.5f, -0.5f, 0.05f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // top-right
+      0.5f, -0.5f, 0.05f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // top-right
+      -0.5f, -0.5f, 0.05f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // top-left
+      -0.5f, -0.5f, -0.05f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+      // Top face
+      -0.5f, 0.5f, 0.05f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+      0.5f, 0.5f, 0.05f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
+      0.5f, 0.5f, -0.05f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // top-right
+      0.5f, 0.5f, -0.05f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // top-right
+      -0.5f, 0.5f, -0.05f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // top-left
+      -0.5f, 0.5f, 0.05f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+  };
+
 
   float axisVertices[] = {
       0.0f, 0.0f, 0.0f, 0.20f, 0.20f, 0.20f, // pos * 3, color * 3
@@ -472,10 +520,10 @@ int main(int argc, char *argv[]) {
   };
 
   glm::vec3 groundPosition(0, 0, 0);
-  glm::vec3 pointLightPosition(3.0f, 30.0f, 6.0f);
+  glm::vec3 pointLightPosition(3.0f, 30.0f, 10.0f);
 //  glm::vec3 pointLightPosition(20.0f, 20.0f, 20.0f);
-  glm::vec3 baseCubePosition(2.0f, 3.0f, 5.0f);
-  glm::vec3 baseWallPosition(2.0f, 3.0f, 2.0f);
+  glm::vec3 baseCubePosition(2.0f, 3.0f, 2.0f);
+  glm::vec3 baseWallPosition(2.0f, 3.0f, -15.0f);
 
   // build models
   // --------------------------------------------------------
@@ -601,6 +649,7 @@ int main(int argc, char *argv[]) {
                  glm::vec3(1.0f, 1.0f, 1.0f),
                  64.0f);
 
+
   Material lightBox(cubeShader,
                     loadTexture("res/texture/sea_lantern.png"),
                     loadTexture("res/texture/sea_lantern.png"),
@@ -627,63 +676,8 @@ int main(int argc, char *argv[]) {
                               loadTexture(address1.c_str()),
                               loadTexture(address2.c_str()),
                               glm::vec3(1.0f, 1.0f, 1.0f),
-                              128.0f);
+                              64.0f);
   }
-
-
-  Material number0(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number1(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number2(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number3(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number4(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number5(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number6(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number7(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
-
-  Material number8(cubeShader,
-                   loadTexture("res/texture/numbers/number1.png"),
-                   loadTexture("res/texture/numbers/number1_specular.png"),
-                   glm::vec3(1.0f, 1.0f, 1.0f),
-                   128.0f);
 
   unsigned int emissionMap;
   emissionMap = loadTexture("res/texture/Emission.png");
@@ -697,7 +691,7 @@ int main(int argc, char *argv[]) {
 
   //Cull_Face
   glEnable(GL_CULL_FACE);
-  glCullFace(GL_FRONT);
+  glCullFace(GL_BACK);
 
   // Main Loop
   // ----------------------------------
@@ -733,7 +727,7 @@ int main(int argc, char *argv[]) {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
     glClear(GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_BACK);
+    glCullFace(GL_FRONT);
 
     // draw model and wall
     glBindVertexArray(cubeVao);
@@ -752,7 +746,7 @@ int main(int argc, char *argv[]) {
     depthMappingShader.setMat4("model", groundModel->getModelMatrix(0));
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    glCullFace(GL_FRONT);
+    glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // reset viewport
@@ -818,12 +812,12 @@ int main(int argc, char *argv[]) {
     for (size_t i = 0; i < currentWall->size(); i++) {
       // assign wall texture
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, brick.diffuse);
+      glBindTexture(GL_TEXTURE_2D, number[i%7]->diffuse);
       glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, brick.specular);
+      glBindTexture(GL_TEXTURE_2D, number[i%7]->specular);
       cubeShader.setInt("material.diffuse", 0);
       cubeShader.setInt("material.specular", 1);
-      cubeShader.setFloat("material.shininess", brick.shininess);
+      cubeShader.setFloat("material.shininess", number[i%7]->shininess);
       // calculate the model matrix for wall
       glm::mat4 wallModelMatrix = currentWall->getModelMatrix(i);
       cubeShader.setMat4("model", wallModelMatrix);
