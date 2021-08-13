@@ -15,9 +15,9 @@ enum class Movement {
 class Puzzle {
  private:
   // to represent the state of this puzzle; 0 represents the blank
-  int state[9]{0, 1, 2, 3, 4, 5, 6, 7, 8};
+  int state[9]{1, 0, 2, 3, 4, 5, 6, 7, 8};
 
-  std::vector<Cube> bricks;
+  std::vector<Cube *> bricks;
 
   glm::vec3 position{glm::vec3(0.0f)};
   glm::quat quaternion{glm::quat(glm::vec3(0.0f))};
@@ -35,14 +35,13 @@ class Puzzle {
 
  public:
 
-  explicit Puzzle(std::vector<Cube> &bricks);
+  explicit Puzzle(std::vector<Cube *> &bricks);
 
   /**
    * A movement applied on this puzzle will change the state
    * @param movement up, down, left, or right
    */
   void move(Movement movement);
-
 
   /**
    * Draw this puzzle

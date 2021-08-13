@@ -4,7 +4,7 @@
 
 #include "Puzzle.h"
 
-Puzzle::Puzzle(std::vector<Cube> &bricks) : bricks(bricks) {
+Puzzle::Puzzle(std::vector<Cube*> &bricks) : bricks(bricks) {
   updateBrickPositions();
 }
 
@@ -18,7 +18,7 @@ void Puzzle::updateBrickPositions() {
     // state[i] - 1 = brick index at location i
     glm::vec3 brickPosition((float) (-1 + (int)i % 3), (float) (1 - (int)i / 3), 0.0f);
     if (state[i] != 0) {
-      bricks[state[i] - 1].setPosition(brickPosition);
+      bricks[state[i] - 1]->setPosition(brickPosition);
     }
   }
 }
@@ -32,6 +32,6 @@ void Puzzle::updateModelMatrix() {
 }
 void Puzzle::draw(Shader &shader, bool hasTexture) {
   for(size_t i = 0; i < 8; i++){
-    bricks[i].draw(shader, hasTexture);
+    bricks[i]->draw(shader, hasTexture);
   }
 }

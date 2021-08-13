@@ -11,6 +11,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <irrKlang/irrKlang.h>
+
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
@@ -77,6 +79,11 @@ int main(int argc, char *argv[]) {
     std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
     return -1;
   }
+
+  irrklang::ISoundEngine* engine = irrklang::createIrrKlangDevice();
+
+  if (!engine)
+    return 0; // error starting up the engine
 
   // Initializations
   // --------------------------
@@ -225,16 +232,23 @@ int main(int argc, char *argv[]) {
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 128.0f);
 
-  Cube cube1(brick);
-  Cube cube2(metal);
-  Cube cube3(brick);
-  Cube cube4(metal);
-  Cube cube5(brick);
-  Cube cube6(metal);
-  Cube cube7(brick);
-  Cube cube8(metal);
+  std::vector<Material *> numberMaterials;
+  numberMaterials.reserve(8);
+  for (int i = 0; i < 8; i++) {
+    std::string address1 = "res/texture/numbers/number" + std::to_string((int) i) + ".png";
+    std::string address2 = "res/texture/numbers/number" + std::to_string((int) i) + "_specular.png";
+    numberMaterials.push_back(new Material(loadTexture(address1.c_str()),
+                                           loadTexture(address2.c_str()),
+                                           glm::vec3(1.0f, 1.0f, 1.0f),
+                                           64.0f));
+  }
 
-  std::vector<Cube> bricks = {cube1, cube2, cube3, cube4, cube5, cube6, cube7, cube8};
+  std::vector<Cube *> bricks;
+  bricks.reserve(8);
+  for (int i = 0; i < 8; i++) {
+    bricks.push_back(new Cube(*numberMaterials[i]));
+  }
+
   Puzzle puzzle(bricks);
 
   Cube ground(tile, unitGroundVertices);
@@ -251,7 +265,6 @@ int main(int argc, char *argv[]) {
 
   //Cull_Face
   glEnable(GL_CULL_FACE);
-  glCullFace(GL_FRONT);
 
   // Main Loop
   // ----------------------------------
@@ -286,15 +299,15 @@ int main(int argc, char *argv[]) {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
     glClear(GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_BACK);
+    glCullFace(GL_FRONT);
 
     // draw objects
     puzzle.draw(depthMappingShader, false);
     ground.draw(depthMappingShader, false);
 
-    glCullFace(GL_FRONT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    glCullFace(GL_BACK);
     // reset viewport
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
     glViewport(0, 0, scrWidth, scrHeight);
