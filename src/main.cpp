@@ -65,6 +65,7 @@ Model *lightBoxModel;
 bool isGlowingOn = false;
 bool isTextureOn = true;
 bool isShadowOn = true;
+float zIncrement = 0;
 
 // window width & height
 int scrWidth = 1024;
@@ -153,7 +154,7 @@ int main(int argc, char *argv[]) {
   std::vector<glm::vec3> relativeLightBoxPosition{
       glm::vec3(0, 0, 0)
   };
-  glm::vec3 pointLightPosition(0.0f, 5.0f, -45.0f);
+  glm::vec3 pointLightPosition(0.0f, 15.0f, -150.0f);
   glm::vec3 spotLightPosition(0.0f, 30.0f, 40.0f);
   glm::vec3 directionalLightPosition(0.0f, 49.0f, 0.0f);
 
@@ -167,7 +168,7 @@ int main(int argc, char *argv[]) {
   // ---------------------------------------
   PointLight pointLight = PointLight(pointLightPosition,
                                      glm::vec3(glm::radians(0.0f), 0, 0),
-                                     glm::vec3(1.0f, 1.0f, 0.88f) * 50.0f
+                                     glm::vec3(1.0f, 1.0f, 0.88f) * 45.0f
   );
 
   DirectionalLight directionalLight = DirectionalLight(
@@ -252,9 +253,18 @@ int main(int argc, char *argv[]) {
                             glm::vec3(1.0f, 1.0f, 1.0f),
                             1.0f);
 
-
   Material tile(loadTexture("res/texture/tile.png"),
                 loadTexture("res/texture/tile_specular.png"),
+                glm::vec3(0.45f, 0.45f, 0.45f),
+                128.0f);
+
+  Material white(loadTexture("res/texture/white.png"),
+                loadTexture("res/texture/white.png"),
+                glm::vec3(1.0f)*2.0f,
+                128.0f);
+
+  Material Universe(loadTexture("res/texture/Universe.jpg"),
+                loadTexture("res/texture/Universe_specular.jpg"),
                 glm::vec3(0.45f, 0.45f, 0.45f),
                 128.0f);
 
@@ -283,11 +293,21 @@ int main(int argc, char *argv[]) {
   Puzzle puzzle(bricks);
   puzzle.setPosition(glm::vec3(0,5.0f,0));
 
+  std::vector<Cube *> worldBox;
+  worldBox.reserve(4);
+  for (int i = 0; i < 4; i++) {
+    worldBox.push_back(new Cube(tile, unitGroundVertices));
+    worldBox[i]->setScale(100.0f);
+    worldBox[i]->setPosition(glm::vec3(0, 50.0f, -160));
+    worldBox[i]->rotate(glm::radians(-90.0f + (float) i * 90.0f), glm::vec3(0, 0, 1.0f), 1.0f);
+  }
+  worldBox[3]->setPosition(glm::vec3(0.0f, 5.0f, -160));
 
-
-  Cube ground(tile, unitWorldVertices);
-  ground.setScale(100.0f);
-  ground.setPosition(glm::vec3(0,50.0f,-200));
+  Cube worldBoxBack(white, unitGroundVertices);
+  worldBoxBack.rotate(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0), 1.0f);
+  worldBoxBack.rotate(glm::radians(-90.0f), glm::vec3(0, 0.0f, 1.0f), 1.0f);
+  worldBoxBack.setScale(100.0f);
+  worldBoxBack.setPosition(glm::vec3(0, 155.0f, 0));
 
   Cube pointLightCube(lightBoxMaterial);
   pointLightCube.setPosition(pointLight.position);
@@ -328,17 +348,17 @@ int main(int argc, char *argv[]) {
     // render depth scene to texture from the light point
     // ------------------------------------------------------
     float nearPlane = 5.0f;
-    float farPlane = 200.0f;
-//    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
-//                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-//                                                 nearPlane, farPlane);
-//    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
-//                                      glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
-                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-                                       nearPlane, farPlane);
-    glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
+    float farPlane = 500.0f;
+    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
+                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+                                                 nearPlane, farPlane);
+    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
+                                      glm::vec3(0.0f, 1.0f, 0.0f));
+//    glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
+//                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+//                                       nearPlane, farPlane);
+//    glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
+//                            glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     depthMappingShader.use();
 //    depthMappingShader.setFloat("nearPlane", nearPlane);
@@ -351,7 +371,9 @@ int main(int argc, char *argv[]) {
 
     // draw objects
     puzzle.draw(depthMappingShader, false);
-    ground.draw(depthMappingShader, false);
+    for(int i=0;i<4;i++){
+      worldBox[i]->draw(cubeShader, true);
+    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -404,7 +426,8 @@ int main(int argc, char *argv[]) {
 
     cubeShader.setInt("emissionMap", 2);
     cubeShader.setInt("shadowMap", 3);
-    cubeShader.setFloat("timeValue", timeValueForColor);
+    cubeShader.setFloat("timeValuePeriod", timeValueForColor);
+    cubeShader.setFloat("timeValueIncrement", (float)glfwGetTime());
     cubeShader.setBool("isShadowOn", isShadowOn);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, emissionMap);
@@ -413,13 +436,17 @@ int main(int argc, char *argv[]) {
     puzzle.draw(cubeShader, true);
     cubeShader.setBool("isGround", true);
     glFrontFace(GL_CW);
-    ground.draw(cubeShader, true);
+    for(int i=0;i<4;i++){
+      worldBox[i]->draw(cubeShader, true);
+    }
+    worldBoxBack.draw(cubeShader, true);
     glFrontFace(GL_CCW);
     cubeShader.setBool("isGround", false);
 
     // draw a light box to indicate light position
     cubeShader.setBool("isLightBox", true);
-    pointLightCube.draw(cubeShader, true);
+    pointLightCube.setPosition(pointLightPosition);
+    pointLight.position = pointLightPosition;
     directionalLightCube.draw(cubeShader, true);
     spotLightCube.draw(cubeShader, true);
     cubeShader.setBool("isLightBox", false);
@@ -439,35 +466,43 @@ int main(int argc, char *argv[]) {
 //     set model matrix for obj
     glm::mat4 objmodel(1.0f);
     float objangle = -90.0f;
-    objmodel = glm::translate(objmodel, glm::vec3((-22*cos(0.5*currentFrame)), 18.0f+2*cos(4*currentFrame), -45.0f));
+//    objmodel = glm::translate(objmodel, glm::vec3((-22*cos(0.5*currentFrame)), 18.0f+2*cos(4*currentFrame), -45.0f));
+//    objmodel = glm::scale(objmodel, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
+//    objmodel = glm::rotate(objmodel, glm::radians(objangle), glm::vec3(1.0f, 0.0f, 0.0f));
+//    objmodel = glm::rotate(objmodel, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+//    objmodel = glm::rotate(objmodel, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+    zIncrement += 10.0f*deltaTime;
+    if(zIncrement>90){
+      zIncrement = 0;
+    }
+    objmodel = glm::translate(objmodel, glm::vec3(-22, 18.0f+2*cos(4*currentFrame), -90.0f+zIncrement));
     objmodel = glm::scale(objmodel, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
     objmodel = glm::rotate(objmodel, glm::radians(objangle), glm::vec3(1.0f, 0.0f, 0.0f));
     objmodel = glm::rotate(objmodel, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    //objmodel = glm::rotate(objmodel, -cos(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
     objmodel = glm::rotate(objmodel, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
     cubeShader.setMat4("model", objmodel);
     glDrawElements(GL_TRIANGLES, objVertices, GL_UNSIGNED_INT, 0);
 
 
 
-
-    // draw axis
-#if __APPLE__
-    // line width is only available on window
-#else
-    // On windows, set line width to get a better view
-    glLineWidth(5.0f);
-#endif
-    glBindVertexArray(axisVao);
-    lineShader.use();
-    lineShader.setMat4("projection", projection);
-    lineShader.setMat4("view", view);
-    lineShader.setMat4("model", glm::mat4(1.0f));
-    for (int i = 0; i < 10; i += 2) {
-      glDrawArrays(GL_LINES, i, 2);
-      glDrawArrays(GL_LINES, i + 2, 2);
-    }
-    glLineWidth(1.0f);
+//
+//    // draw axis
+//#if __APPLE__
+//    // line width is only available on window
+//#else
+//    // On windows, set line width to get a better view
+//    glLineWidth(5.0f);
+//#endif
+//    glBindVertexArray(axisVao);
+//    lineShader.use();
+//    lineShader.setMat4("projection", projection);
+//    lineShader.setMat4("view", view);
+//    lineShader.setMat4("model", glm::mat4(1.0f));
+//    for (int i = 0; i < 10; i += 2) {
+//      glDrawArrays(GL_LINES, i, 2);
+//      glDrawArrays(GL_LINES, i + 2, 2);
+//    }
+//    glLineWidth(1.0f);
 
     checkError();
     // End frame

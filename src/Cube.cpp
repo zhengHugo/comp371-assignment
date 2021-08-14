@@ -101,6 +101,10 @@ void Cube::setPosition(glm::vec3 newPosition) {
 void Cube::setParentModelMatrix(glm::mat4 newParentModelMatrix) {
   this->parentModelMatrix = newParentModelMatrix;
 }
+void Cube::rotate(float angleInRadian, glm::vec3 axis, float deltaTime) {
+  quaternion = glm::angleAxis(angleInRadian * deltaTime, axis) * quaternion;
+  updateLocalModelMatrix();
+}
 
 void Cube::setScale(float newScale){
   this->scale = newScale;
