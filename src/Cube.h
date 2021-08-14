@@ -40,6 +40,7 @@ class Cube {
   glm::mat4 getModelMatrix();
 
   void setPosition(glm::vec3 newPosition);
+  void setScale(float newScale);
 
   /**
    * Draw this cube

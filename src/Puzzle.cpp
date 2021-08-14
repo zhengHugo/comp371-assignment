@@ -28,7 +28,6 @@ void Puzzle::updateModelMatrix() {
   model = glm::translate(model, glm::vec3(position));
   model = glm::mat4_cast(quaternion) * model;
   modelMatrix = model;
-
 }
 void Puzzle::draw(Shader &shader, bool hasTexture) {
   for(size_t i = 0; i < 8; i++){

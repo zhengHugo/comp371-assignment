@@ -88,7 +88,6 @@ void Cube::draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn) {
     shader.setBool("shouldGlow", isGlowingOn);
   }
   glDrawArrays(GL_TRIANGLES, 0, 36);
-
 }
 
 void Cube::draw(Shader &shader, bool shaderHasMaterial) {
@@ -99,4 +98,10 @@ void Cube::setPosition(glm::vec3 newPosition) {
   this->position = newPosition;
   updateModelMatrix();
 }
+
+void Cube::setScale(float newScale){
+  this->scale = newScale;
+  updateModelMatrix();
+}
+
 

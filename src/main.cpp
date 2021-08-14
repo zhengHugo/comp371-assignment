@@ -18,8 +18,11 @@
 #include "Model.h"
 #include "Material.h"
 #include "PointLight.h"
+#include "DirectionalLight.h"
+#include "SpotLight.h"
 #include "Cube.h"
 #include "Puzzle.h"
+
 
 #include "geometryData.h"
 
@@ -150,18 +153,34 @@ int main(int argc, char *argv[]) {
   std::vector<glm::vec3> relativeLightBoxPosition{
       glm::vec3(0, 0, 0)
   };
-  glm::vec3 pointLightPosition(3.0f, 30.0f, 6.0f);
+  glm::vec3 pointLightPosition(0.0f, 3.0f, -45.0f);
+  glm::vec3 spotLightPosition(0.0f, 49.0f, 1.0f);
+  glm::vec3 directionalLightPosition(-49.0f, 49.0f, 49.0f);
 
   // build models
   // --------------------------------------------------------
   lightBoxModel = new Model(pointLightPosition, relativeLightBoxPosition);
+
   // set model position
 
   // configure light
   // ---------------------------------------
   PointLight pointLight = PointLight(pointLightPosition,
                                      glm::vec3(glm::radians(0.0f), 0, 0),
-                                     glm::vec3(1.0f, 1.0f, 0.88f) * 80.0f
+                                     glm::vec3(1.0f, 1.0f, 0.88f) * 50.0f
+  );
+
+  DirectionalLight directionalLight = DirectionalLight(
+      directionalLightPosition,
+      glm::vec3(glm::radians(45.0f),glm::radians(145.0f), 0),
+      glm::vec3(0.55f, 0.45f, 0.53f)*0.8f
+  );
+
+  SpotLight spotLight = SpotLight(
+      spotLightPosition,
+      //angle: Forward(0,0,0), Down(-90,0,0)
+      glm::vec3(glm::radians(-90.0f), 0, 0),
+      glm::vec3(0.6f, 0.55f, 0.40f)*180.0f
   );
 
 
@@ -230,17 +249,18 @@ int main(int argc, char *argv[]) {
 
   Material brick(loadTexture("res/texture/brick.png"),
                  loadTexture("res/texture/brick_specular.png"),
-                 glm::vec3(1.0f, 1.0f, 1.0f),
+                 glm::vec3(0.3f, 0.3f, 0.3f),
                  64.0f);
 
-  Material lightBox(loadTexture("res/texture/sea_lantern.png"),
-                    loadTexture("res/texture/sea_lantern.png"),
-                    glm::vec3(1.0f, 1.0f, 1.0f),
-                    1.0f);
+  Material lightBoxMaterial(loadTexture("res/texture/sea_lantern.png"),
+                            loadTexture("res/texture/sea_lantern.png"),
+                            glm::vec3(1.0f, 1.0f, 1.0f),
+                            1.0f);
+
 
   Material tile(loadTexture("res/texture/tile.png"),
                 loadTexture("res/texture/tile_specular.png"),
-                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(0.45f, 0.45f, 0.45f),
                 128.0f);
 
   std::vector<Material *> numberMaterials;
@@ -262,7 +282,17 @@ int main(int argc, char *argv[]) {
 
   Puzzle puzzle(bricks);
 
-  Cube ground(tile, unitGroundVertices);
+  Cube ground(tile, unitWorldVertices);
+  ground.setScale(100.0f);
+  ground.setPosition(glm::vec3(0,50.0f,0));
+
+  Cube pointLightCube(lightBoxMaterial);
+  pointLightCube.setPosition(pointLight.position);
+  Cube  directionalLightCube(lightBoxMaterial);
+  directionalLightCube.setPosition(directionalLight.position);
+  Cube spotLightCube(lightBoxMaterial);
+  spotLightCube.setPosition(spotLight.position);
+
 
   unsigned int emissionMap;
   emissionMap = loadTexture("res/texture/Emission.png");
@@ -296,21 +326,26 @@ int main(int argc, char *argv[]) {
     // render depth scene to texture from the light point
     // ------------------------------------------------------
     float nearPlane = 5.0f;
-    float farPlane = 40.0f;
-    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
-                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-                                                 nearPlane, farPlane);
-    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
-                                      glm::vec3(0.0f, 1.0f, 0.0f));
+    float farPlane = 200.0f;
+//    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
+//                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+//                                                 nearPlane, farPlane);
+//    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
+//                                      glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
+                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+                                       nearPlane, farPlane);
+    glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     depthMappingShader.use();
-    depthMappingShader.setFloat("nearPlane", nearPlane);
-    depthMappingShader.setFloat("farPlane", farPlane);
+//    depthMappingShader.setFloat("nearPlane", nearPlane);
+//    depthMappingShader.setFloat("farPlane", farPlane);
     depthMappingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
     glClear(GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_FRONT);
+//    glCullFace(GL_FRONT);
 
     // draw objects
     puzzle.draw(depthMappingShader, false);
@@ -331,7 +366,7 @@ int main(int argc, char *argv[]) {
     glm::mat4 projection = glm::perspective(glm::radians(camera->Fov),
                                             (float) scrWidth / (float) scrHeight,
                                             0.1f,
-                                            100.f);
+                                            150.f);
     glm::mat4 view = camera->getViewMatrix();
 
     // draw model
@@ -344,35 +379,45 @@ int main(int argc, char *argv[]) {
     cubeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
     cubeShader.setVec3("ambientColor", glm::vec3(0.3f));
+    //pointLight
     cubeShader.setVec3("pointLight.pos", pointLight.position);
     cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
     cubeShader.setVec3("pointLight.color", pointLight.color);
     cubeShader.setFloat("pointLight.constant", pointLight.constant);
     cubeShader.setFloat("pointLight.linear", pointLight.linear);
     cubeShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+    //directionalLight
+    cubeShader.setVec3( "directionalLight.pos", directionalLight.position);
+    cubeShader.setVec3("directionalLight.lightDir", directionalLight.direction);
+    cubeShader.setVec3("directionalLight.color", directionalLight.color);
+    //spotLight
+    cubeShader.setVec3("spotLight.pos", spotLight.position);
+    cubeShader.setVec3("spotLight.lightDir", spotLight.direction);
+    cubeShader.setVec3("spotLight.color", spotLight.color);
+    cubeShader.setFloat("spotLight.constant", spotLight.constant);
+    cubeShader.setFloat("spotLight.linear", spotLight.linear);
+    cubeShader.setFloat("spotLight.quadratic", spotLight.quadratic);
+    cubeShader.setFloat("spotLight.innerCosPhy", spotLight.innerCosPhy);
+    cubeShader.setFloat("spotLight.outerCosPhy", spotLight.outerCosPhy);
+
     cubeShader.setInt("emissionMap", 2);
     cubeShader.setInt("shadowMap", 3);
     cubeShader.setFloat("timeValue", timeValueForColor);
     cubeShader.setBool("isShadowOn", isShadowOn);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, emissionMap);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
     puzzle.draw(cubeShader, true);
+    glFrontFace(GL_CW);
     ground.draw(cubeShader, true);
-
+    glFrontFace(GL_CCW);
 
     // draw a light box to indicate light position
-    // assign light box texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, lightBox.diffuse);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, lightBox.specular);
-    cubeShader.setInt("material.diffuse", 0);
-    cubeShader.setInt("material.specular", 1);
-    //not going to change
     cubeShader.setBool("isLightBox", true);
-    cubeShader.setFloat("material.shininess", lightBox.shininess);
-    // calculate the model matrix for wall
-    glm::mat4 cubeModelMatrix = lightBoxModel->getModelMatrix(0);
-    cubeShader.setMat4("model", cubeModelMatrix);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    pointLightCube.draw(cubeShader, true);
+    directionalLightCube.draw(cubeShader, true);
+    spotLightCube.draw(cubeShader, true);
     cubeShader.setBool("isLightBox", false);
     // end of light box
 
@@ -490,6 +535,8 @@ static void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
+
+
 
   // 1-5: switch models
 //  if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
@@ -674,14 +721,10 @@ static void processInput(GLFWwindow *window) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   }
-//  // home: go home
-//  if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) {
-//    camera->goHome();
-//  }
-//  // space: Repositioning the Model
-//  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-//    updateModelPosition();
-//  }
+  // home: go home
+  if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) {
+    camera->goHome();
+  }
 
 }
 
