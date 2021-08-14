@@ -62,6 +62,8 @@ Camera *camera;
 
 Model *lightBoxModel;
 
+Puzzle *currentPuzzle;
+
 bool isGlowingOn = false;
 bool isTextureOn = true;
 bool isShadowOn = true;
@@ -292,6 +294,7 @@ int main(int argc, char *argv[]) {
 
   Puzzle puzzle(bricks);
   puzzle.setPosition(glm::vec3(0,5.0f,0));
+  currentPuzzle = &puzzle;
 
   std::vector<Cube *> worldBox;
   worldBox.reserve(4);
@@ -625,58 +628,24 @@ static void processInput(GLFWwindow *window) {
 //      || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
 //      && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 //  }
-//
-//
+
 //  // a
 //  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-//        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-//      // shift + a: move left model
-//      currentModel->move(ModelMovement::LEFT, deltaTime);
-//    } else {
-//      // a: rotate left about y-axis
-//      currentModel->rotate(glm::radians(-90.0f),
-//                           glm::vec3(0.0f, 1.0f, 0.0f),
-//                           deltaTime);
-//    }
+//    currentPuzzle->move(Movement::LEFT);
 //  }
-//
 //  // d
 //  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-//        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-//      // shift + d: move right model
-//      currentModel->move(ModelMovement::RIGHT, deltaTime);
-//    } else {
-//      // d: rotate right about y-axis
-//      currentModel->rotate(glm::radians(90.0f),
-//                           glm::vec3(0.0f, 1.0f, 0.0f),
-//                           deltaTime);
-//    }
+//    currentPuzzle->move(Movement::RIGHT);
 //  }
 //
 //  // w
 //  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-//        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-//      // shift + w: move left model
-//      currentModel->move(ModelMovement::UP, deltaTime);
-//    } else {
-//      // w: rotate left about x-axis
-//      currentModel->rotate(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), deltaTime);
-//    }
+//    currentPuzzle->move(Movement::UP);
 //  }
 //
 //  // s
 //  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-//        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
-//      // shift + s: move left model
-//      currentModel->move(ModelMovement::DOWN, deltaTime);
-//    } else {
-//      // s: rotate left about x-axis
-//      currentModel->rotate(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f), deltaTime);
-//    }
+//    currentPuzzle->move(Movement::DOWN);
 //  }
 //
 //  // q
@@ -805,6 +774,19 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   // b: toggle shadow
   if (key == GLFW_KEY_B && action == GLFW_PRESS) {
     isShadowOn = !isShadowOn;
+  }
+
+  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+    currentPuzzle->move(Movement::UP);
+  }
+  if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+    currentPuzzle->move(Movement::LEFT);
+  }
+  if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+    currentPuzzle->move(Movement::DOWN);
+  }
+  if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+    currentPuzzle->move(Movement::RIGHT);
   }
 }
 
