@@ -31,6 +31,7 @@ void Puzzle::updateModelMatrix() {
 }
 void Puzzle::draw(Shader &shader, bool hasTexture) {
   for(size_t i = 0; i < 8; i++){
+    bricks[i]->setParentModelMatrix(modelMatrix);
     bricks[i]->draw(shader, hasTexture);
   }
 }

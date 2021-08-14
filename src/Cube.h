@@ -19,9 +19,10 @@ class Cube {
   glm::vec3 position{glm::vec3(0.0f)};
   glm::quat quaternion{glm::quat(glm::vec3(0.0f))};
   float scale = 1.0f;
+  glm::mat4 parentModelMatrix{glm::mat4(1.0f)};
   glm::mat4 modelMatrix{glm::mat4(1.0f)};
 
-  void updateModelMatrix();
+  void updateLocalModelMatrix();
 
  public:
   /**
@@ -41,6 +42,8 @@ class Cube {
 
   void setPosition(glm::vec3 newPosition);
   void setScale(float newScale);
+
+  void setParentModelMatrix(glm::mat4 parentModelMatrix);
 
   /**
    * Draw this cube

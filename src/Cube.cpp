@@ -16,7 +16,7 @@ extern float unitCubeVertices[];
  */
 Cube::Cube(const Material &material) : material(material) {
   vertices = unitCubeVertices;
-  updateModelMatrix();
+  updateLocalModelMatrix();
 }
 
 /**
@@ -27,10 +27,10 @@ Cube::Cube(const Material &material) : material(material) {
 Cube::Cube(Material &material, float *vertices) :
     material(material),
     vertices(vertices) {
-  updateModelMatrix();
+  updateLocalModelMatrix();
 }
 
-void Cube::updateModelMatrix() {
+void Cube::updateLocalModelMatrix() {
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, glm::vec3(position));
   model = glm::mat4_cast(quaternion) * model;
@@ -39,7 +39,7 @@ void Cube::updateModelMatrix() {
 }
 
 glm::mat4 Cube::getModelMatrix() {
-  return modelMatrix;
+  return parentModelMatrix * modelMatrix;
 }
 
 void Cube::draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn) {
@@ -96,7 +96,10 @@ void Cube::draw(Shader &shader, bool shaderHasMaterial) {
 
 void Cube::setPosition(glm::vec3 newPosition) {
   this->position = newPosition;
-  updateModelMatrix();
+  updateLocalModelMatrix();
+}
+void Cube::setParentModelMatrix(glm::mat4 newParentModelMatrix) {
+  this->parentModelMatrix = newParentModelMatrix;
 }
 
 void Cube::setScale(float newScale){
