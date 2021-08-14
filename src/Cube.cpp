@@ -104,7 +104,7 @@ void Cube::setParentModelMatrix(glm::mat4 newParentModelMatrix) {
 
 void Cube::setScale(float newScale){
   this->scale = newScale;
-  updateModelMatrix();
+  updateLocalModelMatrix();
 }
 
 

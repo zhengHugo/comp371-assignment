@@ -219,7 +219,7 @@ float linearizeDepth(float depth) {
 
 
 void main(){
-    vec3 lightEffect;
+    vec3 lightEffect = vec3(0.0, 0.0, 0.0);
     vec3 normal = normalize(Normal);
 
     // shadow
