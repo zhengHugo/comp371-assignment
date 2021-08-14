@@ -101,50 +101,50 @@ float unitFlatCubeVertices[] = {
     -0.5f, 0.5f, 0.05f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
 };
 
-//float unitGroundVertices[] = {
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-//
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-//
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-//
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-//
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-//
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
-//    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
-//    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
-//
-//};
+float unitGroundVertices[] = {
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,  // top-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,  // bottom-right
+    -50.0f, 0.0f, -50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,  // top-left
+    -50.0f, 0.0f, 50.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+
+};
 
 float unitWorldVertices[] = {
     // unit cube vertices

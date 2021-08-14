@@ -50,6 +50,7 @@ class Puzzle {
    */
   void draw(Shader &shader, bool shaderHasMaterial);
 
+  void setPosition(glm::vec3 newPosition);
 };
 
 #endif //COMP371_PROJECT_SRC_PUZZLE_H_

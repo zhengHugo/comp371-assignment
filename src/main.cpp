@@ -154,8 +154,8 @@ int main(int argc, char *argv[]) {
       glm::vec3(0, 0, 0)
   };
   glm::vec3 pointLightPosition(0.0f, 3.0f, -45.0f);
-  glm::vec3 spotLightPosition(0.0f, 49.0f, 1.0f);
-  glm::vec3 directionalLightPosition(-49.0f, 49.0f, 49.0f);
+  glm::vec3 spotLightPosition(0.0f, 30.0f, 40.0f);
+  glm::vec3 directionalLightPosition(0.0f, 49.0f, 0.0f);
 
   // build models
   // --------------------------------------------------------
@@ -172,21 +172,16 @@ int main(int argc, char *argv[]) {
 
   DirectionalLight directionalLight = DirectionalLight(
       directionalLightPosition,
-      glm::vec3(glm::radians(45.0f),glm::radians(145.0f), 0),
+      glm::vec3(glm::radians(90.0f),0, 0),
       glm::vec3(0.55f, 0.45f, 0.53f)*0.8f
   );
 
   SpotLight spotLight = SpotLight(
       spotLightPosition,
       //angle: Forward(0,0,0), Down(-90,0,0)
-      glm::vec3(glm::radians(-90.0f), 0, 0),
-      glm::vec3(0.6f, 0.55f, 0.40f)*180.0f
+      glm::vec3(glm::radians(-38.0f), glm::radians(0.0f), 0),
+      glm::vec3(0.6f, 0.55f, 0.40f)*50.0f
   );
-
-
-  // import 3d model
-  int objVertices;
-  GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertices);
 
 
   // build and compile shader
@@ -280,7 +275,15 @@ int main(int argc, char *argv[]) {
     bricks.push_back(new Cube(*numberMaterials[i]));
   }
 
+  // import 3d model
+  int objVertices;
+  GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertices);
+
+
   Puzzle puzzle(bricks);
+  puzzle.setPosition(glm::vec3(0,5.0f,0));
+
+
 
   Cube ground(tile, unitWorldVertices);
   ground.setScale(100.0f);
@@ -316,7 +319,6 @@ int main(int argc, char *argv[]) {
     float timeValueForColor = sin(currentFrame) / 2.0f + 0.5f;
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-
     // process input
     processInput(window);
     // Each frame, reset color of each pixel to glClearColor
@@ -378,7 +380,7 @@ int main(int argc, char *argv[]) {
     cubeShader.setMat4("projection", projection);
     cubeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-    cubeShader.setVec3("ambientColor", glm::vec3(0.3f));
+    cubeShader.setVec3("ambientColor", glm::vec3(0.3f+0.2f*timeValueForColor));
     //pointLight
     cubeShader.setVec3("pointLight.pos", pointLight.position);
     cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
@@ -422,23 +424,25 @@ int main(int argc, char *argv[]) {
     // end of light box
 
 
-    // draw obj model
+//     draw obj model
     glBindVertexArray(objVAO);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, brick.diffuse);
+    glBindTexture(GL_TEXTURE_2D, metal.diffuse);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, brick.specular);
+    glBindTexture(GL_TEXTURE_2D, metal.specular);
     cubeShader.setInt("material.diffuse", 0);
     cubeShader.setInt("material.specular", 1);
-    cubeShader.setFloat("material.shininess", brick.shininess);
-    cubeShader.setVec3("material.ambient", brick.ambient);
-    // set model matrix for obj
+    cubeShader.setFloat("material.shininess", metal.shininess);
+    cubeShader.setVec3("material.ambient", metal.ambient);
+//     set model matrix for obj
     glm::mat4 objmodel(1.0f);
     float objangle = -90.0f;
-    objmodel = glm::translate(objmodel, glm::vec3(-6.0f, 2.0f, -8.0f));
+    objmodel = glm::translate(objmodel, glm::vec3((-22*cos(0.5*currentFrame)), 18.0f+2*cos(4*currentFrame), -45.0f));
     objmodel = glm::scale(objmodel, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
     objmodel = glm::rotate(objmodel, glm::radians(objangle), glm::vec3(1.0f, 0.0f, 0.0f));
-    objmodel = glm::rotate(objmodel, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    objmodel = glm::rotate(objmodel, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    //objmodel = glm::rotate(objmodel, -cos(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
+    objmodel = glm::rotate(objmodel, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
     cubeShader.setMat4("model", objmodel);
     glDrawElements(GL_TRIANGLES, objVertices, GL_UNSIGNED_INT, 0);
 
@@ -535,8 +539,6 @@ static void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
-
-
 
   // 1-5: switch models
 //  if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {

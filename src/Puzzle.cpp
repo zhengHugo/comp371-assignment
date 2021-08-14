@@ -29,9 +29,16 @@ void Puzzle::updateModelMatrix() {
   model = glm::mat4_cast(quaternion) * model;
   modelMatrix = model;
 }
+
 void Puzzle::draw(Shader &shader, bool hasTexture) {
   for(size_t i = 0; i < 8; i++){
     bricks[i]->setParentModelMatrix(modelMatrix);
     bricks[i]->draw(shader, hasTexture);
   }
 }
+
+void Puzzle::setPosition(glm::vec3 newPosition) {
+  this->position = newPosition;
+  updateModelMatrix();
+}
+
