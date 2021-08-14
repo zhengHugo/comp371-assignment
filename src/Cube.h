@@ -40,6 +40,8 @@ class Cube {
 
   glm::mat4 getModelMatrix();
 
+  void rotate(float angleInRadian, glm::vec3 axis, float deltaTime);
+
   void setPosition(glm::vec3 newPosition);
   void setScale(float newScale);
 

@@ -22,8 +22,8 @@ class Camera {
 
   const float ANGULAR_SPEED = 0.5f;
   const float SPEED = 1.0f;
-  const float FOV = 30.0f;
-  const glm::vec4 DEFAULT_POS = glm::vec4(0.0f, 4.3f, 10.0f, 1.0f);
+  const float FOV = 70.0f;
+  const glm::vec4 DEFAULT_POS = glm::vec4(0.0f, 3.8f, 5.0f, 1.0f);
   const glm::vec4 DEFAULT_TARGET = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
 
  public:
