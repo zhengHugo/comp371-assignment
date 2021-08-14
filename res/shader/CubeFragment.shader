@@ -102,7 +102,7 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float 
 
     float shadowStrength = 0.85;
     return isLightBox ?
-    diffuseTexture :
+    vec3(0,0,0) :
     (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
 }
 
@@ -128,7 +128,7 @@ vec3 getLightDirectionEffect(DirectionalLight light, vec3 normal, vec3 dirToCama
 
     float shadowStrength = 0.85;
     return isLightBox ?
-    diffuseTexture :
+    vec3(0,0,0) :
     (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
 }
 
@@ -169,7 +169,7 @@ vec3 getLightSpotEffect(SpotLight light, vec3 normal, vec3 dirToCamara, float sh
 
     float shadowStrength = 0.85;
     return isLightBox ?
-    diffuseTexture :
+    vec3(0,0,0) :
     (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
 }
 
@@ -207,8 +207,7 @@ float calculateShadow(vec4 fragPosLightSpace, float bias) {
 vec3 getAmbientEffect() {
     vec3 ambient = ambientColor * texture(material.diffuse, TexCoord).rgb;
     vec3 result = ambient * material.ambient;
-    return isLightBox ?
-    texture(material.diffuse, TexCoord).rgb:result;
+    return isLightBox ? texture(material.diffuse, TexCoord).rgb : result;
 }
 
 
@@ -236,6 +235,7 @@ void main(){
     lightEffect += getPointLightEffect(pointLight, normal, dirToCamara, shadow);
     lightEffect += getLightDirectionEffect(directionalLight, normal, dirToCamara, shadow);
     lightEffect += getLightSpotEffect(spotLight, normal, dirToCamara, shadow);
+    lightEffect += getAmbientEffect();
 
     vec3 hsvEmissionMap = rgb2hsv(texture(emissionMap, TexCoord).rgb);
     if (isGlowingOn) {

@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
   // ---------------------------------------
   PointLight pointLight = PointLight(pointLightPosition,
                                      glm::vec3(glm::radians(0.0f), 0, 0),
-                                     glm::vec3(1.0f, 1.0f, 0.88f) * 80.0f
+                                     glm::vec3(1.0f, 1.0f, 0.88f) * 50.0f
   );
 
   DirectionalLight directionalLight = DirectionalLight(
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
 
   Material brick(loadTexture("res/texture/brick.png"),
                  loadTexture("res/texture/brick_specular.png"),
-                 glm::vec3(1.0f, 1.0f, 1.0f),
+                 glm::vec3(0.3f, 0.3f, 0.3f),
                  64.0f);
 
   Material lightBoxMaterial(loadTexture("res/texture/sea_lantern.png"),
@@ -249,7 +249,7 @@ int main(int argc, char *argv[]) {
 
   Material tile(loadTexture("res/texture/tile.png"),
                 loadTexture("res/texture/tile_specular.png"),
-                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(0.45f, 0.45f, 0.45f),
                 128.0f);
 
   std::vector<Material *> numberMaterials;
