@@ -288,13 +288,6 @@ int main(int argc, char *argv[]) {
   int objVertices;
   GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertices);
 
-  // create bricks
-//  std::vector<Cube *> bricks;
-//  bricks.reserve(8);
-//  for (int i = 0; i < 8; i++) {
-//    bricks.push_back(new Cube(*numberMaterials[i]));
-//  }
-
   // create puzzles
   std::vector<Puzzle *> puzzles;
   puzzles.reserve(6);
@@ -710,16 +703,6 @@ static void processInput(GLFWwindow *window) {
   }
 
 }
-
-//static void updateModelPosition() {
-//  currentModel->resetPosition();
-//  currentWall->resetPosition();
-//  currentModel->resetOrientation();
-//  currentWall->resetOrientation();
-//  for (int i = 0; i < 8; i++) {
-////    cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
-//  }
-//}
 
 #pragma endregion // helper functions
 
