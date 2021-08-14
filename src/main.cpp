@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
   std::vector<glm::vec3> relativeLightBoxPosition{
       glm::vec3(0, 0, 0)
   };
-  glm::vec3 pointLightPosition(0.0f, 3.0f, -45.0f);
+  glm::vec3 pointLightPosition(0.0f, 5.0f, -45.0f);
   glm::vec3 spotLightPosition(0.0f, 30.0f, 40.0f);
   glm::vec3 directionalLightPosition(0.0f, 49.0f, 0.0f);
 
@@ -287,7 +287,7 @@ int main(int argc, char *argv[]) {
 
   Cube ground(tile, unitWorldVertices);
   ground.setScale(100.0f);
-  ground.setPosition(glm::vec3(0,50.0f,0));
+  ground.setPosition(glm::vec3(0,50.0f,-200));
 
   Cube pointLightCube(lightBoxMaterial);
   pointLightCube.setPosition(pointLight.position);
@@ -368,7 +368,7 @@ int main(int argc, char *argv[]) {
     glm::mat4 projection = glm::perspective(glm::radians(camera->Fov),
                                             (float) scrWidth / (float) scrHeight,
                                             0.1f,
-                                            150.f);
+                                            500.f);
     glm::mat4 view = camera->getViewMatrix();
 
     // draw model
@@ -411,9 +411,11 @@ int main(int argc, char *argv[]) {
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, depthMap);
     puzzle.draw(cubeShader, true);
+    cubeShader.setBool("isGround", true);
     glFrontFace(GL_CW);
     ground.draw(cubeShader, true);
     glFrontFace(GL_CCW);
+    cubeShader.setBool("isGround", false);
 
     // draw a light box to indicate light position
     cubeShader.setBool("isLightBox", true);

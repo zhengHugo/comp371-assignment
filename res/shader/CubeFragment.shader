@@ -46,6 +46,7 @@ uniform DirectionalLight directionalLight;
 uniform vec3 ambientColor;
 uniform vec3 cameraPos;
 uniform bool isLightBox = false;
+uniform bool isGround = false;
 uniform bool isGlowingOn = false;
 uniform bool isTextureOn = true;
 uniform bool isShadowOn = true;
@@ -77,8 +78,13 @@ vec3 hsv2rgb(vec3 c) {
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float shadow) {
     vec3 diffuseTexture, specularTexture;
     if (isTextureOn){
-        diffuseTexture = texture(material.diffuse, TexCoord).rgb;
-        specularTexture = texture(material.specular, TexCoord).rgb;
+        if(isGround){
+            diffuseTexture = texture(material.diffuse, vec2(TexCoord.x,TexCoord.y+timeValue)).rgb;
+            specularTexture = texture(material.specular, vec2(TexCoord.x,TexCoord.y+timeValue)).rgb;
+        }else{
+            diffuseTexture = texture(material.diffuse, TexCoord).rgb;
+            specularTexture = texture(material.specular, TexCoord).rgb;
+        }
     } else {
         diffuseTexture = vec3(1);
         specularTexture = vec3(1);
@@ -109,8 +115,13 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float 
 vec3 getLightDirectionEffect(DirectionalLight light, vec3 normal, vec3 dirToCamara, float shadow) {
     vec3 diffuseTexture, specularTexture;
     if (isTextureOn){
-        diffuseTexture = texture(material.diffuse, TexCoord).rgb;
-        specularTexture = texture(material.specular, TexCoord).rgb;
+        if(isGround){
+            diffuseTexture = texture(material.diffuse, vec2(TexCoord.x,TexCoord.y+timeValue)).rgb;
+            specularTexture = texture(material.specular, vec2(TexCoord.x,TexCoord.y+timeValue)).rgb;
+        }else{
+            diffuseTexture = texture(material.diffuse, TexCoord).rgb;
+            specularTexture = texture(material.specular, TexCoord).rgb;
+        }
     } else {
         diffuseTexture = vec3(1);
         specularTexture = vec3(1);
@@ -135,8 +146,13 @@ vec3 getLightDirectionEffect(DirectionalLight light, vec3 normal, vec3 dirToCama
 vec3 getLightSpotEffect(SpotLight light, vec3 normal, vec3 dirToCamara, float shadow) {
     vec3 diffuseTexture, specularTexture;
     if (isTextureOn){
-        diffuseTexture = texture(material.diffuse, TexCoord).rgb;
-        specularTexture = texture(material.specular, TexCoord).rgb;
+        if(isGround){
+            diffuseTexture = texture(material.diffuse, vec2(TexCoord.x,TexCoord.y+timeValue)).rgb;
+            specularTexture = texture(material.specular, vec2(TexCoord.x,TexCoord.y+timeValue)).rgb;
+        }else{
+            diffuseTexture = texture(material.diffuse, TexCoord).rgb;
+            specularTexture = texture(material.specular, TexCoord).rgb;
+        }
     } else {
         diffuseTexture = vec3(1);
         specularTexture = vec3(1);
