@@ -33,8 +33,8 @@ Cube::Cube(Material &material, float *vertices) :
 void Cube::updateLocalModelMatrix() {
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, glm::vec3(position));
-  model = glm::mat4_cast(quaternion) * model;
-  model = glm::scale(model, glm::vec3(scale));
+  model = model * glm::mat4_cast(quaternion);
+  model = glm::scale(model, scale);
   modelMatrix = model;
 }
 
@@ -106,8 +106,12 @@ void Cube::rotate(float angleInRadian, glm::vec3 axis, float deltaTime) {
   updateLocalModelMatrix();
 }
 
-void Cube::setScale(float newScale){
+void Cube::setScale(glm::vec3 newScale) {
   this->scale = newScale;
+  updateLocalModelMatrix();
+}
+void Cube::setQuaternion(glm::quat _quaternion) {
+  this->quaternion = _quaternion;
   updateLocalModelMatrix();
 }
 

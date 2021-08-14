@@ -5,8 +5,20 @@
 #include "Puzzle.h"
 #include <algorithm>
 
-Puzzle::Puzzle(std::vector<Cube *> &bricks) : bricks(bricks) {
-  updateBrickPositions();
+extern float unitFlatCubeVertices[];
+
+Puzzle::Puzzle(std::vector<Cube *> &bricks) : numberCubes(bricks) {
+  updateNumberCubePositions();
+}
+
+Puzzle::Puzzle(std::vector<Material *> &materials) {
+  numberCubes.clear();
+  numberCubes.reserve(8);
+  for (int i = 0; i < 8; i++) {
+    numberCubes.push_back(new Cube(*materials[i], unitFlatCubeVertices));
+  }
+  updateNumberCubePositions();
+
 }
 
 void Puzzle::move(Movement movement) {
@@ -45,17 +57,17 @@ void Puzzle::move(Movement movement) {
       std::swap(state[zeroIndex], state[indexLeft]);
     }
   }
-  updateBrickPositions();
+  updateNumberCubePositions();
 
 }
 
-void Puzzle::updateBrickPositions() {
+void Puzzle::updateNumberCubePositions() {
   for (size_t i = 0; i < 9; i++) {
     // i = location index
     // state[i] - 1 = brick index at location i
     glm::vec3 brickPosition((float) (-1 + (int) i % 3), (float) (1 - (int) i / 3), 0.0f);
     if (state[i] != 0) {
-      bricks[state[i] - 1]->setPosition(brickPosition);
+      numberCubes[state[i] - 1]->setPosition(brickPosition);
     }
   }
 }
@@ -63,19 +75,28 @@ void Puzzle::updateBrickPositions() {
 void Puzzle::updateModelMatrix() {
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, glm::vec3(position));
-  model = glm::mat4_cast(quaternion) * model;
+  model = model * glm::mat4_cast(quaternion);
   modelMatrix = model;
 }
 
 void Puzzle::draw(Shader &shader, bool hasTexture) {
   for (size_t i = 0; i < 8; i++) {
-    bricks[i]->setParentModelMatrix(modelMatrix);
-    bricks[i]->draw(shader, hasTexture);
+    numberCubes[i]->setParentModelMatrix(parentModelMatrix * modelMatrix);
+    numberCubes[i]->draw(shader, hasTexture);
   }
 }
 
 void Puzzle::setPosition(glm::vec3 newPosition) {
   this->position = newPosition;
   updateModelMatrix();
+}
+
+void Puzzle::setQuaternion(glm::quat _quaternion) {
+  this->quaternion = _quaternion;
+  updateModelMatrix();
+}
+
+void Puzzle::setParentModelMatrix(glm::mat4 _parentModelMatrix) {
+  this->parentModelMatrix = _parentModelMatrix;
 }
 

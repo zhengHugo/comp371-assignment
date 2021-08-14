@@ -23,11 +23,11 @@
 #include "Cube.h"
 #include "Puzzle.h"
 
-
 #include "geometryData.h"
 
 #include "OBJloader.h"  //For loading .obj files
 #include "OBJloaderV2.h"  //For loading .obj files using a polygon list format
+#include "Board.h"
 
 #pragma region Declare static functions
 
@@ -52,7 +52,7 @@ static void processInput();
 static void renderScene(Shader &shader);
 
 //Sets up a model using an Element Buffer Object to refer to vertex data
-GLuint setupModelEBO(std::string path, int& vertexCount);
+GLuint setupModelEBO(std::string path, int &vertexCount);
 
 #pragma endregion // declare functions
 
@@ -63,6 +63,8 @@ Camera *camera;
 Model *lightBoxModel;
 
 Puzzle *currentPuzzle;
+
+Board *pBoard;
 
 bool isGlowingOn = false;
 bool isTextureOn = true;
@@ -92,7 +94,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  irrklang::ISoundEngine* engine = irrklang::createIrrKlangDevice();
+  irrklang::ISoundEngine *engine = irrklang::createIrrKlangDevice();
 
   if (!engine)
     return 0; // error starting up the engine
@@ -175,15 +177,15 @@ int main(int argc, char *argv[]) {
 
   DirectionalLight directionalLight = DirectionalLight(
       directionalLightPosition,
-      glm::vec3(glm::radians(90.0f),0, 0),
-      glm::vec3(0.55f, 0.45f, 0.53f)*0.8f
+      glm::vec3(glm::radians(90.0f), 0, 0),
+      glm::vec3(0.55f, 0.45f, 0.53f) * 0.8f
   );
 
   SpotLight spotLight = SpotLight(
       spotLightPosition,
       //angle: Forward(0,0,0), Down(-90,0,0)
       glm::vec3(glm::radians(-38.0f), glm::radians(0.0f), 0),
-      glm::vec3(0.6f, 0.55f, 0.40f)*50.0f
+      glm::vec3(0.6f, 0.55f, 0.40f) * 50.0f
   );
 
 
@@ -261,14 +263,14 @@ int main(int argc, char *argv[]) {
                 128.0f);
 
   Material white(loadTexture("res/texture/white.png"),
-                loadTexture("res/texture/white.png"),
-                glm::vec3(1.0f)*2.0f,
-                128.0f);
+                 loadTexture("res/texture/white.png"),
+                 glm::vec3(1.0f) * 2.0f,
+                 128.0f);
 
   Material Universe(loadTexture("res/texture/Universe.jpg"),
-                loadTexture("res/texture/Universe_specular.jpg"),
-                glm::vec3(0.45f, 0.45f, 0.45f),
-                128.0f);
+                    loadTexture("res/texture/Universe_specular.jpg"),
+                    glm::vec3(0.45f, 0.45f, 0.45f),
+                    128.0f);
 
   std::vector<Material *> numberMaterials;
   numberMaterials.reserve(8);
@@ -281,44 +283,56 @@ int main(int argc, char *argv[]) {
                                            64.0f));
   }
 
-  std::vector<Cube *> bricks;
-  bricks.reserve(8);
-  for (int i = 0; i < 8; i++) {
-    bricks.push_back(new Cube(*numberMaterials[i]));
-  }
 
   // import 3d model
   int objVertices;
   GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertices);
 
+  // create puzzles
+  std::vector<Puzzle *> puzzles;
+  puzzles.reserve(6);
+  puzzles.push_back(new Puzzle(numberMaterials));
+  puzzles.push_back(new Puzzle(numberMaterials));
+  puzzles.push_back(new Puzzle(numberMaterials));
+  puzzles.push_back(new Puzzle(numberMaterials));
+  puzzles.push_back(new Puzzle(numberMaterials));
+  puzzles.push_back(new Puzzle(numberMaterials));
+  Board board(puzzles);
+  currentPuzzle = board.getPuzzles()[0];
+  pBoard = &board;
+  board.setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 
-  Puzzle puzzle(bricks);
-  puzzle.setPosition(glm::vec3(0,5.0f,0));
-  currentPuzzle = &puzzle;
 
+  // create world
   std::vector<Cube *> worldBox;
   worldBox.reserve(4);
   for (int i = 0; i < 4; i++) {
     worldBox.push_back(new Cube(tile, unitGroundVertices));
-    worldBox[i]->setScale(100.0f);
-    worldBox[i]->setPosition(glm::vec3(0, 50.0f, -160));
-    worldBox[i]->rotate(glm::radians(-90.0f + (float) i * 90.0f), glm::vec3(0, 0, 1.0f), 1.0f);
+    worldBox[i]->setScale(glm::vec3(100.0f));
   }
-  worldBox[3]->setPosition(glm::vec3(0.0f, 5.0f, -160));
+  // left
+  worldBox[0]->setPosition(glm::vec3(-50.0f, 0.0f, -160.0f));
+  worldBox[0]->setQuaternion(glm::vec3(0.0f, 0.0f, glm::radians(-90.0f)));
+  // up
+  worldBox[1]->setPosition(glm::vec3(0.0f, 50.0f, -160.0f));
+  worldBox[1]->setQuaternion(glm::vec3(0.0f, 0.0f, glm::radians(180.0f)));
+  // right
+  worldBox[2]->setPosition(glm::vec3(50.0f, 0.0f, -160.0f));
+  worldBox[2]->setQuaternion(glm::vec3(0.0f, 0.0f, glm::radians(90.0f)));
+  // down
+  worldBox[3]->setPosition(glm::vec3(0.0f, -5.0f, -160.0f));
 
   Cube worldBoxBack(white, unitGroundVertices);
-  worldBoxBack.rotate(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0), 1.0f);
-  worldBoxBack.rotate(glm::radians(-90.0f), glm::vec3(0, 0.0f, 1.0f), 1.0f);
-  worldBoxBack.setScale(100.0f);
-  worldBoxBack.setPosition(glm::vec3(0, 155.0f, 0));
+  worldBoxBack.setPosition(glm::vec3(0, 0.0f, -155.0f));
+  worldBoxBack.setQuaternion(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+  worldBoxBack.setScale(glm::vec3(100.0f));
 
   Cube pointLightCube(lightBoxMaterial);
   pointLightCube.setPosition(pointLight.position);
-  Cube  directionalLightCube(lightBoxMaterial);
+  Cube directionalLightCube(lightBoxMaterial);
   directionalLightCube.setPosition(directionalLight.position);
   Cube spotLightCube(lightBoxMaterial);
   spotLightCube.setPosition(spotLight.position);
-
 
   unsigned int emissionMap;
   emissionMap = loadTexture("res/texture/Emission.png");
@@ -332,6 +346,7 @@ int main(int argc, char *argv[]) {
 
   //Cull_Face
   glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
 
   // Main Loop
   // ----------------------------------
@@ -370,14 +385,14 @@ int main(int argc, char *argv[]) {
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // draw objects
-    puzzle.draw(depthMappingShader, false);
-    for(int i=0;i<4;i++){
+    board.draw(depthMappingShader, false);
+    for (int i = 0; i < 4; i++) {
       worldBox[i]->draw(cubeShader, true);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glCullFace(GL_BACK);
+//    glCullFace(GL_BACK);
     // reset viewport
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
     glViewport(0, 0, scrWidth, scrHeight);
@@ -402,7 +417,7 @@ int main(int argc, char *argv[]) {
     cubeShader.setMat4("projection", projection);
     cubeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-    cubeShader.setVec3("ambientColor", glm::vec3(0.3f+0.2f*timeValueForColor));
+    cubeShader.setVec3("ambientColor", glm::vec3(0.3f + 0.2f * timeValueForColor));
     //pointLight
     cubeShader.setVec3("pointLight.pos", pointLight.position);
     cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
@@ -411,7 +426,7 @@ int main(int argc, char *argv[]) {
     cubeShader.setFloat("pointLight.linear", pointLight.linear);
     cubeShader.setFloat("pointLight.quadratic", pointLight.quadratic);
     //directionalLight
-    cubeShader.setVec3( "directionalLight.pos", directionalLight.position);
+    cubeShader.setVec3("directionalLight.pos", directionalLight.position);
     cubeShader.setVec3("directionalLight.lightDir", directionalLight.direction);
     cubeShader.setVec3("directionalLight.color", directionalLight.color);
     //spotLight
@@ -427,20 +442,18 @@ int main(int argc, char *argv[]) {
     cubeShader.setInt("emissionMap", 2);
     cubeShader.setInt("shadowMap", 3);
     cubeShader.setFloat("timeValuePeriod", timeValueForColor);
-    cubeShader.setFloat("timeValueIncrement", (float)glfwGetTime());
+    cubeShader.setFloat("timeValueIncrement", (float) glfwGetTime());
     cubeShader.setBool("isShadowOn", isShadowOn);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, emissionMap);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, depthMap);
-    puzzle.draw(cubeShader, true);
+    board.draw(cubeShader, true);
     cubeShader.setBool("isGround", true);
-    glFrontFace(GL_CW);
-    for(int i=0;i<4;i++){
+    for (int i = 0; i < 4; i++) {
       worldBox[i]->draw(cubeShader, true);
     }
     worldBoxBack.draw(cubeShader, true);
-    glFrontFace(GL_CCW);
     cubeShader.setBool("isGround", false);
 
     // draw a light box to indicate light position
@@ -471,20 +484,24 @@ int main(int argc, char *argv[]) {
 //    objmodel = glm::rotate(objmodel, glm::radians(objangle), glm::vec3(1.0f, 0.0f, 0.0f));
 //    objmodel = glm::rotate(objmodel, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 //    objmodel = glm::rotate(objmodel, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
-    zIncrement += 10.0f*deltaTime;
-    if(zIncrement>90){
+    zIncrement += 10.0f * deltaTime;
+    if (zIncrement > 90) {
       zIncrement = 0;
     }
-    objModelMatrix = glm::translate(objModelMatrix, glm::vec3(-22, 18.0f+2*cos(4*currentFrame), -90.0f+zIncrement));
-    objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
-    objModelMatrix = glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
-    objModelMatrix = glm::rotate(objModelMatrix, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    objModelMatrix = glm::rotate(objModelMatrix, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+    objModelMatrix = glm::translate(objModelMatrix,
+                                    glm::vec3(-22,
+                                              18.0f + 2 * cos(4 * currentFrame),
+                                              -90.0f + zIncrement));
+    objModelMatrix =
+        glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
+    objModelMatrix =
+        glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+    objModelMatrix =
+        glm::rotate(objModelMatrix, 3 * (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    objModelMatrix =
+        glm::rotate(objModelMatrix, 1.5f * (float) glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
     cubeShader.setMat4("model", objModelMatrix);
     glDrawElements(GL_TRIANGLES, objVertices, GL_UNSIGNED_INT, 0);
-
-
-
 
     checkError();
     // End frame
@@ -558,34 +575,6 @@ static void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
-
-  // 1-5: switch models
-//  if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-//    currentModel = model1;
-//    currentWall = wall1;
-//    cornerObjects = {model2, wall2, model3, wall3, model4, wall4, model5, wall5};
-//    updateModelPosition();
-//  } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-//    currentModel = model2;
-//    currentWall = wall2;
-//    cornerObjects = {model1, wall1, model3, wall3, model4, wall4, model5, wall5};
-//    updateModelPosition();
-//  } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-//    currentModel = model3;
-//    currentWall = wall3;
-//    cornerObjects = {model1, wall1, model2, wall2, model4, wall4, model5, wall5};
-//    updateModelPosition();
-//  } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
-//    currentModel = model4;
-//    currentWall = wall4;
-//    cornerObjects = {model1, wall1, model2, wall2, model3, wall3, model5, wall5};
-//    updateModelPosition();
-//  } else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
-//    currentModel = model5;
-//    currentWall = wall5;
-//    cornerObjects = {model1, wall1, model2, wall2, model3, wall3, model4, wall4};
-//    updateModelPosition();
-//  }
 
 //  // u: scale up model
 //  if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
@@ -715,16 +704,6 @@ static void processInput(GLFWwindow *window) {
 
 }
 
-//static void updateModelPosition() {
-//  currentModel->resetPosition();
-//  currentWall->resetPosition();
-//  currentModel->resetOrientation();
-//  currentWall->resetOrientation();
-//  for (int i = 0; i < 8; i++) {
-////    cornerObjects[i]->setBasePosition(cornerPositions[i / 2]);
-//  }
-//}
-
 #pragma endregion // helper functions
 
 #pragma region Window callback functions
@@ -776,6 +755,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
     isShadowOn = !isShadowOn;
   }
 
+  // wasd: puzzle movement
   if (key == GLFW_KEY_W && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::UP);
   }
@@ -788,59 +768,98 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::RIGHT);
   }
+
+  // 1-6: switch puzzles
+  if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+    currentPuzzle = pBoard->getPuzzles()[0];
+    pBoard->setQuaternion(glm::quat(glm::vec3(0.0f)));
+  }
+  if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+    currentPuzzle = pBoard->getPuzzles()[1];
+    pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
+
+  }
+  if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+    currentPuzzle = pBoard->getPuzzles()[2];
+    pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f)));
+
+  }
+  if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+    currentPuzzle = pBoard->getPuzzles()[3];
+    pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(180.0f), 0.0f)));
+
+  }
+  if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
+    currentPuzzle = pBoard->getPuzzles()[4];
+    pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(90.0f), 0.0f)));
+
+  }
+  if (key == GLFW_KEY_6 && action == GLFW_PRESS) {
+    currentPuzzle = pBoard->getPuzzles()[5];
+    pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f)));
+
+  }
 }
 
-GLuint setupModelEBO(std::string path, int& vertexCount)
-{
-    std::vector<int> vertexIndices;
-    //The contiguous sets of three indices of vertices, normals and UVs, used to make a triangle
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> UVs;
+GLuint setupModelEBO(std::string path, int &vertexCount) {
+  std::vector<int> vertexIndices;
+  //The contiguous sets of three indices of vertices, normals and UVs, used to make a triangle
+  std::vector<glm::vec3> vertices;
+  std::vector<glm::vec3> normals;
+  std::vector<glm::vec2> UVs;
 
-    //read the vertices from the cube.obj file
-    //We won't be needing the normals or UVs for this program
-    loadOBJ2(path.c_str(), vertexIndices, vertices, normals, UVs);
+  //read the vertices from the cube.obj file
+  //We won't be needing the normals or UVs for this program
+  loadOBJ2(path.c_str(), vertexIndices, vertices, normals, UVs);
 
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO); //Becomes active VAO
-    // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+  GLuint VAO;
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO); //Becomes active VAO
+  // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
 
-    //Vertex VBO setup
-    GLuint vertices_VBO;
-    glGenBuffers(1, &vertices_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, vertices_VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices.front(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
+  //Vertex VBO setup
+  GLuint vertices_VBO;
+  glGenBuffers(1, &vertices_VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, vertices_VBO);
+  glBufferData(GL_ARRAY_BUFFER,
+               vertices.size() * sizeof(glm::vec3),
+               &vertices.front(),
+               GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) 0);
+  glEnableVertexAttribArray(0);
 
-    //Normals VBO setup
-    GLuint normals_VBO;
-    glGenBuffers(1, &normals_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals.front(), GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(1);
+  //Normals VBO setup
+  GLuint normals_VBO;
+  glGenBuffers(1, &normals_VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, normals_VBO);
+  glBufferData(GL_ARRAY_BUFFER,
+               normals.size() * sizeof(glm::vec3),
+               &normals.front(),
+               GL_STATIC_DRAW);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) 0);
+  glEnableVertexAttribArray(1);
 
-    //UVs VBO setup
-    GLuint uvs_VBO;
-    glGenBuffers(1, &uvs_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
-    glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec2), &UVs.front(), GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(2);
+  //UVs VBO setup
+  GLuint uvs_VBO;
+  glGenBuffers(1, &uvs_VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, uvs_VBO);
+  glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec2), &UVs.front(), GL_STATIC_DRAW);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid *) 0);
+  glEnableVertexAttribArray(2);
 
-    //EBO setup
-    GLuint EBO;
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(int), &vertexIndices.front(), GL_STATIC_DRAW);
+  //EBO setup
+  GLuint EBO;
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               vertexIndices.size() * sizeof(int),
+               &vertexIndices.front(),
+               GL_STATIC_DRAW);
 
-    glBindVertexArray(0);
-    // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
-    vertexCount = vertexIndices.size();
-    return VAO;
+  glBindVertexArray(0);
+  // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
+  vertexCount = vertexIndices.size();
+  return VAO;
 }
 
 #pragma endregion // Window callback functions

@@ -18,7 +18,7 @@ class Cube {
   Material material;
   glm::vec3 position{glm::vec3(0.0f)};
   glm::quat quaternion{glm::quat(glm::vec3(0.0f))};
-  float scale = 1.0f;
+  glm::vec3 scale{glm::vec3(1.0f)};
   glm::mat4 parentModelMatrix{glm::mat4(1.0f)};
   glm::mat4 modelMatrix{glm::mat4(1.0f)};
 
@@ -43,7 +43,8 @@ class Cube {
   void rotate(float angleInRadian, glm::vec3 axis, float deltaTime);
 
   void setPosition(glm::vec3 newPosition);
-  void setScale(float newScale);
+  void setQuaternion(glm::quat _quaternion);
+  void setScale(glm::vec3 newScale);
 
   void setParentModelMatrix(glm::mat4 parentModelMatrix);
 
