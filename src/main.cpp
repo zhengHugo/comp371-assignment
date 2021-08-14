@@ -268,8 +268,13 @@ int main(int argc, char *argv[]) {
                  128.0f);
 
   Material Universe(loadTexture("res/texture/Universe.jpg"),
-                    loadTexture("res/texture/Universe_specular.jpg"),
-                    glm::vec3(0.45f, 0.45f, 0.45f),
+                    loadTexture("res/texture/Universe.jpg"),
+                    glm::vec3(1.0f, 1.0f, 1.0f),
+                    128.0f);
+
+  Material Universe2(loadTexture("res/texture/Universe2.jpg"),
+                    loadTexture("res/texture/Universe2.jpg"),
+                    glm::vec3(1.0f, 1.0f, 1.0f),
                     128.0f);
 
   std::vector<Material *> numberMaterials;
@@ -301,7 +306,10 @@ int main(int argc, char *argv[]) {
   currentPuzzle = board.getPuzzles()[0];
   pBoard = &board;
   board.setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
-
+  Cube boardCore(Universe);
+  boardCore.setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+  boardCore.setScale(glm::vec3(2.86f));
+  boardCore.setQuaternion(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f));
 
   // create world
   std::vector<Cube *> worldBox;
@@ -326,6 +334,10 @@ int main(int argc, char *argv[]) {
   worldBoxBack.setPosition(glm::vec3(0, 0.0f, -155.0f));
   worldBoxBack.setQuaternion(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
   worldBoxBack.setScale(glm::vec3(100.0f));
+
+  Cube UniverseBox(Universe2);
+  UniverseBox.setScale(glm::vec3(320.0f));
+
 
   Cube pointLightCube(lightBoxMaterial);
   pointLightCube.setPosition(pointLight.position);
@@ -448,19 +460,40 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, emissionMap);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, depthMap);
+    //draw board
     board.draw(cubeShader, true);
-    cubeShader.setBool("isGround", true);
+
+    //draw board core
+    glCullFace(GL_FRONT);
+    cubeShader.setBool("isFlow", true);
+    cubeShader.setBool("isLightBox", true);
+    boardCore.draw(cubeShader, true);
+    cubeShader.setBool("isLightBox", false);
+    cubeShader.setBool("isFlow", false);
+    glCullFace(GL_BACK);
+
+    //draw ground
+    cubeShader.setBool("isFlow", true);
     for (int i = 0; i < 4; i++) {
       worldBox[i]->draw(cubeShader, true);
     }
     worldBoxBack.draw(cubeShader, true);
-    cubeShader.setBool("isGround", false);
+    cubeShader.setBool("isFlow", false);
+
+    //Eye box
+    glCullFace(GL_FRONT);
+    cubeShader.setBool("isFlow", true);
+    UniverseBox.draw(cubeShader, true);
+    cubeShader.setBool("isFlow", false);
+    glCullFace(GL_BACK);
 
     // draw a light box to indicate light position
     cubeShader.setBool("isLightBox", true);
-    pointLightCube.setPosition(pointLightPosition);
-    pointLight.position = pointLightPosition;
+    //point light box
+    spotLightCube.draw(cubeShader, true);
+    //directional light box
     directionalLightCube.draw(cubeShader, true);
+    //spotLightCube light box
     spotLightCube.draw(cubeShader, true);
     cubeShader.setBool("isLightBox", false);
     // end of light box
