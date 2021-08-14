@@ -7,3 +7,4 @@ main
 /main.pdb
 .vs
 out
+CMakeSettings.json
