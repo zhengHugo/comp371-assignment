@@ -361,13 +361,10 @@ int main(int argc, char *argv[]) {
 //                            glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     depthMappingShader.use();
-//    depthMappingShader.setFloat("nearPlane", nearPlane);
-//    depthMappingShader.setFloat("farPlane", farPlane);
     depthMappingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
     glClear(GL_DEPTH_BUFFER_BIT);
-//    glCullFace(GL_FRONT);
 
     // draw objects
     puzzle.draw(depthMappingShader, false);
@@ -464,8 +461,8 @@ int main(int argc, char *argv[]) {
     cubeShader.setFloat("material.shininess", metal.shininess);
     cubeShader.setVec3("material.ambient", metal.ambient);
 //     set model matrix for obj
-    glm::mat4 objmodel(1.0f);
-    float objangle = -90.0f;
+    glm::mat4 objModelMatrix(1.0f);
+    float objAngle = -90.0f;
 //    objmodel = glm::translate(objmodel, glm::vec3((-22*cos(0.5*currentFrame)), 18.0f+2*cos(4*currentFrame), -45.0f));
 //    objmodel = glm::scale(objmodel, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
 //    objmodel = glm::rotate(objmodel, glm::radians(objangle), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -475,34 +472,16 @@ int main(int argc, char *argv[]) {
     if(zIncrement>90){
       zIncrement = 0;
     }
-    objmodel = glm::translate(objmodel, glm::vec3(-22, 18.0f+2*cos(4*currentFrame), -90.0f+zIncrement));
-    objmodel = glm::scale(objmodel, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
-    objmodel = glm::rotate(objmodel, glm::radians(objangle), glm::vec3(1.0f, 0.0f, 0.0f));
-    objmodel = glm::rotate(objmodel, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    objmodel = glm::rotate(objmodel, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
-    cubeShader.setMat4("model", objmodel);
+    objModelMatrix = glm::translate(objModelMatrix, glm::vec3(-22, 18.0f+2*cos(4*currentFrame), -90.0f+zIncrement));
+    objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
+    objModelMatrix = glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+    objModelMatrix = glm::rotate(objModelMatrix, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    objModelMatrix = glm::rotate(objModelMatrix, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+    cubeShader.setMat4("model", objModelMatrix);
     glDrawElements(GL_TRIANGLES, objVertices, GL_UNSIGNED_INT, 0);
 
 
 
-//
-//    // draw axis
-//#if __APPLE__
-//    // line width is only available on window
-//#else
-//    // On windows, set line width to get a better view
-//    glLineWidth(5.0f);
-//#endif
-//    glBindVertexArray(axisVao);
-//    lineShader.use();
-//    lineShader.setMat4("projection", projection);
-//    lineShader.setMat4("view", view);
-//    lineShader.setMat4("model", glm::mat4(1.0f));
-//    for (int i = 0; i < 10; i += 2) {
-//      glDrawArrays(GL_LINES, i, 2);
-//      glDrawArrays(GL_LINES, i + 2, 2);
-//    }
-//    glLineWidth(1.0f);
 
     checkError();
     // End frame
