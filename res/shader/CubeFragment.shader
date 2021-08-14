@@ -21,8 +21,27 @@ struct PointLight {
     float quadratic;
 };
 
+struct SpotLight {
+    vec3 pos;
+    vec3 lightDir;
+    vec3 color;
+    float constant;
+    float linear;
+    float quadratic;
+    float innerCosPhy;
+    float outerCosPhy;
+};
+
+struct DirectionalLight {
+    vec3 pos;
+    vec3 lightDir;
+    vec3 color;
+};
+
 uniform Material material;
 uniform PointLight pointLight;
+uniform SpotLight spotLight;
+uniform DirectionalLight directionalLight;
 
 uniform vec3 ambientColor;
 uniform vec3 cameraPos;
@@ -66,6 +85,9 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float 
     }
 
     vec3 dirToLight = normalize(light.pos - FragPos);
+    //due to unreal light reflex, using Blinn-Phong
+    vec3 halfwayDir = normalize(dirToLight+dirToCamara);
+
     // attenuation
     float dist = length(light.pos - FragPos);
     float attenuation = 1.0 / (light.constant + light.linear* dist + light.quadratic * (dist * dist));
@@ -75,17 +97,82 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float 
     vec3 diffuseColor = diffuseIntensity * light.color * diffuseTexture;
 
     //specular
-    vec3 reflectVec = reflect(-dirToLight, normal);
-    float specularIntensity = pow(max(dot(reflectVec, dirToCamara), 0.0), material.shininess) * attenuation;
-    vec3 specularColor = specularIntensity * light.color * specularTexture;
+    float specularIntensity = pow(max(dot(normal, halfwayDir), 0.0), material.shininess) * attenuation;
+    vec3 specularColor = specularIntensity * light.color * texture(material.specular, TexCoord).rgb;
 
-    //ambient
-    vec3 ambient = ambientColor * diffuseTexture;
     float shadowStrength = 0.85;
     return isLightBox ?
     diffuseTexture :
-    ambient * material.ambient + (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
+    (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
 }
+
+vec3 getLightDirectionEffect(DirectionalLight light, vec3 normal, vec3 dirToCamara, float shadow) {
+    vec3 diffuseTexture, specularTexture;
+    if (isTextureOn){
+        diffuseTexture = texture(material.diffuse, TexCoord).rgb;
+        specularTexture = texture(material.specular, TexCoord).rgb;
+    } else {
+        diffuseTexture = vec3(1);
+        specularTexture = vec3(1);
+    }
+    vec3 dirToLight = normalize(light.pos - FragPos);
+    //due to unreal light reflex, using Blinn-Phong
+    vec3 halfwayDir = normalize(dirToLight+dirToCamara);
+    // diffuse: max(dot(L,N),0)
+    float diffuseIntensity = max(dot(light.lightDir, normal), 0);
+    vec3 diffuseColor = diffuseIntensity * light.color * texture(material.diffuse, TexCoord).rgb;
+
+    // specular
+    float specularIntensity = pow(max(dot(normal, halfwayDir), 0.0), 8.0);
+    vec3 specularColor = specularIntensity * light.color * texture(material.specular, TexCoord).rgb;
+
+    float shadowStrength = 0.85;
+    return isLightBox ?
+    diffuseTexture :
+    (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
+}
+
+vec3 getLightSpotEffect(SpotLight light, vec3 normal, vec3 dirToCamara, float shadow) {
+    vec3 diffuseTexture, specularTexture;
+    if (isTextureOn){
+        diffuseTexture = texture(material.diffuse, TexCoord).rgb;
+        specularTexture = texture(material.specular, TexCoord).rgb;
+    } else {
+        diffuseTexture = vec3(1);
+        specularTexture = vec3(1);
+    }
+    vec3 dirToLight = normalize(light.pos - FragPos);
+    //due to unreal light reflex, using Blinn-Phong
+    vec3 halfwayDir = normalize(dirToLight+dirToCamara);
+    // attenuation
+    float dist = length(light.pos - FragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+    float spotRatio;
+    float cosTheta = dot(dirToLight, -1 * light.lightDir);
+    if (cosTheta > light.innerCosPhy) {
+        spotRatio = 1.0f;
+    } else if (cosTheta > light.outerCosPhy) {
+        spotRatio = 1.0f - (cosTheta - light.innerCosPhy) / (light.outerCosPhy - light.innerCosPhy);
+        spotRatio = pow(spotRatio, 2);
+    } else {
+        spotRatio = 0.0f;
+        shadow = 0.0f;
+    }
+
+    // diffuse
+    float diffuseIntensity = max(dot(dirToLight, normal), 0) * attenuation * spotRatio;
+    vec3 diffuseColor = diffuseIntensity * light.color * texture(material.diffuse, TexCoord).rgb;
+
+    // specular
+    float specularIntensity = pow(max(dot(normal, halfwayDir), 0.0), material.shininess) * attenuation * spotRatio;
+    vec3 specularColor = specularIntensity * light.color * texture(material.specular, TexCoord).rgb;
+
+    float shadowStrength = 0.85;
+    return isLightBox ?
+    diffuseTexture :
+    (1.0 - shadow * shadowStrength) * (diffuseColor + specularColor);
+}
+
 
 float calculateShadow(vec4 fragPosLightSpace, float bias) {
     // perform perspetive divide
@@ -97,7 +184,7 @@ float calculateShadow(vec4 fragPosLightSpace, float bias) {
     // get depth of current frag from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag is in shadow
-    //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+//    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
     //PCF
     float shadow = 0.0;
     vec2 texelSize = (1.0 / textureSize(shadowMap, 0))*0.6f;
@@ -117,6 +204,13 @@ float calculateShadow(vec4 fragPosLightSpace, float bias) {
     return shadow;
 }
 
+vec3 getAmbientEffect() {
+    vec3 ambient = ambientColor * texture(material.diffuse, TexCoord).rgb;
+    vec3 result = ambient * material.ambient;
+    return isLightBox ?
+    texture(material.diffuse, TexCoord).rgb:result;
+}
+
 
 // for debug
 float linearizeDepth(float depth) {
@@ -131,7 +225,7 @@ void main(){
 
     // shadow
     vec3 lightDir = normalize(pointLight.pos - FragPos);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
+    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
     float shadow = calculateShadow(FragPosLightSpace, bias);
     if (!isShadowOn){
         shadow = 0.0f;
@@ -139,7 +233,10 @@ void main(){
 
     // light
     vec3 dirToCamara = normalize(cameraPos - FragPos);
-    lightEffect = getPointLightEffect(pointLight, normal, dirToCamara, shadow);
+    lightEffect += getPointLightEffect(pointLight, normal, dirToCamara, shadow);
+    lightEffect += getLightDirectionEffect(directionalLight, normal, dirToCamara, shadow);
+    lightEffect += getLightSpotEffect(spotLight, normal, dirToCamara, shadow);
+
     vec3 hsvEmissionMap = rgb2hsv(texture(emissionMap, TexCoord).rgb);
     if (isGlowingOn) {
         lightEffect += hsv2rgb(vec3(timeValue, hsvEmissionMap.y, hsvEmissionMap.z));
