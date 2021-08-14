@@ -17,16 +17,18 @@ class Puzzle {
   // to represent the state of this puzzle; 0 represents the blank
   int state[9]{1, 0, 2, 3, 4, 5, 6, 7, 8};
 
-  std::vector<Cube *> bricks;
+  std::vector<Cube *> numberCubes;
 
   glm::vec3 position{glm::vec3(0.0f)};
   glm::quat quaternion{glm::quat(glm::vec3(0.0f))};
   glm::mat4 modelMatrix{glm::mat4(1.0f)};
 
+  glm::mat4 parentModelMatrix{glm::mat4(1.0f)};
+
   /**
    * Update the position of each brick by current state
    */
-  void updateBrickPositions();
+  void updateNumberCubePositions();
 
   /**
    * Update the model matrix of this puzzle
@@ -36,6 +38,8 @@ class Puzzle {
  public:
 
   explicit Puzzle(std::vector<Cube *> &bricks);
+
+  explicit Puzzle(std::vector<Material *> &materials);
 
   /**
    * A movement applied on this puzzle will change the state
@@ -51,6 +55,10 @@ class Puzzle {
   void draw(Shader &shader, bool shaderHasMaterial);
 
   void setPosition(glm::vec3 newPosition);
+
+  void setQuaternion(glm::quat _quaternion);
+
+  void setParentModelMatrix(glm::mat4 _parentModelMatrix);
 };
 
 #endif //COMP371_PROJECT_SRC_PUZZLE_H_
