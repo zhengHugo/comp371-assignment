@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
   SpotLight spotLight = SpotLight(
       spotLightPosition,
       //angle: Forward(0,0,0), Down(-90,0,0)
-      glm::vec3(glm::radians(-38.0f), glm::radians(0.0f), 0),
+      glm::vec3(glm::radians(-40.0f), glm::radians(0.0f), 0),
       glm::vec3(0.6f, 0.55f, 0.40f) * 50.0f
   );
 
@@ -227,7 +227,10 @@ int main(int argc, char *argv[]) {
       glm::vec3(-10.0f, 23.0f, -60.0f),
       glm::vec3(10.0f, 25.0f, -70.0f),
       glm::vec3(25.0f, 15.0f, -110.0f),
-      glm::vec3(35.0f, 5.0f, -130.0f)
+      glm::vec3(35.0f, 5.0f, -130.0f),
+      glm::vec3(-22.0f, 18.0f, -90.0f),
+      glm::vec3(15.0f, 20.0f, -120.0f),
+      glm::vec3(0.0f, 30.0f, -50.0f),
   };
 
   glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
@@ -436,8 +439,23 @@ int main(int argc, char *argv[]) {
 
 
   // import 3d model
-  int objVertexCount;
-  GLuint objVAO = setupModelEBO("res/object/monkey.obj", objVertexCount);
+  int monkeyVertexCount;
+  GLuint monkeyVAO = setupModelEBO("res/object/monkey.obj", monkeyVertexCount);
+  int tCatVertexCount;
+  GLuint tCatVAO = setupModelEBO("res/object/tCat.obj", tCatVertexCount);
+  int tCowVertexCount;
+  GLuint tCowVAO = setupModelEBO("res/object/tCow.obj", tCowVertexCount);
+
+  std::vector<unsigned int> importedModel;
+  importedModel.reserve(3);
+  importedModel.push_back(monkeyVAO);
+  importedModel.push_back(tCatVAO);
+  importedModel.push_back(tCowVAO);
+  std::vector<int> importedVertexCount;
+  importedVertexCount.reserve(3);
+  importedVertexCount.push_back(monkeyVertexCount);
+  importedVertexCount.push_back(tCatVertexCount);
+  importedVertexCount.push_back(tCowVertexCount);
 
   // create puzzles
   std::vector<Puzzle *> puzzles;
@@ -517,16 +535,16 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------------------
     float nearPlane = 5.0f;
     float farPlane = 500.0f;
-    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
-                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-                                                 nearPlane, farPlane);
-    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
-                                      glm::vec3(0.0f, 1.0f, 0.0f));
-//    glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
-//                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-//                                       nearPlane, farPlane);
-//    glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
-//                            glm::vec3(0.0f, 0.0f, 1.0f));
+//    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
+//                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+//                                                 nearPlane, farPlane);
+//    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
+//                                      glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
+                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+                                       nearPlane, farPlane);
+    glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     depthMappingShader.use();
     depthMappingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -564,7 +582,7 @@ int main(int argc, char *argv[]) {
     cubeShader.setMat4("projection", projection);
     cubeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-    cubeShader.setVec3("ambientColor", glm::vec3(0.3f + 0.2f * timeValueForColor));
+    cubeShader.setVec3("ambientColor", glm::vec3(0.3f + 0.3f * timeValueForColor));
     //pointLight
     cubeShader.setVec3("pointLight.pos", pointLight.position);
     cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
@@ -660,25 +678,29 @@ int main(int argc, char *argv[]) {
 
 //     draw obj model
     clearError();
-    glBindVertexArray(objVAO);
-//     set model matrix for obj
-    glm::mat4 objModelMatrix(1.0f);
-    float objAngle = -90.0f;
-    setIncrementZ(6, -90.0f);
-    objModelMatrix = glm::translate(objModelMatrix,
-                                    glm::vec3(-22,
-                                              18.0f + 2 * cos(4 * currentFrame),
-                                              -90.0f + zIncrement[6]));
-    objModelMatrix =glm::scale(objModelMatrix, (glm::vec3(2.0), glm::vec3(2.0), glm::vec3(2.0)));
-    objModelMatrix =
-        glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
-    objModelMatrix =
-        glm::rotate(objModelMatrix, 3 * currentFrame, glm::vec3(0.0f, 0.0f, 1.0f));
-    objModelMatrix =
-        glm::rotate(objModelMatrix, 1.5f * currentFrame, glm::vec3(1.0f, 0.0f, 0.0f));
+    for (size_t i= 0; i < importedModel.size(); i++) {
+      glBindVertexArray(importedModel[i]);
+      // set model matrix for obj
+      glm::mat4 objModelMatrix(1.0f);
+      setIncrementZ((int)i+6, relativeCharPosition[i+6].z);
+      objModelMatrix = glm::translate(objModelMatrix,glm::vec3(relativeCharPosition[i+6].x,
+                                                               relativeCharPosition[i+6].y + 2 * cos(4 * currentFrame),
+                                                               relativeCharPosition[i+6].z + zIncrement[6]));
+      if(i==0){
+        objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(2.0), glm::vec3(2.0), glm::vec3(2.0)));
+      }else{
+        objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(0.008), glm::vec3(0.008), glm::vec3(0.008)));
+      }
+      objModelMatrix =
+          glm::rotate(objModelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+      objModelMatrix =
+          glm::rotate(objModelMatrix, 3 * currentFrame, glm::vec3(0.0f, 0.0f, 1.0f));
+      objModelMatrix =
+          glm::rotate(objModelMatrix, 1.5f * currentFrame, glm::vec3(1.0f, 0.0f, 0.0f));
 
-    cubeShader.setMat4("model", objModelMatrix);
-    glDrawElements(GL_TRIANGLES, objVertexCount, GL_UNSIGNED_INT, nullptr);
+      cubeShader.setMat4("model", objModelMatrix);
+      glDrawElements(GL_TRIANGLES, importedVertexCount[i], GL_UNSIGNED_INT, nullptr);
+    }
 
     //Universe box
     skyBoxShader.use();
@@ -832,7 +854,7 @@ std::vector<glm::vec3> bitToLetter(std::vector<int> &letter) {
 //while zIncrement of an object is large enough to offset it's z position, reset to 0;
 static void setIncrementZ(int i, float startPositionZ) {
   zIncrement[i] += 10.0f * deltaTime;
-  if (zIncrement[i] > -startPositionZ) {
+  if (zIncrement[i] > -startPositionZ+30) {
     zIncrement[i] = 0;
   }
 }
