@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
   SpotLight spotLight = SpotLight(
       spotLightPosition,
       //angle: Forward(0,0,0), Down(-90,0,0)
-      glm::vec3(glm::radians(-38.0f), glm::radians(0.0f), 0),
+      glm::vec3(glm::radians(-40.0f), glm::radians(0.0f), 0),
       glm::vec3(0.6f, 0.55f, 0.40f) * 50.0f
   );
 
@@ -227,7 +227,10 @@ int main(int argc, char *argv[]) {
       glm::vec3(-10.0f, 23.0f, -60.0f),
       glm::vec3(10.0f, 25.0f, -70.0f),
       glm::vec3(25.0f, 15.0f, -110.0f),
-      glm::vec3(35.0f, 5.0f, -130.0f)
+      glm::vec3(35.0f, 5.0f, -130.0f),
+      glm::vec3(-22.0f, 18.0f, -90.0f),
+      glm::vec3(15.0f, 20.0f, -120.0f),
+      glm::vec3(0.0f, 30.0f, -50.0f),
   };
 
   glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
@@ -381,17 +384,17 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(1);
 
   // configure materials
-  std::vector<std::string> faces
+  std::vector<std::string> outerUniverse
       {
-          "res/texture/cubeMapTexture/right.png",
-          "res/texture/cubeMapTexture/left.png",
-          "res/texture/cubeMapTexture/top.png",
-          "res/texture/cubeMapTexture/bottom.png",
-          "res/texture/cubeMapTexture/front.png",
-          "res/texture/cubeMapTexture/back.png"
+          "res/texture/OuterUniverseCubeMap/right.png",
+          "res/texture/OuterUniverseCubeMap/left.png",
+          "res/texture/OuterUniverseCubeMap/top.png",
+          "res/texture/OuterUniverseCubeMap/bottom.png",
+          "res/texture/OuterUniverseCubeMap/front.png",
+          "res/texture/OuterUniverseCubeMap/back.png"
       };
 
-  unsigned int cubeMapTexture = loadCubeMap(faces);
+  unsigned int OuterUniverseCubeMap = loadCubeMap(outerUniverse);
 
   Material metal(loadTexture("res/texture/metal.png"),
                  loadTexture("res/texture/metal_specular.png"),
@@ -423,11 +426,6 @@ int main(int argc, char *argv[]) {
                     glm::vec3(1.0f, 1.0f, 1.0f),
                     128.0f);
 
-  Material Universe2(loadTexture("res/texture/Universe2.jpg"),
-                     loadTexture("res/texture/Universe2.jpg"),
-                     glm::vec3(1.0f, 1.0f, 1.0f),
-                     128.0f);
-
   std::vector<Material *> numberMaterials;
   numberMaterials.reserve(8);
   for (int i = 0; i < 8; i++) {
@@ -441,8 +439,23 @@ int main(int argc, char *argv[]) {
 
 
   // import 3d model
-  int objVertexCount;
-  GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertexCount);
+  int monkeyVertexCount;
+  GLuint monkeyVAO = setupModelEBO("res/object/monkey.obj", monkeyVertexCount);
+  int tCatVertexCount;
+  GLuint tCatVAO = setupModelEBO("res/object/tCat.obj", tCatVertexCount);
+  int tCowVertexCount;
+  GLuint tCowVAO = setupModelEBO("res/object/tCow.obj", tCowVertexCount);
+
+  std::vector<unsigned int> importedModel;
+  importedModel.reserve(3);
+  importedModel.push_back(monkeyVAO);
+  importedModel.push_back(tCatVAO);
+  importedModel.push_back(tCowVAO);
+  std::vector<int> importedVertexCount;
+  importedVertexCount.reserve(3);
+  importedVertexCount.push_back(monkeyVertexCount);
+  importedVertexCount.push_back(tCatVertexCount);
+  importedVertexCount.push_back(tCowVertexCount);
 
   // create puzzles
   std::vector<Puzzle *> puzzles;
@@ -462,31 +475,16 @@ int main(int argc, char *argv[]) {
   boardCore.setScale(glm::vec3(2.86f));
   boardCore.setQuaternion(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f));
 
-  // create world
-  std::vector<Cube *> worldBox;
-  worldBox.reserve(4);
-  for (int i = 0; i < 4; i++) {
-    worldBox.push_back(new Cube(tile, unitGroundVertices));
-    worldBox[i]->setScale(glm::vec3(100.0f));
-  }
-  // left
-  worldBox[0]->setPosition(glm::vec3(-50.0f, 0.0f, -160.0f));
-  worldBox[0]->setQuaternion(glm::vec3(0.0f, 0.0f, glm::radians(-90.0f)));
-  // up
-  worldBox[1]->setPosition(glm::vec3(0.0f, 50.0f, -160.0f));
-  worldBox[1]->setQuaternion(glm::vec3(0.0f, 0.0f, glm::radians(180.0f)));
-  // right
-  worldBox[2]->setPosition(glm::vec3(50.0f, 0.0f, -160.0f));
-  worldBox[2]->setQuaternion(glm::vec3(0.0f, 0.0f, glm::radians(90.0f)));
-  // down
-  worldBox[3]->setPosition(glm::vec3(0.0f, -5.0f, -160.0f));
-
+  Cube worldBox(tile,unitWorldVertices);
+  worldBox.setScale(glm::vec3(100.0f,160.0f,50.0f));
+  worldBox.setPosition(glm::vec3(0.0f, 17.0f, -82.0f));
+  worldBox.setQuaternion(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
   Cube worldBoxBack(white, unitGroundVertices);
-  worldBoxBack.setPosition(glm::vec3(0, 0.0f, -155.0f));
+  worldBoxBack.setPosition(glm::vec3(0, 17.0f, -155.0f));
   worldBoxBack.setQuaternion(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
-  worldBoxBack.setScale(glm::vec3(100.0f));
+  worldBoxBack.setScale(glm::vec3(100.0f,0.0f,50.0f));
 
-  Cube UniverseBox(Universe2, unitCubeVertices);
+  Cube UniverseBox(white, unitCubeVertices);
   UniverseBox.setScale(glm::vec3(320.0f));
 
   Cube pointLightCube(lightBoxMaterial);
@@ -537,16 +535,16 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------------------
     float nearPlane = 5.0f;
     float farPlane = 500.0f;
-    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
-                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-                                                 nearPlane, farPlane);
-    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
-                                      glm::vec3(0.0f, 1.0f, 0.0f));
-//    glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
-//                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-//                                       nearPlane, farPlane);
-//    glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
-//                            glm::vec3(0.0f, 0.0f, 1.0f));
+//    glm::mat4 lightProjection = glm::perspective(glm::radians(85.0f),
+//                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+//                                                 nearPlane, farPlane);
+//    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
+//                                      glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
+                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+                                       nearPlane, farPlane);
+    glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     depthMappingShader.use();
     depthMappingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -556,10 +554,7 @@ int main(int argc, char *argv[]) {
     glCullFace(GL_FRONT);
     // draw objects
     board.draw(depthMappingShader, false);
-    for (int i = 0; i < 4; i++) {
-      worldBox[i]->draw(cubeShader, true);
-    }
-
+    worldBox.draw(cubeShader, true);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glCullFace(GL_BACK);
@@ -587,7 +582,7 @@ int main(int argc, char *argv[]) {
     cubeShader.setMat4("projection", projection);
     cubeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-    cubeShader.setVec3("ambientColor", glm::vec3(0.3f + 0.2f * timeValueForColor));
+    cubeShader.setVec3("ambientColor", glm::vec3(0.3f + 0.3f * timeValueForColor));
     //pointLight
     cubeShader.setVec3("pointLight.pos", pointLight.position);
     cubeShader.setVec3("pointLight.lightDir", pointLight.direction);
@@ -621,14 +616,6 @@ int main(int argc, char *argv[]) {
     //draw board
     board.draw(cubeShader, true);
 
-    // render text
-    RenderText(textShader,
-               "Hi there!COMP371 Team!",
-               430.0f,
-               700.0f,
-               1.0f,
-               glm::vec3(1.0, 1.0f, 1.0f));
-
     //draw board core
     glCullFace(GL_FRONT);
     cubeShader.setBool("isFlowing", true);
@@ -640,10 +627,12 @@ int main(int argc, char *argv[]) {
 
     //draw ground
     cubeShader.setBool("isFlowing", true);
-    for (int i = 0; i < 4; i++) {
-      worldBox[i]->draw(cubeShader, true);
-    }
+    glCullFace(GL_FRONT);
+    worldBox.draw(cubeShader, true);
+    glCullFace(GL_BACK);
+    cubeShader.setBool("isLightBox", true);
     worldBoxBack.draw(cubeShader, true);
+    cubeShader.setBool("isLightBox", false);
     cubeShader.setBool("isFlowing", false);
 
     // draw a light box to indicate light position
@@ -689,26 +678,29 @@ int main(int argc, char *argv[]) {
 
 //     draw obj model
     clearError();
-    glBindVertexArray(objVAO);
-//     set model matrix for obj
-    glm::mat4 objModelMatrix(1.0f);
-    float objAngle = -90.0f;
-    setIncrementZ(6, -90.0f);
-    objModelMatrix = glm::translate(objModelMatrix,
-                                    glm::vec3(-22,
-                                              18.0f + 2 * cos(4 * currentFrame),
-                                              -90.0f + zIncrement[6]));
-    objModelMatrix =
-        glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
-    objModelMatrix =
-        glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
-    objModelMatrix =
-        glm::rotate(objModelMatrix, 3 * currentFrame, glm::vec3(0.0f, 0.0f, 1.0f));
-    objModelMatrix =
-        glm::rotate(objModelMatrix, 1.5f * currentFrame, glm::vec3(1.0f, 0.0f, 0.0f));
+    for (size_t i= 0; i < importedModel.size(); i++) {
+      glBindVertexArray(importedModel[i]);
+      // set model matrix for obj
+      glm::mat4 objModelMatrix(1.0f);
+      setIncrementZ((int)i+6, relativeCharPosition[i+6].z);
+      objModelMatrix = glm::translate(objModelMatrix,glm::vec3(relativeCharPosition[i+6].x,
+                                                               relativeCharPosition[i+6].y + 2 * cos(4 * currentFrame),
+                                                               relativeCharPosition[i+6].z + zIncrement[6]));
+      if(i==0){
+        objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(2.0), glm::vec3(2.0), glm::vec3(2.0)));
+      }else{
+        objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(0.008), glm::vec3(0.008), glm::vec3(0.008)));
+      }
+      objModelMatrix =
+          glm::rotate(objModelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+      objModelMatrix =
+          glm::rotate(objModelMatrix, 3 * currentFrame, glm::vec3(0.0f, 0.0f, 1.0f));
+      objModelMatrix =
+          glm::rotate(objModelMatrix, 1.5f * currentFrame, glm::vec3(1.0f, 0.0f, 0.0f));
 
-    cubeShader.setMat4("model", objModelMatrix);
-    glDrawElements(GL_TRIANGLES, objVertexCount, GL_UNSIGNED_INT, nullptr);
+      cubeShader.setMat4("model", objModelMatrix);
+      glDrawElements(GL_TRIANGLES, importedVertexCount[i], GL_UNSIGNED_INT, nullptr);
+    }
 
     //Universe box
     skyBoxShader.use();
@@ -720,7 +712,7 @@ int main(int argc, char *argv[]) {
     skyBoxShader.setMat4("view", view);
     skyBoxShader.setMat4("projection", projection);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, OuterUniverseCubeMap);
     skyBoxShader.setInt("skybox", 0);
     glCullFace(GL_FRONT);
     UniverseBox.draw(skyBoxShader, true, false, true);
@@ -728,6 +720,10 @@ int main(int argc, char *argv[]) {
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
 
+    // render text
+    RenderText(textShader, "Hi there!COMP371 Team!", 430.0f, 700.0f, 1.0f, glm::vec3(1.0, 1.0f, 1.0f));
+
+//    checkError();
     checkError();
     // End frame
     glfwSwapBuffers(window);
@@ -858,7 +854,7 @@ std::vector<glm::vec3> bitToLetter(std::vector<int> &letter) {
 //while zIncrement of an object is large enough to offset it's z position, reset to 0;
 static void setIncrementZ(int i, float startPositionZ) {
   zIncrement[i] += 10.0f * deltaTime;
-  if (zIncrement[i] > -startPositionZ) {
+  if (zIncrement[i] > -startPositionZ+30) {
     zIncrement[i] = 0;
   }
 }
