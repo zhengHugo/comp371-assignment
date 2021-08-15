@@ -285,8 +285,8 @@ int main(int argc, char *argv[]) {
 
 
   // import 3d model
-  int objVertices;
-  GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertices);
+  int objVertexCount;
+  GLuint objVAO = setupModelEBO("res/object/cube.obj", objVertexCount);
 
   // create puzzles
   std::vector<Puzzle *> puzzles;
@@ -351,7 +351,6 @@ int main(int argc, char *argv[]) {
   // Main Loop
   // ----------------------------------
   while (!glfwWindowShouldClose(window)) {
-    clearError();
     // update time
     auto currentFrame = (float) glfwGetTime();
     float timeValueForColor = sin(currentFrame) / 2.0f + 0.5f;
@@ -467,6 +466,7 @@ int main(int argc, char *argv[]) {
 
 
 //     draw obj model
+    clearError();
     glBindVertexArray(objVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, metal.diffuse);
@@ -501,7 +501,7 @@ int main(int argc, char *argv[]) {
     objModelMatrix =
         glm::rotate(objModelMatrix, 1.5f * (float) glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
     cubeShader.setMat4("model", objModelMatrix);
-    glDrawElements(GL_TRIANGLES, objVertices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, objVertexCount, GL_UNSIGNED_INT, nullptr);
 
     checkError();
     // End frame
@@ -802,7 +802,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
 }
 
 GLuint setupModelEBO(std::string path, int &vertexCount) {
-  std::vector<int> vertexIndices;
+  std::vector<unsigned int> vertexIndices;
   //The contiguous sets of three indices of vertices, normals and UVs, used to make a triangle
   std::vector<glm::vec3> vertices;
   std::vector<glm::vec3> normals;
