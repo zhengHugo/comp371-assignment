@@ -456,9 +456,9 @@ int main(int argc, char *argv[]) {
   glGenBuffers(1, &VBO);
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
@@ -1010,6 +1010,7 @@ void RenderText(Shader& shader, std::string text, float x, float y, float scale,
     // activate corresponding render state	
     shader.use();
     glUniform3f(glGetUniformLocation(shader.id, "textColor"), color.x, color.y, color.z);
+    shader.setInt("text", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
 
