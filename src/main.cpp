@@ -10,6 +10,7 @@
 #include <vector>
 #include "stb_image.h"
 
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -85,6 +86,8 @@ float lastY = (float) scrHeight / 2.0f;
 
 float deltaTime; // Time between current frame and last frame
 float lastFrame; // Time of last frame
+
+float bill_X = 5;
 
 #pragma endregion // declare global variables
 
@@ -845,11 +848,46 @@ int main(int argc, char *argv[]) {
     // On windows, set line width to get a better view
     glLineWidth(5.0f);
 #endif
+    glBindVertexArray(cubeVao);
+
+    glm::vec3 originalAxis(0, 0, 1);
+    glm::vec3 cameraLookAt(glm::normalize(view[2]));
+    cameraLookAt.y = 0; //project onto xz plane
+    cameraLookAt.x *= -1;
+    cameraLookAt = normalize(cameraLookAt);
+
+    glm::vec3 billboardRotationAxis(glm::vec3(0, 1, 0));
+
+    float billboardRotation = glm::acos(-1 * dot(originalAxis, cameraLookAt)) * 360 / (2 * 3.141592653589793f);
+    //
+    if (cameraLookAt.x > 0) {
+        billboardRotation = (360 - billboardRotation);
+    }
+    glm::vec3 camePos= glm::vec3(-.0f, 6.0f, -15.0f);
+    glm::mat4 billboardMatrix = glm::mat4(1.0f);//glm::translate(glm::mat4(1.0f), camePos);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, brick.diffuse);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, brick.specular);
+    billboardMatrix = glm::rotate(billboardMatrix, glm::radians( billboardRotation),billboardRotationAxis);
+    billboardMatrix = glm::translate(billboardMatrix, camePos);
+    billboardMatrix = glm::scale(billboardMatrix, glm::vec3(bill_X, 0.5f, 1.0f));
+    cubeShader.setMat4("projection", projection);
+    cubeShader.setMat4("view", view);
+    cubeShader.setMat4("model", billboardMatrix);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    /*if (bill_X<=0) {
+        bill_X = 5;
+    }
+    else {
+        bill_X -= deltaTime;
+    }*/
+
     glBindVertexArray(axisVao);
     lineShader.use();
     lineShader.setMat4("projection", projection);
     lineShader.setMat4("view", view);
-    lineShader.setMat4("model", glm::mat4(1.0f));
+    lineShader.setMat4("model", glm::scale(glm::mat4(1.f),glm::vec3(1.0f,2.0f,3.0f))*glm::mat4(1.0f));
     for (int i = 0; i < 10; i += 2) {
       glDrawArrays(GL_LINES, i, 2);
       glDrawArrays(GL_LINES, i + 2, 2);
