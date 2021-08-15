@@ -42,7 +42,7 @@ glm::mat4 Cube::getModelMatrix() {
   return parentModelMatrix * modelMatrix;
 }
 
-void Cube::draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn) {
+void Cube::draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn, bool useSample3D) {
   if (vao == 0) {
     unsigned int vbo;
     glGenVertexArrays(1, &vao);
@@ -76,16 +76,18 @@ void Cube::draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn) {
   shader.use();
   shader.setMat4("model", getModelMatrix());
   if (shaderHasMaterial) {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuse);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, material.specular);
-    shader.setInt("material.diffuse", 0);
-    shader.setInt("material.specular", 1);
-    shader.setFloat("material.shininess", material.shininess);
-    shader.setVec3("material.ambient", material.ambient);
-    //glow effect: can be placed in any cube draw process
-    shader.setBool("shouldGlow", isGlowingOn);
+    if(!useSample3D){
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, material.diffuse);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, material.specular);
+      shader.setInt("material.diffuse", 0);
+      shader.setInt("material.specular", 1);
+      shader.setFloat("material.shininess", material.shininess);
+      shader.setVec3("material.ambient", material.ambient);
+      //glow effect: can be placed in any cube draw process
+      shader.setBool("shouldGlow", isGlowingOn);
+    }
   }
   glDrawArrays(GL_TRIANGLES, 0, 36);
 }

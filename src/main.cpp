@@ -47,6 +47,8 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
 
 static unsigned int loadTexture(const char *path);
 
+static unsigned int loadCubeMap(std::vector<std::string> faces);
+
 static void processInput();
 
 static void renderScene(Shader &shader);
@@ -202,6 +204,7 @@ int main(int argc, char *argv[]) {
       glm::vec3(35.0f, 5.0f, -130.0f)
   };
 
+
   glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
   std::vector<glm::vec3>  charT = bitToLetter(gauT);
   std::vector<glm::vec3>  charE = bitToLetter(gauE);
@@ -226,6 +229,8 @@ int main(int argc, char *argv[]) {
                     "res/shader/LineFragment.shader");
   Shader depthMappingShader("res/shader/DepthMappingVertex.shader",
                             "res/shader/DepthMappingFragment.shader");
+  Shader skyBoxShader("res/shader/SkyBoxVertex.shader",
+                      "res/shader/SkyBoxFragment.shader");
 
   // create and bind depth FBO
   // -----------------------------------------------
@@ -271,6 +276,18 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(1);
 
   // configure materials
+  std::vector<std::string> faces
+      {
+          "res/texture/cubeMapTexture/right.png",
+          "res/texture/cubeMapTexture/left.png",
+          "res/texture/cubeMapTexture/top.png",
+          "res/texture/cubeMapTexture/bottom.png",
+          "res/texture/cubeMapTexture/front.png",
+          "res/texture/cubeMapTexture/back.png"
+      };
+
+  unsigned int cubeMapTexture = loadCubeMap(faces);
+
   Material metal(loadTexture("res/texture/metal.png"),
                  loadTexture("res/texture/metal_specular.png"),
                  glm::vec3(0.2f, 0.2f, 0.2f),
@@ -364,7 +381,7 @@ int main(int argc, char *argv[]) {
   worldBoxBack.setQuaternion(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
   worldBoxBack.setScale(glm::vec3(100.0f));
 
-  Cube UniverseBox(Universe2);
+  Cube UniverseBox(Universe2, unitCubeVertices);
   UniverseBox.setScale(glm::vec3(320.0f));
 
 
@@ -377,13 +394,6 @@ int main(int argc, char *argv[]) {
 
   unsigned int emissionMap;
   emissionMap = loadTexture("res/texture/Emission.png");
-
-  //Anisotropic texture filtering
-  //get the maximum Anisotropic filtering level your PC supports.
-  GLfloat fLargest;
-  glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
-  // turn on "AF"
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
 
   //Cull_Face
   glEnable(GL_CULL_FACE);
@@ -423,7 +433,7 @@ int main(int argc, char *argv[]) {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
     glClear(GL_DEPTH_BUFFER_BIT);
-
+    glCullFace(GL_FRONT);
     // draw objects
     board.draw(depthMappingShader, false);
     for (int i = 0; i < 4; i++) {
@@ -432,7 +442,7 @@ int main(int argc, char *argv[]) {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-//    glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
     // reset viewport
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
     glViewport(0, 0, scrWidth, scrHeight);
@@ -508,13 +518,6 @@ int main(int argc, char *argv[]) {
     worldBoxBack.draw(cubeShader, true);
     cubeShader.setBool("isFlowing", false);
 
-    //Universe box
-    glCullFace(GL_FRONT);
-    cubeShader.setBool("isLightBox", true);
-    UniverseBox.draw(cubeShader, true);
-    cubeShader.setBool("isLightBox", false);
-    glCullFace(GL_BACK);
-
     // draw a light box to indicate light position
     cubeShader.setBool("isLightBox", true);
     //point light box
@@ -534,8 +537,8 @@ int main(int argc, char *argv[]) {
     cubeShader.setInt("material.specular", 1);
     cubeShader.setFloat("material.shininess", metal.shininess);
     cubeShader.setVec3("material.ambient", metal.ambient);
-
-
+//
+//
     for (size_t i= 0; i < flyingModels.size(); i++) {
       setIncrementZ((int)i,relativeCharPosition[i].z);
       glm::vec3 nextPosition = glm::vec3(relativeCharPosition[i].x,relativeCharPosition[i].y+2*cos(4 * currentFrame),relativeCharPosition[i].z+zIncrement[i]);
@@ -572,7 +575,23 @@ int main(int argc, char *argv[]) {
     cubeShader.setMat4("model", objModelMatrix);
     glDrawElements(GL_TRIANGLES, objVertexCount, GL_UNSIGNED_INT, nullptr);
 
-    checkError();
+    //Universe box
+    skyBoxShader.use();
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
+    skyBoxShader.setMat4("view", view);
+    skyBoxShader.setMat4("projection", projection);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+    skyBoxShader.setInt("skybox", 0);
+    glCullFace(GL_FRONT);
+    UniverseBox.draw(skyBoxShader, true, false,true);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    glCullFace(GL_BACK);
+
+
+//    checkError();
     // End frame
     glfwSwapBuffers(window);
     // Detect inputs
@@ -605,6 +624,48 @@ static void checkError() {
   }
 }
 
+static unsigned int loadCubeMap(std::vector<std::string> faces) {
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+  int width, height, nrChannels;
+  for (unsigned int i = 0; i < faces.size(); i++) {
+    unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+    if (data) {
+     GLenum format = GL_RGB;
+     if (nrChannels == 1)
+       format = GL_RED;
+     else if (nrChannels == 3)
+       format = GL_RGB;
+     else if (nrChannels == 4)
+       format = GL_RGBA;
+     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                  0, (int)format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+      stbi_image_free(data);
+    }
+    else {
+      std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+      stbi_image_free(data);
+    }
+  }
+    //Anisotropic texture filtering
+    //get the maximum Anisotropic filtering level your PC supports.
+    GLfloat fLargest;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
+    // turn on "AF"
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
+   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+   return textureID;
+  }
+
+
 static unsigned int loadTexture(const char *path) {
   unsigned int textureID;
   glGenTextures(1, &textureID);
@@ -622,13 +683,18 @@ static unsigned int loadTexture(const char *path) {
 
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, (int) format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
 
+    //Anisotropic texture filtering
+    //get the maximum Anisotropic filtering level your PC supports.
+    GLfloat fLargest;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
+    // turn on "AF"
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+    glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
   } else {
     std::cout << "Texture failed to load at path: " << path << std::endl;
