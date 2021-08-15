@@ -465,26 +465,26 @@ int main(int argc, char *argv[]) {
 
     //draw board core
     glCullFace(GL_FRONT);
-    cubeShader.setBool("isFlow", true);
+    cubeShader.setBool("isFlowing", true);
     cubeShader.setBool("isLightBox", true);
     boardCore.draw(cubeShader, true);
     cubeShader.setBool("isLightBox", false);
-    cubeShader.setBool("isFlow", false);
+    cubeShader.setBool("isFlowing", false);
     glCullFace(GL_BACK);
 
     //draw ground
-    cubeShader.setBool("isFlow", true);
+    cubeShader.setBool("isFlowing", true);
     for (int i = 0; i < 4; i++) {
       worldBox[i]->draw(cubeShader, true);
     }
     worldBoxBack.draw(cubeShader, true);
-    cubeShader.setBool("isFlow", false);
+    cubeShader.setBool("isFlowing", false);
 
     //Eye box
     glCullFace(GL_FRONT);
-    cubeShader.setBool("isFlow", true);
+    cubeShader.setBool("isFlowing", true);
     UniverseBox.draw(cubeShader, true);
-    cubeShader.setBool("isFlow", false);
+    cubeShader.setBool("isFlowing", false);
     glCullFace(GL_BACK);
 
     // draw a light box to indicate light position
