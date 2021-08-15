@@ -425,7 +425,7 @@ int main(int argc, char *argv[]) {
 
   // import 3d model
   int objVertexCount;
-  GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertexCount);
+  GLuint objVAO = setupModelEBO("res/object/Tcat.obj", objVertexCount);
 
   // create puzzles
   std::vector<Puzzle *> puzzles;
@@ -670,7 +670,7 @@ int main(int argc, char *argv[]) {
                                     glm::vec3(-22,
                                               18.0f + 2 * cos(4 * currentFrame),
                                               -90.0f + zIncrement[6]));
-    objModelMatrix =glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
+    objModelMatrix =glm::scale(objModelMatrix, (glm::vec3(0.05), glm::vec3(0.05), glm::vec3(0.05)));
     objModelMatrix =
         glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
     objModelMatrix =
