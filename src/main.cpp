@@ -30,13 +30,17 @@
 #include "Board.h"
 
 #include <irrklang/irrKlang.h> // for audio
+#if __APPLE__
+#include <unistd.h>
+#define Sleep(X) usleep(X * 1000)
+#else
 #include <Windows.h>
+#endif
 using namespace irrklang;
 
-ISoundEngine* SoundEngineBackground = createIrrKlangDevice();
-ISoundEngine* SoundEngineKey = createIrrKlangDevice();
-ISoundEngine* SoundEngineFace = createIrrKlangDevice();
-
+ISoundEngine *SoundEngineBackground = createIrrKlangDevice();
+ISoundEngine *SoundEngineKey = createIrrKlangDevice();
+ISoundEngine *SoundEngineFace = createIrrKlangDevice();
 
 #pragma region Declare static functions
 
@@ -125,10 +129,9 @@ int main(int argc, char *argv[]) {
   }
 
   FT_Face face;
-  if (FT_New_Face(ft, "res/font/CHELON.ttf", 0, &face))
-  {
-      std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-      return -1;
+  if (FT_New_Face(ft, "res/font/CHELON.ttf", 0, &face)) {
+    std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+    return -1;
   }
 
   irrklang::ISoundEngine *engine = irrklang::createIrrKlangDevice();
@@ -427,9 +430,9 @@ int main(int argc, char *argv[]) {
                     128.0f);
 
   Material Universe2(loadTexture("res/texture/Universe2.jpg"),
-                    loadTexture("res/texture/Universe2.jpg"),
-                    glm::vec3(1.0f, 1.0f, 1.0f),
-                    128.0f);
+                     loadTexture("res/texture/Universe2.jpg"),
+                     glm::vec3(1.0f, 1.0f, 1.0f),
+                     128.0f);
 
   std::vector<Material *> numberMaterials;
   numberMaterials.reserve(8);
@@ -491,7 +494,6 @@ int main(int argc, char *argv[]) {
 
   Cube UniverseBox(Universe2, unitCubeVertices);
   UniverseBox.setScale(glm::vec3(320.0f));
-
 
   Cube pointLightCube(lightBoxMaterial);
   pointLightCube.setPosition(pointLight.position);
