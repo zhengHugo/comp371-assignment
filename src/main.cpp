@@ -577,7 +577,10 @@ int main(int argc, char *argv[]) {
 
     //Universe box
     skyBoxShader.use();
+    // if incoming pixel depth is less or equals to value in depth buffer; pass the test;
+    // note, the vertex shader of skyBoxShader has already passed w=1, therefore, it will always pass;
     glDepthFunc(GL_LEQUAL);
+    // make depth value cannot be written to depth buffer;
     glDepthMask(GL_FALSE);
     skyBoxShader.setMat4("view", view);
     skyBoxShader.setMat4("projection", projection);
