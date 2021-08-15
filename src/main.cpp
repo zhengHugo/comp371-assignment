@@ -88,7 +88,7 @@ Board *pBoard;
 bool isGlowingOn = false;
 bool isTextureOn = true;
 bool isShadowOn = true;
-float zIncrement[7] = {0, 0, 0, 0, 0, 0, 0};
+float zIncrement[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // window width & height
 int scrWidth = 1024;
