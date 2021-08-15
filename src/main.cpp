@@ -51,6 +51,10 @@ static void processInput();
 
 static void renderScene(Shader &shader);
 
+std::vector<glm::vec3> bitToLetter(std::vector<int> &letter);
+
+static void setIncrementZ(int i, float startPositionZ);
+
 //Sets up a model using an Element Buffer Object to refer to vertex data
 GLuint setupModelEBO(std::string path, int &vertexCount);
 
@@ -69,7 +73,7 @@ Board *pBoard;
 bool isGlowingOn = false;
 bool isTextureOn = true;
 bool isShadowOn = true;
-float zIncrement = 0;
+float zIncrement[7] = {0,0,0,0,0,0,0};
 
 // window width & height
 int scrWidth = 1024;
@@ -188,6 +192,31 @@ int main(int argc, char *argv[]) {
       glm::vec3(0.6f, 0.55f, 0.40f) * 50.0f
   );
 
+  std::vector<glm::vec3> relativeCharPosition = {
+      //Head
+      glm::vec3(-35.0f, 10.0f, -120.0f),
+      glm::vec3(-25.0f, 22.0f, -80.0f),
+      glm::vec3(-10.0f, 23.0f, -60.0f),
+      glm::vec3(10.0f, 25.0f, -70.0f),
+      glm::vec3(25.0f, 15.0f, -110.0f),
+      glm::vec3(35.0f, 5.0f, -130.0f)
+  };
+
+  glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
+  std::vector<glm::vec3>  charT = bitToLetter(gauT);
+  std::vector<glm::vec3>  charE = bitToLetter(gauE);
+  std::vector<glm::vec3>  charA = bitToLetter(gauA);
+  std::vector<glm::vec3>  charM = bitToLetter(gauM);
+  std::vector<glm::vec3>  char1 = bitToLetter(gau1);
+  std::vector<glm::vec3>  char2 = bitToLetter(gau2);
+  std::vector<Model *> flyingModels;
+  flyingModels.reserve(6);
+  flyingModels.push_back(new Model(relativeCharPosition[0], charT));
+  flyingModels.push_back(new Model(relativeCharPosition[1], charE));
+  flyingModels.push_back(new Model(relativeCharPosition[2], charA));
+  flyingModels.push_back(new Model(relativeCharPosition[3], charM));
+  flyingModels.push_back(new Model(relativeCharPosition[4], char1));
+  flyingModels.push_back(new Model(relativeCharPosition[5], char2));
 
   // build and compile shader
   // -----------------------------------------------------
@@ -291,7 +320,7 @@ int main(int argc, char *argv[]) {
 
   // import 3d model
   int objVertexCount;
-  GLuint objVAO = setupModelEBO("res/object/cube.obj", objVertexCount);
+  GLuint objVAO = setupModelEBO("res/object/heracles.obj", objVertexCount);
 
   // create puzzles
   std::vector<Puzzle *> puzzles;
@@ -479,11 +508,11 @@ int main(int argc, char *argv[]) {
     worldBoxBack.draw(cubeShader, true);
     cubeShader.setBool("isFlowing", false);
 
-    //Eye box
+    //Universe box
     glCullFace(GL_FRONT);
-    cubeShader.setBool("isFlowing", true);
+    cubeShader.setBool("isLightBox", true);
     UniverseBox.draw(cubeShader, true);
-    cubeShader.setBool("isFlowing", false);
+    cubeShader.setBool("isLightBox", false);
     glCullFace(GL_BACK);
 
     // draw a light box to indicate light position
@@ -497,10 +526,6 @@ int main(int argc, char *argv[]) {
     cubeShader.setBool("isLightBox", false);
     // end of light box
 
-
-//     draw obj model
-    clearError();
-    glBindVertexArray(objVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, metal.diffuse);
     glActiveTexture(GL_TEXTURE1);
@@ -509,30 +534,41 @@ int main(int argc, char *argv[]) {
     cubeShader.setInt("material.specular", 1);
     cubeShader.setFloat("material.shininess", metal.shininess);
     cubeShader.setVec3("material.ambient", metal.ambient);
+
+
+    for (size_t i= 0; i < flyingModels.size(); i++) {
+      setIncrementZ((int)i,relativeCharPosition[i].z);
+      glm::vec3 nextPosition = glm::vec3(relativeCharPosition[i].x,relativeCharPosition[i].y+2*cos(4 * currentFrame),relativeCharPosition[i].z+zIncrement[i]);
+      flyingModels[i]->setBasePosition(nextPosition);
+      flyingModels[i]->rotate(3.0f,glm::vec3(0.0f, 0.0f, 1.0f), (float)glm::pow(-1,i)*deltaTime);
+      flyingModels[i]->rotate(1.5f,glm::vec3(1.0f, 0.0f, 0.0f), (float)glm::pow(-1,i)*deltaTime);
+      for (size_t j = 0; j < flyingModels[i]->size(); j++) {
+        glm::mat4 cubeModelMatrix = flyingModels[i]->getModelMatrix(j);
+        cubeShader.setMat4("model", cubeModelMatrix);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      }
+    }
+
+
+//     draw obj model
+    clearError();
+    glBindVertexArray(objVAO);
 //     set model matrix for obj
     glm::mat4 objModelMatrix(1.0f);
     float objAngle = -90.0f;
-//    objmodel = glm::translate(objmodel, glm::vec3((-22*cos(0.5*currentFrame)), 18.0f+2*cos(4*currentFrame), -45.0f));
-//    objmodel = glm::scale(objmodel, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
-//    objmodel = glm::rotate(objmodel, glm::radians(objangle), glm::vec3(1.0f, 0.0f, 0.0f));
-//    objmodel = glm::rotate(objmodel, 3*(float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-//    objmodel = glm::rotate(objmodel, 1.5f*(float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
-    zIncrement += 10.0f * deltaTime;
-    if (zIncrement > 90) {
-      zIncrement = 0;
-    }
+    setIncrementZ(6, -90.0f);
     objModelMatrix = glm::translate(objModelMatrix,
                                     glm::vec3(-22,
                                               18.0f + 2 * cos(4 * currentFrame),
-                                              -90.0f + zIncrement));
-    objModelMatrix =
-        glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
+                                              -90.0f + zIncrement[6]));
+    objModelMatrix =glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
     objModelMatrix =
         glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
     objModelMatrix =
-        glm::rotate(objModelMatrix, 3 * (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::rotate(objModelMatrix, 3 * currentFrame, glm::vec3(0.0f, 0.0f, 1.0f));
     objModelMatrix =
-        glm::rotate(objModelMatrix, 1.5f * (float) glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::rotate(objModelMatrix, 1.5f * currentFrame, glm::vec3(1.0f, 0.0f, 0.0f));
+
     cubeShader.setMat4("model", objModelMatrix);
     glDrawElements(GL_TRIANGLES, objVertexCount, GL_UNSIGNED_INT, nullptr);
 
@@ -541,7 +577,6 @@ int main(int argc, char *argv[]) {
     glfwSwapBuffers(window);
     // Detect inputs
     glfwPollEvents();
-
   }
 
   // deallocate resources
@@ -601,6 +636,29 @@ static unsigned int loadTexture(const char *path) {
   }
 
   return textureID;
+}
+
+// designed for word modeling
+std::vector<glm::vec3> bitToLetter(std::vector<int> &letter){
+  std::vector<glm::vec3> ans;
+  int width = 5, height = 7;
+
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
+      if (letter[i] & (1 << (width - j - 1))){
+        ans.emplace_back(j, height-i-1, 0);
+      }
+    }
+  }
+  return ans;
+}
+
+//while zIncrement of an object is large enough to offset it's z position, reset to 0;
+static void setIncrementZ(int i, float startPositionZ){
+  zIncrement[i] += 10.0f * deltaTime;
+  if (zIncrement[i] > -startPositionZ) {
+    zIncrement[i] = 0;
+  }
 }
 
 static void processInput(GLFWwindow *window) {
