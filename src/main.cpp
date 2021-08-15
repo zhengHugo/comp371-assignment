@@ -29,6 +29,19 @@
 #include "OBJloaderV2.h"  //For loading .obj files using a polygon list format
 #include "Board.h"
 
+#include <irrklang/irrKlang.h> // for audio
+#if __APPLE__
+#include <unistd.h>
+#define Sleep(X) usleep(X * 1000)
+#else
+#include <Windows.h>
+#endif
+using namespace irrklang;
+
+ISoundEngine *SoundEngineBackground = createIrrKlangDevice();
+ISoundEngine *SoundEngineKey = createIrrKlangDevice();
+ISoundEngine *SoundEngineFace = createIrrKlangDevice();
+
 #pragma region Declare static functions
 
 static void clearError();
@@ -75,7 +88,7 @@ Board *pBoard;
 bool isGlowingOn = false;
 bool isTextureOn = true;
 bool isShadowOn = true;
-float zIncrement[7] = {0,0,0,0,0,0,0};
+float zIncrement[7] = {0, 0, 0, 0, 0, 0, 0};
 
 // window width & height
 int scrWidth = 1024;
@@ -97,23 +110,17 @@ float lastFrame; // Time of last frame
 #include <string>
 #include <glm/gtc/type_ptr.hpp>
 unsigned int VAO, VBO;
-void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
+void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 /// Holds all state information relevant to a character as loaded using FreeType
 struct Character {
-    unsigned int TextureID; // ID handle of the glyph texture
-    glm::ivec2   Size;      // Size of glyph
-    glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
-    unsigned int Advance;   // Horizontal offset to advance to next glyph
+  unsigned int TextureID; // ID handle of the glyph texture
+  glm::ivec2 Size;      // Size of glyph
+  glm::ivec2 Bearing;   // Offset from baseline to left/top of glyph
+  unsigned int Advance;   // Horizontal offset to advance to next glyph
 };
 std::map<GLchar, Character> Characters;
 
 int main(int argc, char *argv[]) {
-
-  FT_Library ft;
-  if (FT_Init_FreeType(&ft)) {
-    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-    return -1;
-  }
 
   irrklang::ISoundEngine *engine = irrklang::createIrrKlangDevice();
 
@@ -150,6 +157,10 @@ int main(int argc, char *argv[]) {
     glfwTerminate();
     return -1;
   }
+
+  SoundEngineBackground->play2D("res/audio/Minecraft_bgm.mp3", true);
+  //SoundEngineBackground->setSoundVolume(1);
+
   glfwMakeContextCurrent(window);
 
   // bind input callbacks
@@ -219,14 +230,13 @@ int main(int argc, char *argv[]) {
       glm::vec3(35.0f, 5.0f, -130.0f)
   };
 
-
   glm::vec3 baseCubePosition(0.0f, 0.0f, 0.0f);
-  std::vector<glm::vec3>  charT = bitToLetter(gauT);
-  std::vector<glm::vec3>  charE = bitToLetter(gauE);
-  std::vector<glm::vec3>  charA = bitToLetter(gauA);
-  std::vector<glm::vec3>  charM = bitToLetter(gauM);
-  std::vector<glm::vec3>  char1 = bitToLetter(gau1);
-  std::vector<glm::vec3>  char2 = bitToLetter(gau2);
+  std::vector<glm::vec3> charT = bitToLetter(gauT);
+  std::vector<glm::vec3> charE = bitToLetter(gauE);
+  std::vector<glm::vec3> charA = bitToLetter(gauA);
+  std::vector<glm::vec3> charM = bitToLetter(gauM);
+  std::vector<glm::vec3> char1 = bitToLetter(gau1);
+  std::vector<glm::vec3> char2 = bitToLetter(gau2);
   std::vector<Model *> flyingModels;
   flyingModels.reserve(6);
   flyingModels.push_back(new Model(relativeCharPosition[0], charT));
@@ -250,70 +260,77 @@ int main(int argc, char *argv[]) {
 
   // text rendering shader
   Shader textShader("res/shader/textVertex.shader", "res/shader/textFragment.shader");
-  glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(scrWidth), 0.0f, static_cast<float>(scrHeight));
+  glm::mat4 projection =
+      glm::ortho(0.0f, static_cast<float>(scrWidth), 0.0f, static_cast<float>(scrHeight));
   textShader.use();
-  glUniformMatrix4fv(glGetUniformLocation(textShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+  glUniformMatrix4fv(glGetUniformLocation(textShader.id, "projection"),
+                     1,
+                     GL_FALSE,
+                     glm::value_ptr(projection));
 
   // find path to font
   // website for free fonts:  https://www.websiteplanet.com/blog/best-free-fonts/
   std::string font_name = "res/font/BitterProSemiBoldItalic.ttf";
-  if (font_name.empty())
-  {
-      std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
-      return -1;
+  if (font_name.empty()) {
+    std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
+    return -1;
   }
+
+  FT_Library ft;
+  if (FT_Init_FreeType(&ft)) {
+    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+    return -1;
+  }
+
   // load font as face
   FT_Face face;
   if (FT_New_Face(ft, font_name.c_str(), 0, &face)) {
-      std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-      return -1;
-  }
-  else {
-      // set size to load glyphs as
-      FT_Set_Pixel_Sizes(face, 0, 48);
+    std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+    return -1;
+  } else {
+    // set size to load glyphs as
+    FT_Set_Pixel_Sizes(face, 0, 48);
 
-      // disable byte-alignment restriction
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // disable byte-alignment restriction
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-      // load first 128 characters of ASCII set
-      for (unsigned char c = 0; c < 128; c++)
-      {
-          // Load character glyph 
-          if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-          {
-              std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-              continue;
-          }
-          // generate texture
-          unsigned int texture;
-          glGenTextures(1, &texture);
-          glBindTexture(GL_TEXTURE_2D, texture);
-          glTexImage2D(
-              GL_TEXTURE_2D,
-              0,
-              GL_RED,
-              face->glyph->bitmap.width,
-              face->glyph->bitmap.rows,
-              0,
-              GL_RED,
-              GL_UNSIGNED_BYTE,
-              face->glyph->bitmap.buffer
-          );
-          // set texture options
-          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-          // now store character for later use
-          Character character = {
-              texture,
-              glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-              glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-              static_cast<unsigned int>(face->glyph->advance.x)
-          };
-          Characters.insert(std::pair<char, Character>(c, character));
+    // load first 128 characters of ASCII set
+    for (unsigned char c = 0; c < 128; c++) {
+      // Load character glyph
+      if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+        std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+        continue;
       }
-      glBindTexture(GL_TEXTURE_2D, 0);
+      // generate texture
+      unsigned int texture;
+      glGenTextures(1, &texture);
+      glBindTexture(GL_TEXTURE_2D, texture);
+      glTexImage2D(
+          GL_TEXTURE_2D,
+          0,
+          GL_RED,
+          face->glyph->bitmap.width,
+          face->glyph->bitmap.rows,
+          0,
+          GL_RED,
+          GL_UNSIGNED_BYTE,
+          face->glyph->bitmap.buffer
+      );
+      // set texture options
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      // now store character for later use
+      Character character = {
+          texture,
+          glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+          glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+          static_cast<unsigned int>(face->glyph->advance.x)
+      };
+      Characters.insert(std::pair<char, Character>(c, character));
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
   }
   // destroy FreeType once we're finished
   FT_Done_Face(face);
@@ -407,9 +424,9 @@ int main(int argc, char *argv[]) {
                     128.0f);
 
   Material Universe2(loadTexture("res/texture/Universe2.jpg"),
-                    loadTexture("res/texture/Universe2.jpg"),
-                    glm::vec3(1.0f, 1.0f, 1.0f),
-                    128.0f);
+                     loadTexture("res/texture/Universe2.jpg"),
+                     glm::vec3(1.0f, 1.0f, 1.0f),
+                     128.0f);
 
   std::vector<Material *> numberMaterials;
   numberMaterials.reserve(8);
@@ -472,7 +489,6 @@ int main(int argc, char *argv[]) {
   Cube UniverseBox(Universe2, unitCubeVertices);
   UniverseBox.setScale(glm::vec3(320.0f));
 
-
   Cube pointLightCube(lightBoxMaterial);
   pointLightCube.setPosition(pointLight.position);
   Cube directionalLightCube(lightBoxMaterial);
@@ -505,6 +521,7 @@ int main(int argc, char *argv[]) {
   // Main Loop
   // ----------------------------------
   while (!glfwWindowShouldClose(window)) {
+    clearError();
     // update time
     auto currentFrame = (float) glfwGetTime();
     float timeValueForColor = sin(currentFrame) / 2.0f + 0.5f;
@@ -605,7 +622,12 @@ int main(int argc, char *argv[]) {
     board.draw(cubeShader, true);
 
     // render text
-    RenderText(textShader, "Hi there!COMP371 Team!", 430.0f, 700.0f, 1.0f, glm::vec3(1.0, 1.0f, 1.0f));
+    RenderText(textShader,
+               "Hi there!COMP371 Team!",
+               430.0f,
+               700.0f,
+               1.0f,
+               glm::vec3(1.0, 1.0f, 1.0f));
 
     //draw board core
     glCullFace(GL_FRONT);
@@ -645,12 +667,18 @@ int main(int argc, char *argv[]) {
     cubeShader.setVec3("material.ambient", metal.ambient);
 //
 //
-    for (size_t i= 0; i < flyingModels.size(); i++) {
-      setIncrementZ((int)i,relativeCharPosition[i].z);
-      glm::vec3 nextPosition = glm::vec3(relativeCharPosition[i].x,relativeCharPosition[i].y+2*cos(4 * currentFrame),relativeCharPosition[i].z+zIncrement[i]);
+    for (size_t i = 0; i < flyingModels.size(); i++) {
+      setIncrementZ((int) i, relativeCharPosition[i].z);
+      glm::vec3 nextPosition = glm::vec3(relativeCharPosition[i].x,
+                                         relativeCharPosition[i].y + 2 * cos(4 * currentFrame),
+                                         relativeCharPosition[i].z + zIncrement[i]);
       flyingModels[i]->setBasePosition(nextPosition);
-      flyingModels[i]->rotate(3.0f,glm::vec3(0.0f, 0.0f, 1.0f), (float)glm::pow(-1,i)*deltaTime);
-      flyingModels[i]->rotate(1.5f,glm::vec3(1.0f, 0.0f, 0.0f), (float)glm::pow(-1,i)*deltaTime);
+      flyingModels[i]->rotate(3.0f,
+                              glm::vec3(0.0f, 0.0f, 1.0f),
+                              (float) glm::pow(-1, i) * deltaTime);
+      flyingModels[i]->rotate(1.5f,
+                              glm::vec3(1.0f, 0.0f, 0.0f),
+                              (float) glm::pow(-1, i) * deltaTime);
       for (size_t j = 0; j < flyingModels[i]->size(); j++) {
         glm::mat4 cubeModelMatrix = flyingModels[i]->getModelMatrix(j);
         cubeShader.setMat4("model", cubeModelMatrix);
@@ -670,7 +698,8 @@ int main(int argc, char *argv[]) {
                                     glm::vec3(-22,
                                               18.0f + 2 * cos(4 * currentFrame),
                                               -90.0f + zIncrement[6]));
-    objModelMatrix =glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
+    objModelMatrix =
+        glm::scale(objModelMatrix, (glm::vec3(0.15), glm::vec3(0.15), glm::vec3(0.15)));
     objModelMatrix =
         glm::rotate(objModelMatrix, glm::radians(objAngle), glm::vec3(1.0f, 0.0f, 0.0f));
     objModelMatrix =
@@ -694,17 +723,17 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
     skyBoxShader.setInt("skybox", 0);
     glCullFace(GL_FRONT);
-    UniverseBox.draw(skyBoxShader, true, false,true);
+    UniverseBox.draw(skyBoxShader, true, false, true);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
 
-
-//    checkError();
+    checkError();
     // End frame
     glfwSwapBuffers(window);
     // Detect inputs
     glfwPollEvents();
+
   }
 
   // deallocate resources
@@ -742,38 +771,36 @@ static unsigned int loadCubeMap(std::vector<std::string> faces) {
   for (unsigned int i = 0; i < faces.size(); i++) {
     unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
     if (data) {
-     GLenum format = GL_RGB;
-     if (nrChannels == 1)
-       format = GL_RED;
-     else if (nrChannels == 3)
-       format = GL_RGB;
-     else if (nrChannels == 4)
-       format = GL_RGBA;
-     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                  0, (int)format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+      GLenum format = GL_RGB;
+      if (nrChannels == 1)
+        format = GL_RED;
+      else if (nrChannels == 3)
+        format = GL_RGB;
+      else if (nrChannels == 4)
+        format = GL_RGBA;
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                   0, (int) format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
       stbi_image_free(data);
-    }
-    else {
+    } else {
       std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
       stbi_image_free(data);
     }
   }
-    //Anisotropic texture filtering
-    //get the maximum Anisotropic filtering level your PC supports.
-    GLfloat fLargest;
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
-    // turn on "AF"
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  //Anisotropic texture filtering
+  //get the maximum Anisotropic filtering level your PC supports.
+  GLfloat fLargest;
+  glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
+  // turn on "AF"
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-   return textureID;
-  }
-
+  return textureID;
+}
 
 static unsigned int loadTexture(const char *path) {
   unsigned int textureID;
@@ -814,14 +841,14 @@ static unsigned int loadTexture(const char *path) {
 }
 
 // designed for word modeling
-std::vector<glm::vec3> bitToLetter(std::vector<int> &letter){
+std::vector<glm::vec3> bitToLetter(std::vector<int> &letter) {
   std::vector<glm::vec3> ans;
   int width = 5, height = 7;
 
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
-      if (letter[i] & (1 << (width - j - 1))){
-        ans.emplace_back(j, height-i-1, 0);
+      if (letter[i] & (1 << (width - j - 1))) {
+        ans.emplace_back(j, height - i - 1, 0);
       }
     }
   }
@@ -829,7 +856,7 @@ std::vector<glm::vec3> bitToLetter(std::vector<int> &letter){
 }
 
 //while zIncrement of an object is large enough to offset it's z position, reset to 0;
-static void setIncrementZ(int i, float startPositionZ){
+static void setIncrementZ(int i, float startPositionZ) {
   zIncrement[i] += 10.0f * deltaTime;
   if (zIncrement[i] > -startPositionZ) {
     zIncrement[i] = 0;
@@ -1022,47 +1049,77 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
 
   // wasd: puzzle movement
-  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_W && action == GLFW_RELEASE) {
     currentPuzzle->move(Movement::UP);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_A && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::LEFT);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_S && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::DOWN);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::RIGHT);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
 
   // 1-6: switch puzzles
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[0];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[1];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[2];
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[3];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(180.0f), 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[4];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(90.0f), 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_6 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[5];
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
 }
@@ -1130,50 +1187,51 @@ GLuint setupModelEBO(std::string path, int &vertexCount) {
 
 #pragma endregion // Window callback functions
 
-
 // render line of text
-void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color)
-{
-    // activate corresponding render state	
-    shader.use();
-    glUniform3f(glGetUniformLocation(shader.id, "textColor"), color.x, color.y, color.z);
-    shader.setInt("text", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO);
+void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color) {
+  // activate corresponding render state
+  shader.use();
+  glUniform3f(glGetUniformLocation(shader.id, "textColor"), color.x, color.y, color.z);
+  shader.setInt("text", 0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindVertexArray(VAO);
 
-    // iterate through all characters
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++)
-    {
-        Character ch = Characters[*c];
+  // iterate through all characters
+  std::string::const_iterator c;
+  for (c = text.begin(); c != text.end(); c++) {
+    Character ch = Characters[*c];
 
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+    float xpos = x + ch.Bearing.x * scale;
+    float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
-        // update VBO for each character
-        float vertices[6][4] = {
-            { xpos,     ypos + h,   0.0f, 0.0f },
-            { xpos,     ypos,       0.0f, 1.0f },
-            { xpos + w, ypos,       1.0f, 1.0f },
+    float w = ch.Size.x * scale;
+    float h = ch.Size.y * scale;
+    // update VBO for each character
+    float vertices[6][4] = {
+        {xpos, ypos + h, 0.0f, 0.0f},
+        {xpos, ypos, 0.0f, 1.0f},
+        {xpos + w, ypos, 1.0f, 1.0f},
 
-            { xpos,     ypos + h,   0.0f, 0.0f },
-            { xpos + w, ypos,       1.0f, 1.0f },
-            { xpos + w, ypos + h,   1.0f, 0.0f }
-        };
-        // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-        // update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+        {xpos, ypos + h, 0.0f, 0.0f},
+        {xpos + w, ypos, 1.0f, 1.0f},
+        {xpos + w, ypos + h, 1.0f, 0.0f}
+    };
+    // render glyph texture over quad
+    glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+    // update content of VBO memory
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    0,
+                    sizeof(vertices),
+                    vertices); // be sure to use glBufferSubData and not glBufferData
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // render quad
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+    x += (ch.Advance >> 6)
+        * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+  }
+  glBindVertexArray(0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
