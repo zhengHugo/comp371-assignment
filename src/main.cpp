@@ -598,14 +598,6 @@ int main(int argc, char *argv[]) {
     //draw board
     board.draw(cubeShader, true);
 
-    // render text
-    RenderText(textShader,
-               "Hi there!COMP371 Team!",
-               430.0f,
-               700.0f,
-               1.0f,
-               glm::vec3(1.0, 1.0f, 1.0f));
-
     //draw board core
     glCullFace(GL_FRONT);
     cubeShader.setBool("isFlowing", true);
@@ -706,6 +698,10 @@ int main(int argc, char *argv[]) {
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
 
+    // render text
+    RenderText(textShader, "Hi there!COMP371 Team!", 430.0f, 700.0f, 1.0f, glm::vec3(1.0, 1.0f, 1.0f));
+
+//    checkError();
     checkError();
     // End frame
     glfwSwapBuffers(window);
