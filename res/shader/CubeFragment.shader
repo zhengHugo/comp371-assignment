@@ -46,7 +46,7 @@ uniform DirectionalLight directionalLight;
 uniform vec3 ambientColor;
 uniform vec3 cameraPos;
 uniform bool isLightBox = false;
-uniform bool isFlow = false;
+uniform bool isFlowing = false;
 uniform bool isGlowingOn = false;
 uniform bool isTextureOn = true;
 uniform bool isShadowOn = true;
@@ -79,7 +79,7 @@ vec3 hsv2rgb(vec3 c) {
 vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float shadow) {
     vec3 diffuseTexture, specularTexture;
     if (isTextureOn){
-        if(isFlow){
+        if(isFlowing){
             diffuseTexture = texture(material.diffuse, vec2(TexCoord.x,TexCoord.y+timeValueIncrement)).rgb;
             specularTexture = texture(material.specular, vec2(TexCoord.x,TexCoord.y+timeValueIncrement)).rgb;
         }else{
@@ -116,7 +116,7 @@ vec3 getPointLightEffect(PointLight light, vec3 normal, vec3 dirToCamara, float 
 vec3 getLightDirectionEffect(DirectionalLight light, vec3 normal, vec3 dirToCamara, float shadow) {
     vec3 diffuseTexture, specularTexture;
     if (isTextureOn){
-        if(isFlow){
+        if(isFlowing){
             diffuseTexture = texture(material.diffuse, vec2(TexCoord.x,TexCoord.y+timeValueIncrement)).rgb;
             specularTexture = texture(material.specular, vec2(TexCoord.x,TexCoord.y+timeValueIncrement)).rgb;
         }else{
@@ -147,7 +147,7 @@ vec3 getLightDirectionEffect(DirectionalLight light, vec3 normal, vec3 dirToCama
 vec3 getLightSpotEffect(SpotLight light, vec3 normal, vec3 dirToCamara, float shadow) {
     vec3 diffuseTexture, specularTexture;
     if (isTextureOn){
-        if(isFlow){
+        if(isFlowing){
             diffuseTexture = texture(material.diffuse, vec2(TexCoord.x,TexCoord.y+timeValueIncrement)).rgb;
             specularTexture = texture(material.specular, vec2(TexCoord.x,TexCoord.y+timeValueIncrement)).rgb;
         }else{
@@ -224,7 +224,7 @@ float calculateShadow(vec4 fragPosLightSpace, float bias) {
 vec3 getAmbientEffect() {
     vec3 diffuseTexture, specularTexture;
     if (isTextureOn){
-        if(isFlow){
+        if(isFlowing){
             diffuseTexture = texture(material.diffuse, vec2(TexCoord.x,TexCoord.y+timeValueIncrement)).rgb;
         }else{
             diffuseTexture = texture(material.diffuse, TexCoord).rgb;
