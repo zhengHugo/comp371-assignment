@@ -61,6 +61,7 @@ class Model {
 
   unsigned int size();
 
+  glm::vec3 getModelPosition();
 };
 
 

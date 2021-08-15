@@ -81,4 +81,9 @@ void Model::updateModelMatrices() {
 unsigned int Model::size() {
   return relativePositions.size();
 }
+glm::vec3 Model::getModelPosition() {
+    return this->basePosition;
+
+}
+
 

@@ -54,7 +54,7 @@ class Cube {
    * @param shaderHasMaterial whether the shader requires a material
    * @param isGlowingOn whether glowing effect is on
    */
-  void draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn);
+  void draw(Shader &shader, bool shaderHasMaterial, bool isGlowingOn, bool useSample3D = false);
 
   void draw(Shader &shader, bool shaderHasMaterial);
 };
