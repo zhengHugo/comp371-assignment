@@ -29,6 +29,15 @@
 #include "OBJloaderV2.h"  //For loading .obj files using a polygon list format
 #include "Board.h"
 
+#include <irrklang/irrKlang.h> // for audio
+#include <Windows.h>
+using namespace irrklang;
+
+ISoundEngine* SoundEngineBackground = createIrrKlangDevice();
+ISoundEngine* SoundEngineKey = createIrrKlangDevice();
+ISoundEngine* SoundEngineFace = createIrrKlangDevice();
+
+
 #pragma region Declare static functions
 
 static void clearError();
@@ -115,6 +124,13 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
+  FT_Face face;
+  if (FT_New_Face(ft, "res/font/CHELON.ttf", 0, &face))
+  {
+      std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+      return -1;
+  }
+
   irrklang::ISoundEngine *engine = irrklang::createIrrKlangDevice();
 
   if (!engine)
@@ -150,6 +166,10 @@ int main(int argc, char *argv[]) {
     glfwTerminate();
     return -1;
   }
+
+  SoundEngineBackground->play2D("res/audio/Minecraft_bgm.mp3", true);
+  //SoundEngineBackground->setSoundVolume(1);
+
   glfwMakeContextCurrent(window);
 
   // bind input callbacks
@@ -278,7 +298,7 @@ int main(int argc, char *argv[]) {
       // load first 128 characters of ASCII set
       for (unsigned char c = 0; c < 128; c++)
       {
-          // Load character glyph 
+          // Load character glyph
           if (FT_Load_Char(face, c, FT_LOAD_RENDER))
           {
               std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
@@ -505,6 +525,7 @@ int main(int argc, char *argv[]) {
   // Main Loop
   // ----------------------------------
   while (!glfwWindowShouldClose(window)) {
+    clearError();
     // update time
     auto currentFrame = (float) glfwGetTime();
     float timeValueForColor = sin(currentFrame) / 2.0f + 0.5f;
@@ -699,12 +720,12 @@ int main(int argc, char *argv[]) {
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
 
-
-//    checkError();
+    checkError();
     // End frame
     glfwSwapBuffers(window);
     // Detect inputs
     glfwPollEvents();
+
   }
 
   // deallocate resources
@@ -1022,47 +1043,77 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
 
   // wasd: puzzle movement
-  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_W && action == GLFW_RELEASE) {
     currentPuzzle->move(Movement::UP);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_A && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::LEFT);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_S && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::DOWN);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
     currentPuzzle->move(Movement::RIGHT);
+    SoundEngineKey->play2D("res/audio/solid.wav", true);
+    Sleep(20);
+    SoundEngineKey->stopAllSounds();
   }
 
   // 1-6: switch puzzles
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[0];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
   }
   if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[1];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[2];
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[3];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(180.0f), 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[4];
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(90.0f), 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
   if (key == GLFW_KEY_6 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[5];
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f)));
+    SoundEngineKey->play2D("res/audio/powerup.wav", true);
+    Sleep(30);
+    SoundEngineKey->stopAllSounds();
 
   }
 }
@@ -1134,7 +1185,7 @@ GLuint setupModelEBO(std::string path, int &vertexCount) {
 // render line of text
 void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color)
 {
-    // activate corresponding render state	
+    // activate corresponding render state
     shader.use();
     glUniform3f(glGetUniformLocation(shader.id, "textColor"), color.x, color.y, color.z);
     shader.setInt("text", 0);
