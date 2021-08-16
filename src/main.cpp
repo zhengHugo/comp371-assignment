@@ -89,6 +89,7 @@ bool isGlowingOn = false;
 bool isTextureOn = true;
 bool isShadowOn = true;
 float zIncrement[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+int whichPuzzle = 1;
 
 // window width & height
 int scrWidth = 1024;
@@ -756,7 +757,9 @@ int main(int argc, char *argv[]) {
 
     RenderText(textShader, "Presented by Comp 371 Team12 fORdAwIN @2021 SUMMER", 630.0f, 10.0f, 0.3f, textColor);
     RenderText(textShader, timer, 30.0f, 730.0f, 0.5f, textColor);
+    RenderText(textShader, "Current Puzzle: "+std::to_string(whichPuzzle), 30.0f, 700.0f, 0.3f, textColor);
     RenderText(textShader, "Step Used: "+std::to_string(currentPuzzle->puzzleStep), 850.0f, 730.0f, 0.5f, textColor);
+
     if (winThisFrame) {
         winThisFrame = false;
         Sleep(5000);
@@ -1132,6 +1135,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   // 1-6: switch puzzles
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[0];
+    whichPuzzle=1;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1140,6 +1144,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[1];
+    whichPuzzle=2;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1148,6 +1153,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[2];
+    whichPuzzle=3;
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1156,6 +1162,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[3];
+    whichPuzzle=4;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(180.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1164,6 +1171,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[4];
+    whichPuzzle=5;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(90.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1172,6 +1180,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_6 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[5];
+    whichPuzzle=6;
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
