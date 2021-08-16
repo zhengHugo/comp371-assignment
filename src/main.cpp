@@ -751,7 +751,7 @@ int main(int argc, char *argv[]) {
     
     
     
-    //nmsl
+    //ggez
     // render text
 
     RenderText(textShader, "Hi there!COMP371 Team!", 230.0f, 50.0f, 1.0f, textColor);
