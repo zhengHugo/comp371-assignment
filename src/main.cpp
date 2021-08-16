@@ -89,6 +89,7 @@ bool isGlowingOn = false;
 bool isTextureOn = true;
 bool isShadowOn = true;
 float zIncrement[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+int whichPuzzle = 1;
 
 // window width & height
 int scrWidth = 1024;
@@ -103,6 +104,10 @@ float lastY = (float) scrHeight / 2.0f;
 float deltaTime; // Time between current frame and last frame
 float lastFrame; // Time of last frame
 
+bool winThisFrame = false;
+glm::vec3 textColor(1.0f);
+std::string timer;
+std::vector<Puzzle*> puzzles;
 #pragma endregion // declare global variables
 
 // added for text rendering
@@ -458,14 +463,14 @@ int main(int argc, char *argv[]) {
   importedVertexCount.push_back(tCowVertexCount);
 
   // create puzzles
-  std::vector<Puzzle *> puzzles;
+
   puzzles.reserve(6);
-  puzzles.push_back(new Puzzle(numberMaterials));
-  puzzles.push_back(new Puzzle(numberMaterials));
-  puzzles.push_back(new Puzzle(numberMaterials));
-  puzzles.push_back(new Puzzle(numberMaterials));
-  puzzles.push_back(new Puzzle(numberMaterials));
-  puzzles.push_back(new Puzzle(numberMaterials));
+  puzzles.push_back(new Puzzle(numberMaterials,0));
+  puzzles.push_back(new Puzzle(numberMaterials,1));
+  puzzles.push_back(new Puzzle(numberMaterials,2));
+  puzzles.push_back(new Puzzle(numberMaterials,3));
+  puzzles.push_back(new Puzzle(numberMaterials,4));
+  puzzles.push_back(new Puzzle(numberMaterials,5));
   Board board(puzzles);
   currentPuzzle = board.getPuzzles()[0];
   pBoard = &board;
@@ -720,9 +725,55 @@ int main(int argc, char *argv[]) {
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
 
-    // render text
-    RenderText(textShader, "Hi there!COMP371 Team!", 430.0f, 700.0f, 1.0f, glm::vec3(1.0, 1.0f, 1.0f));
 
+    currentPuzzle->puzzleSec += deltaTime;
+    if (currentPuzzle->puzzleSec > 60) {
+        currentPuzzle->puzzleSec -= 60;
+        currentPuzzle->puzzleMin++;
+    }
+        
+    if (currentPuzzle->puzzleSec>=10) {
+        if (currentPuzzle->puzzleMin>=10) {
+            timer = "Time used:" + std::to_string(currentPuzzle->puzzleMin) + ":" + std::to_string((int)currentPuzzle->puzzleSec);
+        }
+        else {
+            timer = "Time used:0" + std::to_string(currentPuzzle->puzzleMin) + ":" + std::to_string((int)currentPuzzle->puzzleSec);
+        }
+        
+    }
+    else {
+        if (currentPuzzle->puzzleMin >= 10) {
+            timer = "Time used:" + std::to_string(currentPuzzle->puzzleMin) + ":0" + std::to_string((int)currentPuzzle->puzzleSec);
+        }
+        else {
+            timer = "Time used:0" + std::to_string(currentPuzzle->puzzleMin) + ":0" + std::to_string((int)currentPuzzle->puzzleSec);
+        }
+    }
+    
+    
+    
+    //ggez
+    // render text
+
+    RenderText(textShader, "Presented by Comp 371 Team12 fORdAwIN @2021 SUMMER", 630.0f, 10.0f, 0.3f, textColor);
+    RenderText(textShader, timer, 30.0f, 730.0f, 0.5f, textColor);
+    RenderText(textShader, "Current Puzzle: "+std::to_string(whichPuzzle), 30.0f, 700.0f, 0.3f, textColor);
+    RenderText(textShader, "Step Used: "+std::to_string(currentPuzzle->puzzleStep), 850.0f, 730.0f, 0.5f, textColor);
+
+    if (winThisFrame) {
+        winThisFrame = false;
+        Sleep(5000);
+        currentPuzzle->puzzleSec = -5.f;
+        currentPuzzle->puzzleMin = 0;
+        currentPuzzle->setWinBool();
+        textColor = glm::vec3(1.0f);
+        currentPuzzle->puzzleStep = 0;
+    }
+    if (currentPuzzle->getWinBool()) {
+        winThisFrame = true;
+        RenderText(textShader, "VICTORY ACHIEVED", 290.0f, 375.0f, 1.0f, glm::vec3(0.99f, 0.99f, 0.435f));
+    }
+    
 //    checkError();
     checkError();
     // End frame
@@ -1045,41 +1096,55 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
 
   // wasd: puzzle movement
-  if (key == GLFW_KEY_W && action == GLFW_RELEASE) {
-    currentPuzzle->move(Movement::UP);
-    SoundEngineKey->play2D("res/audio/solid.wav", true);
-    Sleep(20);
-    SoundEngineKey->stopAllSounds();
+  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+      if (currentPuzzle->move(Movement::UP)) {
+          SoundEngineKey->play2D("res/audio/solid.wav", true);
+          Sleep(20);
+          SoundEngineKey->stopAllSounds();
+          currentPuzzle->puzzleStep++;
+    }
+    
   }
   if (key == GLFW_KEY_A && action == GLFW_PRESS) {
-    currentPuzzle->move(Movement::LEFT);
-    SoundEngineKey->play2D("res/audio/solid.wav", true);
-    Sleep(20);
-    SoundEngineKey->stopAllSounds();
+      if (currentPuzzle->move(Movement::LEFT)){
+          SoundEngineKey->play2D("res/audio/solid.wav", true);
+      Sleep(20);
+      SoundEngineKey->stopAllSounds();
+      currentPuzzle->puzzleStep++;     
+    }
+      
   }
   if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-    currentPuzzle->move(Movement::DOWN);
-    SoundEngineKey->play2D("res/audio/solid.wav", true);
-    Sleep(20);
-    SoundEngineKey->stopAllSounds();
+      if (currentPuzzle->move(Movement::DOWN)) {
+      SoundEngineKey->play2D("res/audio/solid.wav", true);
+      Sleep(20);
+      SoundEngineKey->stopAllSounds();
+      currentPuzzle->puzzleStep++;
+  }
   }
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-    currentPuzzle->move(Movement::RIGHT);
-    SoundEngineKey->play2D("res/audio/solid.wav", true);
-    Sleep(20);
-    SoundEngineKey->stopAllSounds();
+      if (currentPuzzle->move(Movement::RIGHT)) {
+          SoundEngineKey->play2D("res/audio/solid.wav", true);
+          Sleep(20);
+          SoundEngineKey->stopAllSounds();
+          currentPuzzle->puzzleStep++;
+          
+      }
   }
 
   // 1-6: switch puzzles
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[0];
+    whichPuzzle=1;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
     SoundEngineKey->stopAllSounds();
+
   }
   if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[1];
+    whichPuzzle=2;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1088,6 +1153,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[2];
+    whichPuzzle=3;
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1096,6 +1162,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[3];
+    whichPuzzle=4;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(180.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1104,6 +1171,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[4];
+    whichPuzzle=5;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(90.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1112,11 +1180,21 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_6 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[5];
+    whichPuzzle=6;
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
     SoundEngineKey->stopAllSounds();
 
+  }
+  if (key == GLFW_KEY_9 && action == GLFW_PRESS) {
+      currentPuzzle->resetAll();
+  }
+  if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
+      for each (Puzzle* x in puzzles)
+      {
+          x->resetAll();
+      }
   }
 }
 
