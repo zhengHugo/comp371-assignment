@@ -17,11 +17,11 @@ class Puzzle {
   // to represent the state of this puzzle; 0 represents the blank
   int *state;
 
-  int state0[9]{1, 0, 2, 3, 4, 5, 6, 7, 8};
-  int state1[9]{1, 2, 0, 3, 4, 5, 6, 7, 8};
-  int state2[9]{1, 2, 3, 0, 4, 5, 6, 7, 8};
-  int state3[9]{1, 2, 3, 4, 0, 5, 6, 7, 8};
-  int state4[9]{1, 2, 3, 4, 5, 0, 6, 7, 8};
+  int state0[9]{3, 1, 2, 4, 0, 8, 6, 5, 7};
+  int state1[9]{1, 4, 2, 6, 3, 5, 0, 7, 8};
+  int state2[9]{5, 6, 4, 1, 0, 3, 7, 8, 2};
+  int state3[9]{4, 1, 0, 2, 5, 3, 6, 7, 8};
+  int state4[9]{7, 0, 2, 5, 1, 8, 4, 3, 6};
   int state5[9]{1, 2, 3, 4, 5, 6, 7, 0, 8};
   int *states[6]={ state0 , state1 , state2 , state3 , state4, state5};
 

@@ -754,9 +754,9 @@ int main(int argc, char *argv[]) {
     //ggez
     // render text
 
-    RenderText(textShader, "Hi there!COMP371 Team!", 230.0f, 50.0f, 1.0f, textColor);
-    RenderText(textShader, timer, 50.0f, 700.0f, 1.0f, textColor);
-    RenderText(textShader, "Step Used: "+std::to_string(currentPuzzle->puzzleStep), 650.0f, 700.0f, 1.0f, textColor);
+    RenderText(textShader, "Presented by Comp 371 Team12 fORdAwIN @2021 SUMMER", 630.0f, 10.0f, 0.3f, textColor);
+    RenderText(textShader, timer, 30.0f, 730.0f, 0.5f, textColor);
+    RenderText(textShader, "Step Used: "+std::to_string(currentPuzzle->puzzleStep), 850.0f, 730.0f, 0.5f, textColor);
     if (winThisFrame) {
         winThisFrame = false;
         Sleep(5000);
@@ -768,7 +768,7 @@ int main(int argc, char *argv[]) {
     }
     if (currentPuzzle->getWinBool()) {
         winThisFrame = true;
-        RenderText(textShader, "You Win", 150.0f, 300.0f, 4.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        RenderText(textShader, "You Win", 150.0f, 300.0f, 3.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         textColor = glm::vec3(1.0f, 0.0f, 0.0f);
     }
     
