@@ -15,7 +15,21 @@ enum class Movement {
 class Puzzle {
  private:
   // to represent the state of this puzzle; 0 represents the blank
-  int state[9]{1, 0, 2, 3, 4, 5, 6, 7, 8};
+  int *state;
+
+  int state0[9]{1, 0, 2, 3, 4, 5, 6, 7, 8};
+  int state1[9]{1, 2, 0, 3, 4, 5, 6, 7, 8};
+  int state2[9]{1, 2, 3, 0, 4, 5, 6, 7, 8};
+  int state3[9]{1, 2, 3, 4, 0, 5, 6, 7, 8};
+  int state4[9]{1, 2, 3, 4, 5, 0, 6, 7, 8};
+  int state5[9]{1, 2, 3, 4, 5, 6, 7, 0, 8};
+  int *states[6]={ state0 , state1 , state2 , state3 , state4, state5};
+
+  int winState[9]{ 1, 2, 3, 4, 5, 6, 7, 8, 0};
+  
+  int initialStateNum = 0;
+  bool isWin = false;
+  //int* ptr = states[0];
 
   std::vector<Cube *> numberCubes;
 
@@ -26,8 +40,8 @@ class Puzzle {
   glm::mat4 parentModelMatrix{glm::mat4(1.0f)};
 
   /**
-   * Update the position of each brick by current state
-   */
+* Update the position of each brick by current state
+*/
   void updateNumberCubePositions();
 
   /**
@@ -39,13 +53,18 @@ class Puzzle {
 
   explicit Puzzle(std::vector<Cube *> &bricks);
 
-  explicit Puzzle(std::vector<Material *> &materials);
+  explicit Puzzle(std::vector<Material *> &materials,int layoutNum);
+
+  float puzzleSec = 0.f;
+  int puzzleMin = 0;
+  int puzzleStep = 0;
+
 
   /**
    * A movement applied on this puzzle will change the state
    * @param movement up, down, left, or right
    */
-  void move(Movement movement);
+  bool move(Movement movement);
 
   /**
    * Draw this puzzle
@@ -58,7 +77,16 @@ class Puzzle {
 
   void setQuaternion(glm::quat _quaternion);
 
-  void setParentModelMatrix(glm::mat4 _parentModelMatrix);
+  void setParentModelMatrix(glm::mat4 _parentModelMatrix);  
+  
+  void setInitialPos(int state[9]);
+
+  bool getWinBool();
+
+  void setWinBool();
+
+  void resetAll();
+ 
 };
 
 #endif //COMP371_PROJECT_SRC_PUZZLE_H_
