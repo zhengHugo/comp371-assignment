@@ -107,7 +107,7 @@ float lastFrame; // Time of last frame
 bool winThisFrame = false;
 glm::vec3 textColor(1.0f);
 std::string timer;
-std::vector<Puzzle*> puzzles;
+std::vector<Puzzle *> puzzles;
 #pragma endregion // declare global variables
 
 // added for text rendering
@@ -465,12 +465,12 @@ int main(int argc, char *argv[]) {
   // create puzzles
 
   puzzles.reserve(6);
-  puzzles.push_back(new Puzzle(numberMaterials,0));
-  puzzles.push_back(new Puzzle(numberMaterials,1));
-  puzzles.push_back(new Puzzle(numberMaterials,2));
-  puzzles.push_back(new Puzzle(numberMaterials,3));
-  puzzles.push_back(new Puzzle(numberMaterials,4));
-  puzzles.push_back(new Puzzle(numberMaterials,5));
+  puzzles.push_back(new Puzzle(numberMaterials, 0));
+  puzzles.push_back(new Puzzle(numberMaterials, 1));
+  puzzles.push_back(new Puzzle(numberMaterials, 2));
+  puzzles.push_back(new Puzzle(numberMaterials, 3));
+  puzzles.push_back(new Puzzle(numberMaterials, 4));
+  puzzles.push_back(new Puzzle(numberMaterials, 5));
   Board board(puzzles);
   currentPuzzle = board.getPuzzles()[0];
   pBoard = &board;
@@ -480,14 +480,14 @@ int main(int argc, char *argv[]) {
   boardCore.setScale(glm::vec3(2.86f));
   boardCore.setQuaternion(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f));
 
-  Cube worldBox(tile,unitWorldVertices);
-  worldBox.setScale(glm::vec3(100.0f,160.0f,50.0f));
+  Cube worldBox(tile, unitWorldVertices);
+  worldBox.setScale(glm::vec3(100.0f, 160.0f, 50.0f));
   worldBox.setPosition(glm::vec3(0.0f, 17.0f, -82.0f));
   worldBox.setQuaternion(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
   Cube worldBoxBack(white, unitGroundVertices);
   worldBoxBack.setPosition(glm::vec3(0, 17.0f, -155.0f));
   worldBoxBack.setQuaternion(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
-  worldBoxBack.setScale(glm::vec3(100.0f,0.0f,50.0f));
+  worldBoxBack.setScale(glm::vec3(100.0f, 0.0f, 50.0f));
 
   Cube UniverseBox(white, unitCubeVertices);
   UniverseBox.setScale(glm::vec3(320.0f));
@@ -546,10 +546,10 @@ int main(int argc, char *argv[]) {
 //    glm::mat4 lightView = glm::lookAt(pointLight.position, glm::vec3(0.0f),
 //                                      glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightProjection = glm::perspective(glm::radians(39.31f),
-                                       (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-                                       nearPlane, farPlane);
+                                                 (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+                                                 nearPlane, farPlane);
     glm::mat4 lightView = glm::lookAt(spotLight.position, glm::vec3(0.0f),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
+                                      glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     depthMappingShader.use();
     depthMappingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -683,18 +683,22 @@ int main(int argc, char *argv[]) {
 
 //     draw obj model
     clearError();
-    for (size_t i= 0; i < importedModel.size(); i++) {
+    for (size_t i = 0; i < importedModel.size(); i++) {
       glBindVertexArray(importedModel[i]);
       // set model matrix for obj
       glm::mat4 objModelMatrix(1.0f);
-      setIncrementZ((int)i+6, relativeCharPosition[i+6].z);
-      objModelMatrix = glm::translate(objModelMatrix,glm::vec3(relativeCharPosition[i+6].x,
-                                                               relativeCharPosition[i+6].y + 2 * cos(4 * currentFrame),
-                                                               relativeCharPosition[i+6].z + zIncrement[6]));
-      if(i==0){
-        objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(2.0), glm::vec3(2.0), glm::vec3(2.0)));
-      }else{
-        objModelMatrix = glm::scale(objModelMatrix, (glm::vec3(0.008), glm::vec3(0.008), glm::vec3(0.008)));
+      setIncrementZ((int) i + 6, relativeCharPosition[i + 6].z);
+      objModelMatrix = glm::translate(objModelMatrix, glm::vec3(relativeCharPosition[i + 6].x,
+                                                                relativeCharPosition[i + 6].y
+                                                                    + 2 * cos(4 * currentFrame),
+                                                                relativeCharPosition[i + 6].z
+                                                                    + zIncrement[6]));
+      if (i == 0) {
+        objModelMatrix =
+            glm::scale(objModelMatrix, (glm::vec3(2.0), glm::vec3(2.0), glm::vec3(2.0)));
+      } else {
+        objModelMatrix =
+            glm::scale(objModelMatrix, (glm::vec3(0.008), glm::vec3(0.008), glm::vec3(0.008)));
       }
       objModelMatrix =
           glm::rotate(objModelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -725,55 +729,75 @@ int main(int argc, char *argv[]) {
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
 
-
     currentPuzzle->puzzleSec += deltaTime;
     if (currentPuzzle->puzzleSec > 60) {
-        currentPuzzle->puzzleSec -= 60;
-        currentPuzzle->puzzleMin++;
+      currentPuzzle->puzzleSec -= 60;
+      currentPuzzle->puzzleMin++;
     }
-        
-    if (currentPuzzle->puzzleSec>=10) {
-        if (currentPuzzle->puzzleMin>=10) {
-            timer = "Time used:" + std::to_string(currentPuzzle->puzzleMin) + ":" + std::to_string((int)currentPuzzle->puzzleSec);
-        }
-        else {
-            timer = "Time used:0" + std::to_string(currentPuzzle->puzzleMin) + ":" + std::to_string((int)currentPuzzle->puzzleSec);
-        }
-        
+
+    if (currentPuzzle->puzzleSec >= 10) {
+      if (currentPuzzle->puzzleMin >= 10) {
+        timer = "Time used:" + std::to_string(currentPuzzle->puzzleMin) + ":"
+            + std::to_string((int) currentPuzzle->puzzleSec);
+      } else {
+        timer = "Time used:0" + std::to_string(currentPuzzle->puzzleMin) + ":"
+            + std::to_string((int) currentPuzzle->puzzleSec);
+      }
+
+    } else {
+      if (currentPuzzle->puzzleMin >= 10) {
+        timer = "Time used:" + std::to_string(currentPuzzle->puzzleMin) + ":0"
+            + std::to_string((int) currentPuzzle->puzzleSec);
+      } else {
+        timer = "Time used:0" + std::to_string(currentPuzzle->puzzleMin) + ":0"
+            + std::to_string((int) currentPuzzle->puzzleSec);
+      }
     }
-    else {
-        if (currentPuzzle->puzzleMin >= 10) {
-            timer = "Time used:" + std::to_string(currentPuzzle->puzzleMin) + ":0" + std::to_string((int)currentPuzzle->puzzleSec);
-        }
-        else {
-            timer = "Time used:0" + std::to_string(currentPuzzle->puzzleMin) + ":0" + std::to_string((int)currentPuzzle->puzzleSec);
-        }
-    }
-    
-    
-    
+
+
+
     //ggez
     // render text
 
-    RenderText(textShader, "Presented by Comp 371 Team12 fORdAwIN @2021 SUMMER", 630.0f, 10.0f, 0.3f, textColor);
+    RenderText(textShader,
+               "Presented by Comp 371 Team12 fORdAwIN @2021 SUMMER",
+               630.0f,
+               10.0f,
+               0.3f,
+               textColor);
     RenderText(textShader, timer, 30.0f, 730.0f, 0.5f, textColor);
-    RenderText(textShader, "Current Puzzle: "+std::to_string(whichPuzzle), 30.0f, 700.0f, 0.3f, textColor);
-    RenderText(textShader, "Step Used: "+std::to_string(currentPuzzle->puzzleStep), 850.0f, 730.0f, 0.5f, textColor);
+    RenderText(textShader,
+               "Current Puzzle: " + std::to_string(whichPuzzle),
+               30.0f,
+               700.0f,
+               0.3f,
+               textColor);
+    RenderText(textShader,
+               "Step Used: " + std::to_string(currentPuzzle->puzzleStep),
+               850.0f,
+               730.0f,
+               0.5f,
+               textColor);
 
     if (winThisFrame) {
-        winThisFrame = false;
-        Sleep(5000);
-        currentPuzzle->puzzleSec = -5.f;
-        currentPuzzle->puzzleMin = 0;
-        currentPuzzle->setWinBool();
-        textColor = glm::vec3(1.0f);
-        currentPuzzle->puzzleStep = 0;
+      winThisFrame = false;
+      Sleep(5000);
+      currentPuzzle->puzzleSec = -5.f;
+      currentPuzzle->puzzleMin = 0;
+      currentPuzzle->setWinBool();
+      textColor = glm::vec3(1.0f);
+      currentPuzzle->puzzleStep = 0;
     }
     if (currentPuzzle->getWinBool()) {
-        winThisFrame = true;
-        RenderText(textShader, "VICTORY ACHIEVED", 290.0f, 375.0f, 1.0f, glm::vec3(0.99f, 0.99f, 0.435f));
+      winThisFrame = true;
+      RenderText(textShader,
+                 "VICTORY ACHIEVED",
+                 290.0f,
+                 375.0f,
+                 1.0f,
+                 glm::vec3(0.99f, 0.99f, 0.435f));
     }
-    
+
 //    checkError();
     checkError();
     // End frame
@@ -905,7 +929,7 @@ std::vector<glm::vec3> bitToLetter(std::vector<int> &letter) {
 //while zIncrement of an object is large enough to offset it's z position, reset to 0;
 static void setIncrementZ(int i, float startPositionZ) {
   zIncrement[i] += 10.0f * deltaTime;
-  if (zIncrement[i] > -startPositionZ+30) {
+  if (zIncrement[i] > -startPositionZ + 30) {
     zIncrement[i] = 0;
   }
 }
@@ -1097,45 +1121,45 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
 
   // wasd: puzzle movement
   if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-      if (currentPuzzle->move(Movement::UP)) {
-          SoundEngineKey->play2D("res/audio/solid.wav", true);
-          Sleep(20);
-          SoundEngineKey->stopAllSounds();
-          currentPuzzle->puzzleStep++;
-    }
-    
-  }
-  if (key == GLFW_KEY_A && action == GLFW_PRESS) {
-      if (currentPuzzle->move(Movement::LEFT)){
-          SoundEngineKey->play2D("res/audio/solid.wav", true);
-      Sleep(20);
-      SoundEngineKey->stopAllSounds();
-      currentPuzzle->puzzleStep++;     
-    }
-      
-  }
-  if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-      if (currentPuzzle->move(Movement::DOWN)) {
+    if (currentPuzzle->move(Movement::UP)) {
       SoundEngineKey->play2D("res/audio/solid.wav", true);
       Sleep(20);
       SoundEngineKey->stopAllSounds();
       currentPuzzle->puzzleStep++;
+    }
+
   }
+  if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+    if (currentPuzzle->move(Movement::LEFT)) {
+      SoundEngineKey->play2D("res/audio/solid.wav", true);
+      Sleep(20);
+      SoundEngineKey->stopAllSounds();
+      currentPuzzle->puzzleStep++;
+    }
+
+  }
+  if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+    if (currentPuzzle->move(Movement::DOWN)) {
+      SoundEngineKey->play2D("res/audio/solid.wav", true);
+      Sleep(20);
+      SoundEngineKey->stopAllSounds();
+      currentPuzzle->puzzleStep++;
+    }
   }
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-      if (currentPuzzle->move(Movement::RIGHT)) {
-          SoundEngineKey->play2D("res/audio/solid.wav", true);
-          Sleep(20);
-          SoundEngineKey->stopAllSounds();
-          currentPuzzle->puzzleStep++;
-          
-      }
+    if (currentPuzzle->move(Movement::RIGHT)) {
+      SoundEngineKey->play2D("res/audio/solid.wav", true);
+      Sleep(20);
+      SoundEngineKey->stopAllSounds();
+      currentPuzzle->puzzleStep++;
+
+    }
   }
 
   // 1-6: switch puzzles
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[0];
-    whichPuzzle=1;
+    whichPuzzle = 1;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1144,7 +1168,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[1];
-    whichPuzzle=2;
+    whichPuzzle = 2;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(-90.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1153,7 +1177,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[2];
-    whichPuzzle=3;
+    whichPuzzle = 3;
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1162,7 +1186,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[3];
-    whichPuzzle=4;
+    whichPuzzle = 4;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(180.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1171,7 +1195,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[4];
-    whichPuzzle=5;
+    whichPuzzle = 5;
     pBoard->setQuaternion(glm::quat(glm::vec3(0.0f, glm::radians(90.0f), 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1180,7 +1204,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
   }
   if (key == GLFW_KEY_6 && action == GLFW_PRESS) {
     currentPuzzle = pBoard->getPuzzles()[5];
-    whichPuzzle=6;
+    whichPuzzle = 6;
     pBoard->setQuaternion(glm::quat(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f)));
     SoundEngineKey->play2D("res/audio/powerup.wav", true);
     Sleep(30);
@@ -1188,13 +1212,12 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
 
   }
   if (key == GLFW_KEY_9 && action == GLFW_PRESS) {
-      currentPuzzle->resetAll();
+    currentPuzzle->resetAll();
   }
   if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
-      for each (Puzzle* x in puzzles)
-      {
-          x->resetAll();
-      }
+    for (Puzzle *puzzle : puzzles) {
+      puzzle->resetAll();
+    }
   }
 }
 
