@@ -768,8 +768,7 @@ int main(int argc, char *argv[]) {
     }
     if (currentPuzzle->getWinBool()) {
         winThisFrame = true;
-        RenderText(textShader, "You Win", 150.0f, 300.0f, 3.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        textColor = glm::vec3(1.0f, 0.0f, 0.0f);
+        RenderText(textShader, "VICTORY ACHIEVED", 290.0f, 375.0f, 1.0f, glm::vec3(0.99f, 0.99f, 0.435f));
     }
     
 //    checkError();

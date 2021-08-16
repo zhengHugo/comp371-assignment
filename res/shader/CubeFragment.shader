@@ -266,6 +266,5 @@ void main(){
     if (isGlowingOn) {
         lightEffect += hsv2rgb(vec3(timeValuePeriod, hsvEmissionMap.y, hsvEmissionMap.z));
     }
-
     FragColor = vec4(lightEffect, 1.0);
 }
