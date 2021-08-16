@@ -1,4 +1,4 @@
-# COMP 371 Assignments
+# COMP 371 Project
 
 #### Team12 FourDaWin
 
@@ -12,33 +12,23 @@
 
 ## Operation Manual
 
-
-This is a program displaying 3D object comprising of multiple cubes and a wall with matching hole.
+This is a game displaying 3D object consists of puzzles with moving cubes to a desired arrangement.
 
 ### Interactions
 
-
 #### Keyboard
+
 |Key| Action | 
 |---|----|
-|u/j| object model scale up/down|
-|+/-| object model and corresponding wall scale up/down|
-|g|toggle Glow|
+|1-6| Switch puzzles|
+|0| Reset all puzzles|
+|9| Reset current puzzle|
+|w/a/s/d| Move puzzle|
+|up/down/left/right| Move camera|
 |b| toggle Shadow|
-|x| toggle Texture|
-|q/e| rotate object around z axis (5 degree)| 
-|w/s| rotate object around x axis (5 degree)| 
-|a/d| rotate object around Y axis (5 degree)| 
-|Q/E| move object forward and backward| 
-|W/S| move object up and down| 
-|A/D| move object left and right| 
-|arrow keys| change world orientation |
-|Home| reset world to initial position and orientation| 
-|P| change rendering mode to points |
-|L| change rendering mode to lines |
-|T| change rendering mode to triangles |
-|Space| reset model to initial position and orientation |
+|Home| Reset camera| 
 
 #### Mouse
+
 - Holding middle button and moving in y direction: camera tilt
 - Holding right button and moving in x direction: camera pan
